@@ -1,0 +1,36 @@
+<div class="select">
+  <div>
+    <label for="subredditChooser">Zeige Posts von /r/</label>
+    <input (input)="onInput()" #el id="subredditChooser" placeholder="cats" [class]="subExists ? 'valid' : 'invalid'">
+    &nbsp;<button>suchen</button>
+  </div>
+  <div>
+    <button (click)="subreddit()">{{ sub }}</button>
+    <button (click)="optionsOverlay.classList.toggle('toggle')">Optionen</button>
+  </div>
+</div>
+<div class="optionsOverlay toggle" (click)="log($event)" #optionsOverlay>
+  <div class="exit" (click)="optionsOverlay.classList.toggle('toggle')">x</div>
+  <div class="wrapper">
+    <label for="a">Anzahl Posts</label>
+    <input type="range" name="" id="a" value="25" min="1" max="100">
+    <label for="sort">Sortieren nach:</label>
+    <select name="sort" id="sort">
+      <option value="top">Top</option>
+      <option value="hot">Hot</option>
+      <option value="new">New</option>
+      <option value="rising">Rising</option>
+    </select>
+    <label for="time">Nur Posts der/des letzten</label>
+    <select name="time" id="time">
+      <option value="hour">Stunde</option>
+      <option value="day">Tages</option>
+      <option value="week">Woche</option>
+      <option value="month">Monat</option>
+      <option value="all">Alle</option>
+    </select>
+    <label for="query">Posts nach query filtern:</label>
+    <input type="text" name="query" id="query">
+  </div>
+</div>
+<app-gallery [posts]="posts"></app-gallery>

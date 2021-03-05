@@ -3,6 +3,7 @@
   justify-content: center
   padding: 1em
   gap: 2em
+  color: white
   #subredditChooser
     outline: none
 .optionsOverlay
@@ -53,3 +54,27 @@
     align-items: center
     border-radius: 50%
     z-index: 5
+
+.btn
+  padding: 0.3em 0.6em
+  outline: none
+  background: transparent
+  color: white
+  border: 1px solid
+  box-shadow: 0 9px #999
+  border-radius: 15px
+  &:hover, &:active
+    background-color: white
+    color: black
+  &:active
+    box-shadow: 0 5px #666
+    transform: translateY(4px)
+
+#subredditChooser
+  color: white
+  &.valid
+    border: 1px solid green
+    background: #00ff0038
+  &.invalid
+    border: 1px solid red
+    background: #ff000038

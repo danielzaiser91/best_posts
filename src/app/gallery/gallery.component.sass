@@ -1,8 +1,4 @@
-@use '@material/image-list'
-@use '@material/image-list/mdc-image-list'
-
 .my-image-list
-  @include image-list.standard-columns(5)
   li:not(.fullscreen)
     .vid-container, .img-container
       cursor: pointer
@@ -40,41 +36,77 @@
   left: 2%
   z-index: 2
   opacity: 1
-.fullscreen
-  position: fixed
-  top: 0
-  left: 0
-  display: block
-  height: 100%
-  width: 100vw !important
-  margin: 0 !important
-  z-index: 3
-  background-color: white
-  padding: 5%
-  @media (min-width: 900px)
-    padding: 5% 20%
-  img
-    position: relative !important
-  .text .label
-    white-space: normal
-  .vid-container, .img-container
-    padding: 0
-    width: 100%
-    max-height: 100%
+  
+.my-image-list
+  display: flex
+  flex-wrap: wrap
+  gap: 1em
+  padding: 0
+  li
     position: relative
-    overflow: auto
-  .exit
-    content: 'x'
-    padding: 15px
-    opacity: 1
-  .score
-    z-index: 5
-    opacity: 1
+    flex: 0
+    display: flex
+    min-width: 180px
+    cursor: pointer
+    flex-direction: column
+    justify-content: space-between
+    margin: 1em
+  .text
+    color: white
+    display: flex
+    white-space: nowrap
+    border: solid
+    margin-top: 6px
+    padding: 4px 0
+    border-width: 1px 0 2px 0
+    .label
+      text-overflow: ellipsis
+      overflow: hidden
+  .img-container, .vid-container
+    display: flex
+    flex: 1
+    justify-content: center
+    position: relative
+    max-height: 200px
+    img 
+      object-fit: contain
+      width: 100%
   video
-    height: 100% !important
-    width: 100%
-    max-width: 100%
-    margin: 0 auto
-    display: block
-    z-index: 9
-    position: relative !important
+    width:100%
+  li.fullscreen
+    position: fixed
+    top: 0
+    left: 0
+    height: 100%
+    width: 100vw
+    margin: 0
+    z-index: 3
+    background-color: white
+    img
+      position: relative
+    .text
+      justify-content: center
+      color: black
+      .label
+        white-space: normal
+    .vid-container, .img-container
+      padding: 0
+      width: 100%
+      max-height: 100%
+      position: relative
+      overflow: auto
+      max-height: unset
+    .exit
+      content: 'x'
+      padding: 15px
+      opacity: 1
+    .score
+      z-index: 5
+      opacity: 1
+    video
+      height: 100%
+      width: 100%
+      max-width: 100%
+      margin: 0 auto
+      display: block
+      position: relative

@@ -1,5 +1,7 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
 import { RedditAPIService } from '../reddit-api.service';
+
+const getSaved = (sub: string) => JSON.parse(sessionStorage.getItem(sub) || 'null');
 
 @Component({
   selector: 'app-best-meme',
@@ -8,39 +10,58 @@ import { RedditAPIService } from '../reddit-api.service';
 })
 export class BestMemeComponent implements OnInit {
   @ViewChild('el') el: ElementRef;
-  memes: any;
   posts: any;
-  subs: {[key: string]: any} = {
-    'memes': { title: 'Memes', data: '' },
-    'cats': { title: 'Cats', data: '' }
-  };
-  sub = this.subs.memes.title;
-  i = 0;
   subExists = false;
-  subreddit = () => {
-    console.log(Object.keys(this.subs), this.sub);
-    this.posts = this.subs[this.sub.toLowerCase()].data;
-  }
-  subData = (data: any, sub: string) => {
-    this.subs[sub] = this.subs[sub] || {};
-    this.subs[sub].data = data;
-    this.subs[sub].title = sub[0].toUpperCase() + sub.slice(1);
-  }
+  subreddits = ['memes','cats']
+  sub = this.subreddits[0];
+  currentSub = 'cats';
   constructor(private api: RedditAPIService) { }
 
   ngOnInit(): void {
-    const $cats = this.api.get('cats').subscribe(data => {this.posts = data; this.subData(data, 'cats'); $cats.unsubscribe()});
-    const $memes = this.api.get('memes').subscribe(memes => {this.subData(memes, 'memes'); $memes.unsubscribe()});
+    this.fetchSub('memes');
+    this.fetchSub('cats', true);
+  }
+  isCurrentSub(sub: string): boolean {
+    return this.currentSub === sub;
+  }
+
+  fetchSub(sub: string, base = false) {
+    const
+      saved = getSaved(sub),
+      today = new Date().toDateString();
+    if(saved?.lastFetch !== today) {
+      const a = this.api.get(sub).subscribe(data => {
+        a.unsubscribe();
+        if(base) this.posts = data;
+        sessionStorage.setItem(sub, JSON.stringify({data, lastFetch: today}));
+        this.currentSub = sub;
+      });
+    } else {
+      if(!!this.posts && this.isCurrentSub(sub)) return; // prevent load of already loaded data
+      if(base) {
+        console.log(saved.data);
+        this.posts = saved.data;
+        this.currentSub = sub;
+      }
+    }
   }
 
   onInput() {
-    this.api.exists(this.el.nativeElement.value).subscribe(
+    this.api.subExists(this.el.nativeElement.value).subscribe(
       _ => this.subExists = true,
       err => this.subExists = false
     );
   }
-  showOptions() {
 
+  getNextSubreddit() {
+    let i = this.subreddits.indexOf(this.sub);
+    i = (!!this.subreddits[i+1]) ? 0 : i+1;
+    this.sub = this.subreddits[i];
+    this.fetchSub(this.sub, true);
   }
+
   log(e: any) { if(e.target.classList.contains('optionsOverlay')) e.target.classList.add('toggle') }
+  @HostListener('document:keydown.escape', ['$event']) onKeydownHandler(event: KeyboardEvent) {
+    document.querySelector('.fullscreen')?.classList.remove('fullscreen');
+  }
 }

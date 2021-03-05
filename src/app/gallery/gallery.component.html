@@ -1,16 +1,16 @@
-<ul class="mdc-image-list my-image-list">
-  <li *ngFor="let post of posts" class="mdc-image-list__item" (click)="toFullscreen($event)">
+<ul class="my-image-list">
+  <li *ngFor="let post of posts" class="" (click)="toFullscreen($event)">
     <div class="exit">x</div>
     <div class="score">
       {{ post.score | shortNumber }}
     </div>
 
-    <div *ngIf="!post.is_video else video" class="mdc-image-list__image-aspect-container img-container">
-      <img class="mdc-image-list__image" [src]="post.thumbnail" [attr.data-src]="post.src.img">
+    <div *ngIf="post.is === 'image' else elseif1" class="img-container">
+      <img class="" [src]="post.thumbnail" [attr.data-src]="post.src.img">
     </div>
-    <ng-template #video>
-      <div class="mdc-image-list__image-aspect-container vid-container">
-        <video [poster]="post.thumbnail" class="mdc-image-list__image" (play)="videoControl(vid,'play')" (pause)="videoControl(vid,'pause')" #vid>
+    <ng-template #elseif1>
+      <div *ngIf="post.is === 'video' else elseif2" class="vid-container">
+        <video [poster]="post.thumbnail" class="" (play)="videoControl(vid,'play')" (pause)="videoControl(vid,'pause')" #vid>
           <source [src]="post.src.vid" type="video/mp4">
           Your browser does not support the video tag.
         </video>
@@ -19,9 +19,15 @@
           <p>Your browser doesn't support HTML5 audio. Here is a <a href="viper.mp3">link to the audio</a> instead.</p>
         </audio>
       </div>
+
     </ng-template>
-    <div class="mdc-image-list__supporting text">
-      <span class="mdc-image-list__label label">{{ post.title }}</span>
+      <div *ngIf="post.is === 'gallery'" class="gallery-container">
+        <img *ngFor="let img of post.src" class="" [src]="post.thumbnail" [attr.data-src]="img">
+      </div>
+    <ng-template #elseif2>
+    </ng-template>
+    <div class="text">
+      <span class="label">{{ post.title }}</span>
     </div>
   </li>
 </ul>

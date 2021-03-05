@@ -32,7 +32,7 @@ export class RedditAPIService {
     );
   }
 
-  exists(subreddit: string) {
+  subExists(subreddit: string) {
     return this.http.get(base + 'r/' + subreddit + '.json').pipe(
       debounceTime(100)
     )

@@ -1,12 +1,12 @@
 <div class="select">
   <div>
     <label for="subredditChooser">Zeige Posts von /r/</label>
-    <input (input)="onInput()" #el id="subredditChooser" placeholder="cats" [class]="subExists ? 'valid' : 'invalid'">
-    &nbsp;<button>suchen</button>
+    <input (input)="onInput()" #el id="subredditChooser" placeholder="cats" [class]="subExists ? 'valid' : 'invalid'" #subredditChooser>
+    &nbsp;<button [disabled]="!subExists" (click)="fetchSub(subredditChooser.value, true)">suchen</button>
   </div>
   <div>
-    <button (click)="subreddit()">{{ sub }}</button>
-    <button (click)="optionsOverlay.classList.toggle('toggle')">Optionen</button>
+    <button class="btn" (click)="getNextSubreddit()">{{ sub }}</button>
+    <button class="btn" (click)="optionsOverlay.classList.toggle('toggle')">Optionen</button>
   </div>
 </div>
 <div class="optionsOverlay toggle" (click)="log($event)" #optionsOverlay>

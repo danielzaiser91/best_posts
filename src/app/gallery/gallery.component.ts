@@ -12,14 +12,11 @@ export class ShortNumberPipe implements PipeTransform {
   templateUrl: './gallery.component.html',
   styleUrls: ['./gallery.component.sass']
 })
-export class GalleryComponent implements OnInit {
+export class GalleryComponent {
   @Input() posts: any;
 
   constructor() { }
 
-  ngOnInit(): void {
-    console.log(this.posts)
-  }
   toFullscreen(e: any) {
     const target = e.target, li = target.closest('li'), aud = li.querySelector('audio'),
       img = li.querySelector('img'), vid = li.querySelector('video'), isVid = !!vid;
@@ -33,7 +30,7 @@ export class GalleryComponent implements OnInit {
       li.classList.add('fullscreen');
     }
   }
-  log(e:any) { console.log(e) }
+
   videoControl(vid: any, control: string) {
     control == 'pause' ? vid.nextSibling.pause() : vid.nextSibling.play();
   }

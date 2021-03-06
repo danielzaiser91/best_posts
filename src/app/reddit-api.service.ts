@@ -1,9 +1,9 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
+import { forkJoin, of } from 'rxjs';
 import { catchError, debounceTime, map } from 'rxjs/operators';
 import { RedditSort } from './redditTypes';
-import { reddit_format } from './reddit_format';
+import { reddit_format, subreddit_format } from './reddit_format';
 
 const base = 'https://www.reddit.com/';
 const errHandler = (err: HttpErrorResponse) => {
@@ -33,8 +33,27 @@ export class RedditAPIService {
   }
 
   subExists(subreddit: string) {
-    return this.http.get(base + 'r/' + subreddit + '.json').pipe(
-      debounceTime(100)
+    return this.http.get(base + 'r/' + subreddit + '.json');
+  }
+
+  specific() {
+    const options = { params: { show: 'all', limit: '100', after: 't5_3fnyy', count: "100" } }
+    return this.http.get('https://api.reddit.com/subreddits/.json', options).pipe(
+      map(subreddit_format),
+      catchError(errHandler)
     )
+  }
+
+  getAllSubreddits(arr: any[]) {
+    let options = {}
+    const myRequests = arr.map((v:string)=>{
+      options = { params: { show: 'all', limit: '100', after: v, count: "100" } }
+      if(v='') options = { params: { show: 'all', limit: '100' } }
+      return this.http.get('https://api.reddit.com/subreddits/.json', options).pipe(
+        map(subreddit_format),
+        catchError(errHandler)
+      )
+    })
+    return forkJoin(myRequests);
   }
 }

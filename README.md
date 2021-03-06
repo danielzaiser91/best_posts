@@ -10,7 +10,7 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
 <u>**Angular**</u>
 
   - Api-Service (Injectable) --> rxjs Observables
-  - Pipes ---> custom / selbstentwickelte Pipe
+  - View-Pipes ---> custom / selbstentwickelte Pipe zur Formatierung der likes (zB: 25345 -> 25k)
   - Routing
   - custom Typedefinitions
   - arbeiten mit der Reddit API ---> Serializen des Results
@@ -19,6 +19,8 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
   - storing fetched requests, to save bandwidth and reduce load times (via session storage, so data doesn't persist)
   - nested ngIf templates (multi case view templating)
   - HostListener -> Escape Key schließt Vollbild-Vorschau
+  - Complex Observable handling, with multiple rxjs operators (pipe, map, forkjoin, ...)
+  - Caching großer Daten mit IndexedDB, mithilfe der dexie Library
 
 <u>**Sass:**</u>
   - Mixins
@@ -27,18 +29,28 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
   - cool Background Animation
   - cool Buttons
 
+<u>**Allgemein:**</u>
+  - Version-Control mit Git & Github
+  - Verwenden von Regulären Ausdrücken
+  - Keyboard Controls for Gallery (Left/Right Arrow)
+
 <u>Probleme/Bugs:</u>
  - Vorspulen:
  
     von Reddit kann man nur Video und Audio Tracks getrennt fetchen.
     Das parallele pausieren / abspielen der beiden Tracks ist kein Problem, allerdings
     kann man mit der Audio WebAPI nicht vor-/zurückspulen, ich habe das Problem versucht zu lösen, indem ich die ffmpeg.wasm library eingebunden habe und die beiden Mediastreams gemerged habe, das hat allerdings zu einem out of memory bug geführt, woraufhin ich diesen Lösungsweg wieder verworfen habe und den Bug vorerst akzeptiere...
+    ----> Ich konnte den Bug nun lösen, indem ich die currentTime Methode der Audio/Video Web-Api verwende
  - background:
    die Webseite wurde beim Aufruf aus der Sicht geschoben, lag an den CSS Vorgaben des eingebundenen
    Backgrounds, konnte ich beheben.
 
  - viele verschiedene media-formate, führen dazu, dass sehr viel custom code eingebaut werden muss, der die daten korrekt parsed...
    Beispiel: Reddit image, Reddit gallery, Video, Audio, Youtube, etc.
+ - iframe src attribute angular binding bug... erst mit DomSanitizer versucht, dann aber gelöst indem man "lazy loaded"
+ - youtube eingebundene iframes lassen sich nur per youtube api pausieren (was notwendig ist nach schließen vom custom fullscreen)... problematisch...
+   --> meine Lösung: Nach dem Schließen des custom gallery fullscreens wird der iframe weiterhin angezeigt.
+
 
 <u>Roadmap / ToDo:</u>
  - Angular FormDirective + Validation
@@ -48,5 +60,11 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
  - more Supported Formats
  - Design Rework
  - Bughunting
+ - I can't get enough - Feature (add a "more of this" button, with unlimited posts, sorted by top of all times)
+ - show loader when data is being replaced / lazy loaded
 
 © Daniel Zaiser - 2021
+
+
+
+

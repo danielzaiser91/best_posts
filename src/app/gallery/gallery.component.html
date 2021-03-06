@@ -1,16 +1,16 @@
 <ul class="my-image-list">
-  <li *ngFor="let post of posts" class="" (click)="toFullscreen($event)">
+  <li *ngFor="let post of posts; index as post_id" [class]="post.is" (click)="onItemClick($event)">
     <div class="exit">x</div>
     <div class="score">
       {{ post.score | shortNumber }}
     </div>
 
     <div *ngIf="post.is === 'image' else elseif1" class="img-container">
-      <img class="" [src]="post.thumbnail" [attr.data-src]="post.src.img">
+      <img class="" [src]="post.thumbnail" [attr.data-src]="post.src">
     </div>
     <ng-template #elseif1>
       <div *ngIf="post.is === 'video' else elseif2" class="vid-container">
-        <video [poster]="post.thumbnail" class="" (play)="videoControl(vid,'play')" (pause)="videoControl(vid,'pause')" #vid>
+        <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
           <source [src]="post.src.vid" type="video/mp4">
           Your browser does not support the video tag.
         </video>
@@ -21,10 +21,29 @@
       </div>
 
     </ng-template>
-      <div *ngIf="post.is === 'gallery'" class="gallery-container">
-        <img *ngFor="let img of post.src" class="" [src]="post.thumbnail" [attr.data-src]="img">
-      </div>
     <ng-template #elseif2>
+      <div *ngIf="post.is === 'gallery' else elseif3" class="gallery-container" #gallery>
+        <button class="left" (click)="onLeft(gallery)"><-</button>
+        <img *ngFor="let img of post.src; index as i" [src]="post.thumbnail[i]" [attr.data-src]="img">
+        <button class="right" (click)="onRight(gallery)">-></button>
+      </div>
+    </ng-template>
+    <ng-template #elseif3>
+      <div *ngIf="post.is === 'youtube' else elseif4" class="media-container">
+        <img [src]="post.thumbnail" alt="">
+        <div [id]="'yt-player-'+post_id"></div>
+        <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen [attr.data-src]="post.src"></iframe>
+      </div>
+    </ng-template>
+    <ng-template #elseif4>
+      <div *ngIf="post.is === 'gifv'" class="vid-container">
+        <video [poster]="post.thumbnail" class="" loop #gifv>
+          <source [src]="post.src" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+        <button class="controls" (click)="gifv.controls = (controls = !controls)">⚙️</button>
+        <i class="mute">🔇</i>
+      </div>
     </ng-template>
     <div class="text">
       <span class="label">{{ post.title }}</span>

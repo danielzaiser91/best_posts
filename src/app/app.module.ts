@@ -7,6 +7,7 @@ import { AppComponent } from './app.component';
 import { BestMemeComponent } from './best-meme/best-meme.component';
 import { GalleryComponent, ShortNumberPipe } from './gallery/gallery.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { APP_BASE_HREF } from '@angular/common';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,7 @@ import { ReactiveFormsModule } from '@angular/forms';
     HttpClientModule,
     ReactiveFormsModule
   ],
-  providers: [],
+  providers: [{provide: APP_BASE_HREF, useValue: '/dist/bestOfReddit'}],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

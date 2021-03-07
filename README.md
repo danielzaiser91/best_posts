@@ -20,6 +20,8 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
   - nested ngIf templates (multi case view templating)
   - HostListener -> Escape Key schließt Vollbild-Vorschau
   - Complex Observable handling, with multiple rxjs operators (pipe, map, forkjoin, ...)
+    ---> Mehrere gleichzeitige parallele api requests die erst weiterabgearbeitet werden, wenn alle erfüllt sind.
+    ---> Fetching 3500 Subreddit Data für die Vorschläge beim Tippen
   - Caching großer Daten mit IndexedDB, mithilfe der dexie Library
 
 <u>**Sass:**</u>
@@ -50,7 +52,8 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
  - iframe src attribute angular binding bug... erst mit DomSanitizer versucht, dann aber gelöst indem man "lazy loaded"
  - youtube eingebundene iframes lassen sich nur per youtube api pausieren (was notwendig ist nach schließen vom custom fullscreen)... problematisch...
    --> meine Lösung: Nach dem Schließen des custom gallery fullscreens wird der iframe weiterhin angezeigt.
-
+ - deploying with netlify (automated builds on each github master commit)
+ - bundling with webpack
 
 <u>Roadmap / ToDo:</u>
  - Angular FormDirective + Validation

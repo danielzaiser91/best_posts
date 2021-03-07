@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, of } from 'rxjs';
-import { catchError, debounceTime, map } from 'rxjs/operators';
+import { catchError, map, mergeMap } from 'rxjs/operators';
 import { RedditSort } from './redditTypes';
 import { reddit_format, subreddit_format } from './reddit_format';
 
@@ -53,7 +53,7 @@ export class RedditAPIService {
         map(subreddit_format),
         catchError(errHandler)
       )
-    })
+    });
     return forkJoin(myRequests);
   }
 }

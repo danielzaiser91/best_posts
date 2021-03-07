@@ -1,14 +1,13 @@
 # BestOfReddit
-eine einfache Webseite, die Daten von der Reddit-API fetched und diese darstellt.
+eine Single Page Application, die Daten von der Reddit-API fetched und diese darstellt.
 
-Link zur Webseite: tbd...
+Link zur Webseite: https://best-reddit-post.netlify.app/
 
 kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus Deutsch und Englisch :D
 
 ## <u>Verwendete Technologien:</u>
 
 <u>**Angular**</u>
-
   - Api-Service (Injectable) --> rxjs Observables
   - View-Pipes ---> custom / selbstentwickelte Pipe zur Formatierung der likes (zB: 25345 -> 25k)
   - Routing
@@ -63,8 +62,10 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
  - more Supported Formats
  - Design Rework
  - Bughunting
- - I can't get enough - Feature (add a "more of this" button, with unlimited posts, sorted by top of all times)
+ - I can't get enough - Feature (add a "more of this" button, which loads the next "page" (pagination api call by id+limit))
  - show loader when data is being replaced / lazy loaded
+ - cinema Mode (Fullscreen which never needs to be left)
+ - autoplay next post (chaining videos, bzw. images after timeout)
 
 © Daniel Zaiser - 2021
 

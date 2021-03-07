@@ -1,11 +1,11 @@
 <div class="select">
   <div [formGroup]="subredditChooser">
     <label for="subreddit">Zeige Posts von /r/</label>
-    <input (input)="onInput()" #el id="subreddit" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subreddit>
-    &nbsp;<button [disabled]="!subExists" (click)="fetchSub(subreddit.value, true)" disabled>suchen</button>
+    <input id="subreddit" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subreddit>
+    &nbsp;<button class="search btn" [disabled]="!subExists" (click)="fetchSub(subreddit.value, true)" disabled>suchen</button>
   </div>
   <div>
-    <button class="btn" (click)="getNextSubreddit()">{{ sub }}</button>
+    <button class="btn" (click)="getNextSubreddit()">go to: {{ nextSub }}</button>
     <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')" disabled>Optionen</button>
   </div>
 </div>

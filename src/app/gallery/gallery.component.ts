@@ -56,7 +56,8 @@ export class GalleryComponent {
   }
 
   onPause(vid: HTMLVideoElement) {
-    (vid.nextSibling as HTMLAudioElement).pause()
+    const aud = (vid.nextSibling as HTMLAudioElement);
+    aud.pause()
   }
 
   onLeft(gallery: HTMLDivElement | null) {

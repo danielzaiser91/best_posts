@@ -1,29 +1,27 @@
-import { Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { RedditAPIService } from '../reddit-api.service';
 import Dexie from 'dexie';
 import { Subreddit } from '../redditTypes';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { debounceTime } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 
 interface SubredditTable extends Partial<Subreddit> {
   id?: number
 }
-
 class RedditDatabase extends Dexie {
   public meta: Dexie.Table<SubredditTable, number>; // id is number in this case
 
   public constructor() {
     super("redditData");
-    this.version(1).stores({
+    const version = this.version(1).stores({
       meta: '++id, identifier, name, subscribers, created_utc, over18, description, community_icon, icon_img',
     });
+    console.log(version);
     this.meta = this.table("meta");
   }
 }
-
 const db = new RedditDatabase();
-
 
 const getSaved = (param: string) => JSON.parse(sessionStorage.getItem(param) || 'null');
 const save = (param: string, data: any) => sessionStorage.setItem(param, JSON.stringify(data));
@@ -34,13 +32,13 @@ const save = (param: string, data: any) => sessionStorage.setItem(param, JSON.st
   styleUrls: ['./best-meme.component.sass']
 })
 export class BestMemeComponent implements OnInit {
-  @ViewChild('el') el: ElementRef;
+  @ViewChild('subreddit') subreddit: ElementRef;
   subredditChooser: FormGroup;
   postOptions: FormGroup;
   posts: any;
   subExists = false;
-  subreddits = ['memes','cats']
-  sub = this.subreddits[0];
+  subreddits = ['cats','memes'];
+  nextSub = this.subreddits[1];
   currentSub = 'cats';
   meta: any[];
 
@@ -62,12 +60,14 @@ export class BestMemeComponent implements OnInit {
   }
 
   activateFormValidators() {
-    this.subredditChooser.valueChanges.pipe(debounceTime(100)).subscribe((v:any) => {
+    this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(100)).subscribe((chunk: string) => {
       // todo: add subreddit dropdown suggestion
-      // this.subredditChooser.get('subreddit')?.value;
+      db.transaction('r', db.meta, () => {
+        return db.meta.where('name').startsWithIgnoreCase(chunk).toArray();
+      }).then(console.log);
     });
     this.subredditChooser.valueChanges.pipe(debounceTime(1000)).subscribe((v:any) => {
-      const $temp: Subscription = this.api.subExists(this.el.nativeElement.value).subscribe(
+      const $temp: Subscription = this.api.subExists(this.subreddit.nativeElement.value).subscribe(
         _ => {this.subExists = true; $temp.unsubscribe(); },
         err => this.subExists = false,
       );
@@ -88,12 +88,18 @@ export class BestMemeComponent implements OnInit {
       const notfetchedToday = getSaved('meta')?.lastFetch !== today;
       if( notfetchedToday || noData ) {
         this.api.getAllSubreddits(arr).subscribe(async meta => {
+          meta = flattenDeep(meta);
           this.meta = meta;
           save('meta', { lastFetch: today });
+          function flattenDeep(arr1: any[]): any[] {
+            return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
+          }
           await db.meta.bulkPut(meta);
+          console.log(this.meta);
         });
       } else {
         this.meta = await db.meta.toArray();
+        console.log(this.meta);
       }
     });
   }
@@ -103,6 +109,7 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, base = false) {
+    console.log(sub);
     const
       saved = getSaved(sub),
       today = new Date().toDateString();
@@ -113,8 +120,10 @@ export class BestMemeComponent implements OnInit {
         sessionStorage.setItem(sub, JSON.stringify({data, lastFetch: today}));
         save(sub, {data, lastFetch: today});
         this.currentSub = sub;
+        this.subreddits.push(sub);
       });
     } else {
+      console.log('return hier??', this.isCurrentSub(sub));
       if(!!this.posts && this.isCurrentSub(sub)) return; // prevent load of already loaded data
       if(base) {
         console.log(saved.data);
@@ -124,13 +133,11 @@ export class BestMemeComponent implements OnInit {
     }
   }
 
-  onInput() {}
-
   getNextSubreddit() {
-    let i = this.subreddits.indexOf(this.sub);
-    i = (!!this.subreddits[i+1]) ? 0 : i+1;
-    this.sub = this.subreddits[i];
-    this.fetchSub(this.sub, true);
+    let i = this.subreddits.indexOf(this.nextSub);
+    i = (!this.subreddits[i+1]) ? 0 : i+1;
+    this.fetchSub(this.nextSub, true);
+    this.nextSub = this.subreddits[i];
   }
 
   hideOverlay(e: any) { if(e.target.classList.contains('optionsOverlay')) e.target.classList.remove('fullscreen') }

@@ -1,4 +1,4 @@
 [build]
   base = "/"
-  publish = "/dist/bestOfReddit"
-  command = "npm build"
+  publish = "dist/bestOfReddit/"
+  command = "npm run build"

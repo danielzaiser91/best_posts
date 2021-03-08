@@ -1,1 +1,7 @@
-node_modules
+*
+!src
+!.browserlistrc
+!angular.json
+!package.json
+!tsconfig*
+!yarn.lock

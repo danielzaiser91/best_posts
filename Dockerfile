@@ -1,7 +1,13 @@
-FROM node:12
-WORKDIR /usr/src/app/
-COPY package*.json ./
-RUN npm install
+# Stage 1 - build
+FROM node:12 as build
+WORKDIR /usr/src/app
 COPY . .
-EXPOSE 4200
-CMD ["npm", "run", "start", "--prod"]
+
+RUN yarn install
+RUN yarn build
+
+# Stage 2 - production
+FROM nginx:alpine as prod
+WORKDIR /usr/share/nginx/html
+
+COPY --from=build /usr/src/app/dist/bestOfReddit ./

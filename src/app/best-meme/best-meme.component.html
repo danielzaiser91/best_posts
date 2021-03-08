@@ -2,6 +2,7 @@
   ... loading
 </div>
 <div class="select">
+  <app-popular-subreddits [subreddits]="meta" (choose)="fetchSub($event, true)"></app-popular-subreddits>
   <div [formGroup]="subredditChooser">
     <label for="subredditInput">Zeige Posts von /r/</label>
     <input id="subredditInput" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subredditInput>
@@ -44,5 +45,4 @@
     </form>
   </div>
 </div>
-<app-popular-subreddits [subreddits]="meta" (choose)="fetchSub($event, true)"></app-popular-subreddits>
 <app-gallery [posts]="posts"></app-gallery>

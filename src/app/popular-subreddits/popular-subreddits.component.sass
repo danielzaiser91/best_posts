@@ -7,6 +7,11 @@
   background: #1B2735
   padding: 0 0.5em 0.5em 0
   user-select: none
+  @media (max-width: 500px)
+    position: absolute
+    .toggle-popular
+      padding: 0.2em !important
+      font-size: 1.6em
   &.hide
     padding: 0
     background: unset
@@ -36,5 +41,3 @@
     background: #00c4ff5c
     border: none
     outline: none
-    @media (max-width: 500px)
-      display: none

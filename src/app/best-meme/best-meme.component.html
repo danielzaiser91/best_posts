@@ -44,4 +44,5 @@
     </form>
   </div>
 </div>
+<app-popular-subreddits [subreddits]="meta" (choose)="fetchSub($event, true)"></app-popular-subreddits>
 <app-gallery [posts]="posts"></app-gallery>

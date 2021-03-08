@@ -51,6 +51,7 @@
         <p class="discussion-text">{{ post.src }}</p>
       </div>
     </ng-template>
+    <button class="enlarge-btn" (click)="li.querySelector('.content-wrapper')?.classList?.toggle('enlarge')">➕</button>
     <div class="text max-limit rel" (click)="li.classList.contains('fullscreen') ? text.classList.toggle('max-limit') : ''" #text>
       <div class="limit-symbol" ><span *ngIf="text.classList.contains('max-limit'); else down">🔺</span></div>
       <ng-template #down><span>🔻</span></ng-template>

@@ -7,13 +7,15 @@ import { AppComponent } from './app.component';
 import { BestMemeComponent } from './best-meme/best-meme.component';
 import { GalleryComponent, ShortNumberPipe } from './gallery/gallery.component';
 import { ReactiveFormsModule } from '@angular/forms';
+import { PopularSubredditsComponent } from './popular-subreddits/popular-subreddits.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     BestMemeComponent,
     GalleryComponent,
-    ShortNumberPipe
+    ShortNumberPipe,
+    PopularSubredditsComponent
   ],
   imports: [
     BrowserModule,

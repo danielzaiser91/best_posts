@@ -26,6 +26,12 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
     ---> Mehrere gleichzeitige parallele api requests die erst weiterabgearbeitet werden, wenn alle erfüllt sind.
     ---> Fetching 3500 Subreddit Data für die Vorschläge beim Tippen
   - Caching großer Daten mit IndexedDB, mithilfe der dexie.js Library
+  - Webpack bundling (minify, optimize, uglify, etc.)
+
+<u>**Typescript**</u>
+  - Transpiling
+  - Linting
+  - Polyfill
 
 <u>**Sass:**</u>
   - Mixins
@@ -34,6 +40,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
   - ~~gallery Library~~ <em>(verworfen und eigene Version gebaut)</em>
   - cool Background Animation (credited)
   - cool custom Buttons
+  - Polyfills
 
 <u>**Desweiteren:**</u>
   - Version-Control mit Git & Github
@@ -73,6 +80,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - cinema Mode (Fullscreen which never needs to be left)
  - autoplay next post (chaining videos, bzw. images after timeout)
  - move heavy logic into a webworker? (not currently necessary, because workload is still low, because of highly efficient code)
+ - move everything to a seperate Component (multiple small components > one big component)
 
 # Changelog:
 
@@ -94,6 +102,8 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
   - Erweiterung der shortNumber Pipe --> millionen wird als m abgekürzt (wichtig für Vorschläge)
   - spinner beim fetchen von api daten (nur wenn sie in view sind, nicht wenn async)
   - Support vom Medientyp "Diskussion"
+  - enlarge Button zum Togglen der Maximierung von Inhalten im Vollbildmodus (nur für Bilder und Bilder-Gallerien)
+  - new Component: <u>List of Most Popular Subreddits</u> (with pagination (not yet) and sorted by current popularity, also displaying number of subscribers) that dispatches an event on click and fetches the clicked sub
 - <u>Bugfixing:</u>
   - better ErrorHandling for file-not-found
 

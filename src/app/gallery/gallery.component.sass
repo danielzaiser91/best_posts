@@ -64,34 +64,34 @@
     flex-direction: column
     justify-content: space-between
     &.has-played.youtube
-      img
-        display: none
       iframe
         width: 100%
-    .mute
+    .text
+      color: white
+      display: flex
+      white-space: nowrap
+      border: solid
+      margin-top: 6px
+      padding: 4px 0
+      border-width: 1px 0 2px 0
+      .label
+        text-overflow: ellipsis
+        overflow: hidden
+    .content-wrapper
+      display: flex
+      flex: 1
+      justify-content: center
+      position: relative
+      max-height: 200px
+      img
+        object-fit: contain
+        width: 100%
+    video
+      width:100%
+    .mute, .enlarge-btn
       display: none
-  .text
-    color: white
-    display: flex
-    white-space: nowrap
-    border: solid
-    margin-top: 6px
-    padding: 4px 0
-    border-width: 1px 0 2px 0
-    .label
-      text-overflow: ellipsis
-      overflow: hidden
-  .content-wrapper
-    display: flex
-    flex: 1
-    justify-content: center
-    position: relative
-    max-height: 200px
-    img
-      object-fit: contain
-      width: 100%
-  video
-    width:100%
+
+
   li.fullscreen
     position: fixed
     top: 0
@@ -139,11 +139,21 @@
     .content-wrapper
       padding: 0
       width: 100%
-      max-height: 100%
       position: relative
-      flex-wrap: wrap
       overflow: auto
       max-height: unset
+      &.enlarge
+        flex-wrap: wrap
+    .enlarge-btn
+      position: absolute
+      top: 0.4em
+      left: 1.7em
+      font-size: 1.7em
+      border-radius: 50%
+      border: none
+      outline: none
+      background: transparent
+      cursor: pointer
     &.youtube
       img
         display: none
@@ -152,8 +162,10 @@
     &.gallery .content-wrapper
       flex-wrap: wrap
       flex-direction: column
-      overflow: hidden !important
-      img
+      overflow-x: hidden !important
+      &.enlarge
+        justify-content: unset
+      &:not(.enlarge) img
         height: -webkit-fill-available
       .left, .right
         position: absolute
@@ -211,9 +223,12 @@
       padding: 2em 4em
       max-width: 100%
       box-sizing: border-box
+      flex-wrap: wrap
       .discussion-text
         background: #1B2735
         color: white
         padding: 4em
         white-space: pre-line
         font-size: 1.6em
+    &.gallery .enlarge-btn, &.image .enlarge-btn
+      display: block

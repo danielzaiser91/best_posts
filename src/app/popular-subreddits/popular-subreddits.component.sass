@@ -1,0 +1,40 @@
+.wrapper
+  position: fixed
+  top: 0
+  left: 0
+  z-index: 99
+  border-radius: 5px
+  background: #1B2735
+  padding: 0 0.5em 0.5em 0
+  user-select: none
+  &.hide
+    padding: 0
+    background: unset
+    .subreddits
+      display: none
+  .subreddits
+    padding: 0
+    list-style: none
+    display: flex
+    flex-direction: column
+    width: fit-content
+    color: white
+    li
+      cursor: pointer
+      background: #ffffff29
+      padding: 0.2em 3em 0.2em 0.2em
+      border: solid
+      border-width: 1px 0
+      position: relative
+      .subscriber-count
+        position: absolute
+        right: 0
+  .btn.toggle-popular
+    cursor: pointer
+    padding: 2em
+    border-radius: 0 10% 50% 0
+    background: #00c4ff5c
+    border: none
+    outline: none
+    @media (max-width: 500px)
+      display: none

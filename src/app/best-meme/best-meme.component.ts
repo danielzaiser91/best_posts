@@ -40,7 +40,7 @@ export class BestMemeComponent implements OnInit {
   subreddits = ['cats','memes'];
   nextSub = this.subreddits[1];
   currentSub = 'cats';
-  meta: any[];
+  meta: any[] = [];
   suggestions: any[];
   page = 0;
   loading = false;
@@ -94,7 +94,7 @@ export class BestMemeComponent implements OnInit {
     't5_3jwwf','t5_3fnyy','t5_gi5ar'];
 
     console.info('%cfetching subreddit meta-data for the '+arr.length*100+' most popular subreddits...','font-size:2em; border:1px solid; padding: 1em; background: #ffe79e; color: black');
-    db.transaction('r', db.meta, async() => {
+    db.transaction('rw', db.meta, async() => {
       const noData = await db.meta.count() === 0;
       const notfetchedToday = getSaved('meta')?.lastFetch !== today;
       if( notfetchedToday || noData ) {
@@ -104,13 +104,11 @@ export class BestMemeComponent implements OnInit {
           function flattenDeep(arr1: any[]): any[] {
             return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
           }
-          await db.transaction('rw', db.meta, async () => {
-            db.meta.clear().then(() => db.meta.bulkPut(meta)).then(() => this.meta = meta);
-          });
+          await db.meta.clear().then(() => db.meta.bulkPut(meta)).then(() => this.meta = meta);
           console.log(this.meta);
         });
       } else {
-        this.meta = await db.meta.toArray();
+        if(!this.meta?.length) this.meta = await db.meta.toArray();
         console.log(this.meta);
       }
     });

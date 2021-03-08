@@ -1,11 +1,20 @@
+<div class="spinner" *ngIf="loading">
+  ... loading
+</div>
 <div class="select">
   <div [formGroup]="subredditChooser">
-    <label for="subreddit">Zeige Posts von /r/</label>
-    <input id="subreddit" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subreddit>
-    &nbsp;<button class="search btn" [disabled]="!subExists" (click)="fetchSub(subreddit.value, true)" disabled>suchen</button>
+    <label for="subredditInput">Zeige Posts von /r/</label>
+    <input id="subredditInput" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subredditInput>
+    &nbsp;<button class="search btn" [disabled]="!subExists" (click)="fetchSub(subredditInput.value, true)" disabled>suchen</button>
+    <ul *ngIf="suggestions" class="suggestions" #sugs>
+      <li *ngFor="let sug of suggestions.slice(page, page+10)" (click)="fetchSub(sug.name, true)">
+        <span *ngIf="sug.subscribers" class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
+        <span *ngIf="sug.over18">18+ </span>
+        {{sug.name}}</li>
+    </ul>
   </div>
   <div>
-    <button class="btn" (click)="getNextSubreddit()">go to: {{ nextSub }}</button>
+    <button class="btn" (click)="getNextSubreddit()">zeige: {{ nextSub }}</button>
     <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')" disabled>Optionen</button>
   </div>
 </div>

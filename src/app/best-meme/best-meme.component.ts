@@ -32,7 +32,7 @@ const save = (param: string, data: any) => sessionStorage.setItem(param, JSON.st
   styleUrls: ['./best-meme.component.sass']
 })
 export class BestMemeComponent implements OnInit {
-  @ViewChild('subreddit') subreddit: ElementRef;
+  @ViewChild('subredditInput') subredditInput: ElementRef;
   subredditChooser: FormGroup;
   postOptions: FormGroup;
   posts: any;
@@ -41,6 +41,9 @@ export class BestMemeComponent implements OnInit {
   nextSub = this.subreddits[1];
   currentSub = 'cats';
   meta: any[];
+  suggestions: any[];
+  page = 0;
+  loading = false;
 
   constructor(private api: RedditAPIService, formBuilder: FormBuilder) {
     this.subredditChooser = formBuilder.group({ subreddit: [''] });
@@ -61,14 +64,22 @@ export class BestMemeComponent implements OnInit {
 
   activateFormValidators() {
     this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(100)).subscribe((chunk: string) => {
-      // todo: add subreddit dropdown suggestion
+      if (chunk === '') {
+        this.suggestions = [];
+        return;
+      }
       db.transaction('r', db.meta, () => {
-        return db.meta.where('name').startsWithIgnoreCase(chunk).toArray();
-      }).then(console.log);
+        return db.meta.where('name').startsWithIgnoreCase(chunk).reverse().sortBy('subscribers');
+      }).then(suggestions => this.suggestions = suggestions.sort((a: any, b: any) => a.name.toLowerCase() === chunk.toLowerCase() ? -1 : 1)).then(console.log);
     });
-    this.subredditChooser.valueChanges.pipe(debounceTime(1000)).subscribe((v:any) => {
-      const $temp: Subscription = this.api.subExists(this.subreddit.nativeElement.value).subscribe(
-        _ => {this.subExists = true; $temp.unsubscribe(); },
+    this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(1000)).subscribe((chunk: string) => {
+      if (chunk === '') return;
+      const $temp: Subscription = this.api.subExists(this.subredditInput.nativeElement.value).subscribe(
+        (subreddit: any) => {
+          this.subExists = true;
+          $temp.unsubscribe();
+          if(!this.suggestions.length) this.suggestions.push({ name: subreddit.data.children[0].data.subreddit });
+        },
         err => this.subExists = false,
       );
     });
@@ -82,19 +93,20 @@ export class BestMemeComponent implements OnInit {
     't5_2qhw9','t5_2yqte','t5_xpfq5','t5_2r8t2','t5_2vso4','t5_2s91q','t5_2rjcb','t5_2rfyw','t5_3ocv3','t5_g53v4','t5_3osjr','t5_2tnbv','t5_2v08h','t5_2qsbv','t5_32rtl','t5_3f1y1',
     't5_3jwwf','t5_3fnyy','t5_gi5ar'];
 
-    console.info('%cfetching subreddit meta-data for: '+arr.length*100+' subreddits...','font-size:2em; border:1px solid; padding: 1em; background: #ffe79e; color: black');
+    console.info('%cfetching subreddit meta-data for the '+arr.length*100+' most popular subreddits...','font-size:2em; border:1px solid; padding: 1em; background: #ffe79e; color: black');
     db.transaction('r', db.meta, async() => {
       const noData = await db.meta.count() === 0;
       const notfetchedToday = getSaved('meta')?.lastFetch !== today;
       if( notfetchedToday || noData ) {
         this.api.getAllSubreddits(arr).subscribe(async meta => {
           meta = flattenDeep(meta);
-          this.meta = meta;
           save('meta', { lastFetch: today });
           function flattenDeep(arr1: any[]): any[] {
             return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
           }
-          await db.meta.bulkPut(meta);
+          await db.transaction('rw', db.meta, async () => {
+            db.meta.clear().then(() => db.meta.bulkPut(meta)).then(() => this.meta = meta);
+          });
           console.log(this.meta);
         });
       } else {
@@ -109,6 +121,9 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, base = false) {
+    if (base) this.loading = true;
+    this.suggestions = [];
+    if (this.subredditInput) this.subredditInput.nativeElement.value = sub;
     console.log(sub);
     const
       saved = getSaved(sub),
@@ -116,7 +131,10 @@ export class BestMemeComponent implements OnInit {
     if(saved?.lastFetch !== today) {
       const a = this.api.get(sub).subscribe(data => {
         a.unsubscribe();
-        if(base) this.posts = data;
+        if(base) {
+          this.posts = data;
+          this.loading = false;
+        }
         sessionStorage.setItem(sub, JSON.stringify({data, lastFetch: today}));
         save(sub, {data, lastFetch: today});
         this.currentSub = sub;
@@ -129,6 +147,7 @@ export class BestMemeComponent implements OnInit {
         console.log(saved.data);
         this.posts = saved.data;
         this.currentSub = sub;
+        this.loading = false;
       }
     }
   }

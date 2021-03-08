@@ -5,7 +5,11 @@ Link zur Webseite: https://best-reddit-post.netlify.app/
 
 kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus Deutsch und Englisch :D
 
-## <u>Verwendete Technologien:</u>
+## <u>Projektbeginn:</u>
+
+Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als Webentwickler zu demonstrieren und zum anderen, weil ich mit dem Projekt etwas erschaffe, was ich vorhabe auch selbst zu nutzen. 😄
+
+## <u>Verwendete Technologien und implementierte Features:</u>
 
 <u>**Angular**</u>
   - Api-Service (Injectable) --> rxjs Observables
@@ -21,16 +25,17 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
   - Complex Observable handling, with multiple rxjs operators (pipe, map, forkjoin, ...)
     ---> Mehrere gleichzeitige parallele api requests die erst weiterabgearbeitet werden, wenn alle erfüllt sind.
     ---> Fetching 3500 Subreddit Data für die Vorschläge beim Tippen
-  - Caching großer Daten mit IndexedDB, mithilfe der dexie Library
+  - Caching großer Daten mit IndexedDB, mithilfe der dexie.js Library
 
 <u>**Sass:**</u>
   - Mixins
   - imports
   - functions
-  - cool Background Animation
-  - cool Buttons
+  - ~~gallery Library~~ <em>(verworfen und eigene Version gebaut)</em>
+  - cool Background Animation (credited)
+  - cool custom Buttons
 
-<u>**Allgemein:**</u>
+<u>**Desweiteren:**</u>
   - Version-Control mit Git & Github
   - Verwenden von Regulären Ausdrücken
   - Keyboard Controls for Gallery (Left/Right Arrow)
@@ -53,6 +58,7 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
    --> meine Lösung: Nach dem Schließen des custom gallery fullscreens wird der iframe weiterhin angezeigt.
  - deploying with netlify (automated builds on each github master commit)
  - bundling with webpack
+ - aus irgendeinem Grund werden manche Metadaten doppelt gespeichert...
 
 <u>Roadmap / ToDo:</u>
  - Angular FormDirective + Validation
@@ -66,6 +72,32 @@ kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus 
  - show loader when data is being replaced / lazy loaded
  - cinema Mode (Fullscreen which never needs to be left)
  - autoplay next post (chaining videos, bzw. images after timeout)
+ - move heavy logic into a webworker? (not currently necessary, because workload is still low, because of highly efficient code)
+
+# Changelog:
+
+hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
+
+08.03.2021:
+
+- <u>Optisch:</u>
+  - Styling der Gallerie geändert
+  - Text im Fullscreen-Modus ist jetzt ein-/ausklappbar
+  - Flexbox im View bewirkt jetzt, dass sich die Posts auf ganze Breite ziehen
+- <u>Performance:</u>
+  - IndexedDB löscht jetzt alte, nicht mehr verwendete Einträge -> Benötigt weniger Speicherplatz
+  - Refactoring von Sass-Code -> less & cleaner Code
+- <u>neue Features:</u>
+  - Suchvorschläge
+    - diese auch schön gestyled (schön ist relativ, da ich kein Designer bin 😂)
+    - und anzeige der Subscriberzahl (als shortnumber)
+  - Erweiterung der shortNumber Pipe --> millionen wird als m abgekürzt (wichtig für Vorschläge)
+  - spinner beim fetchen von api daten (nur wenn sie in view sind, nicht wenn async)
+  - Support vom Medientyp "Diskussion"
+- <u>Bugfixing:</u>
+  - better ErrorHandling for file-not-found
+
+
 
 © Daniel Zaiser - 2021
 

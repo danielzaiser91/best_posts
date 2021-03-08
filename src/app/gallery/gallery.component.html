@@ -1,42 +1,43 @@
 <ul class="my-image-list">
-  <li *ngFor="let post of posts; index as post_id" [class]="post.is" (click)="onItemClick($event)">
+  <li *ngFor="let post of posts; index as post_id" [class]="post.is" (click)="onItemClick($event)" #li>
     <div class="exit">x</div>
     <div class="score">
       {{ post.score | shortNumber }}
     </div>
 
-    <div *ngIf="post.is === 'image' else elseif1" class="img-container">
+    <div *ngIf="post.is === 'image' else elseif1" class="content-wrapper">
       <img class="" [src]="post.thumbnail" [attr.data-src]="post.src">
     </div>
     <ng-template #elseif1>
-      <div *ngIf="post.is === 'video' else elseif2" class="vid-container">
+      <div *ngIf="post.is === 'video' else elseif2" class="content-wrapper">
         <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
           <source [src]="post.src.vid" type="video/mp4">
           Your browser does not support the video tag.
         </video>
         <audio hidden>
-          <source [src]="post.src.aud" type="audio/mp3">
+          <source [src]="post.src.aud" type="audio/mp3" (error)="onNoAudio(li, $event)">
           <p>Your browser doesn't support HTML5 audio. Here is a <a href="viper.mp3">link to the audio</a> instead.</p>
         </audio>
+        <i class="mute">🔇</i>
       </div>
 
     </ng-template>
     <ng-template #elseif2>
-      <div *ngIf="post.is === 'gallery' else elseif3" class="gallery-container" #gallery>
+      <div *ngIf="post.is === 'gallery' else elseif3" class="content-wrapper" #gallery>
         <button class="left" (click)="onLeft(gallery)"><-</button>
         <img *ngFor="let img of post.src; index as i" [src]="post.thumbnail[i]" [attr.data-src]="img">
         <button class="right" (click)="onRight(gallery)">-></button>
       </div>
     </ng-template>
     <ng-template #elseif3>
-      <div *ngIf="post.is === 'youtube' else elseif4" class="media-container">
+      <div *ngIf="post.is === 'youtube' else elseif4" class="content-wrapper">
         <img [src]="post.thumbnail" alt="">
         <div [id]="'yt-player-'+post_id"></div>
         <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen [attr.data-src]="post.src"></iframe>
       </div>
     </ng-template>
     <ng-template #elseif4>
-      <div *ngIf="post.is === 'gifv'" class="vid-container">
+      <div *ngIf="post.is === 'gifv'; else elseif5" class="content-wrapper no-audio">
         <video [poster]="post.thumbnail" class="" loop #gifv>
           <source [src]="post.src" type="video/mp4">
           Your browser does not support the video tag.
@@ -45,7 +46,14 @@
         <i class="mute">🔇</i>
       </div>
     </ng-template>
-    <div class="text">
+    <ng-template #elseif5>
+      <div *ngIf="post.is === 'discussion'" class="content-wrapper">
+        <p class="discussion-text">{{ post.src }}</p>
+      </div>
+    </ng-template>
+    <div class="text max-limit rel" (click)="li.classList.contains('fullscreen') ? text.classList.toggle('max-limit') : ''" #text>
+      <div class="limit-symbol" ><span *ngIf="text.classList.contains('max-limit'); else down">🔺</span></div>
+      <ng-template #down><span>🔻</span></ng-template>
       <span class="label">{{ post.title }}</span>
     </div>
   </li>

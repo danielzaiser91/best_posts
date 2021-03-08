@@ -81,11 +81,13 @@
         text-shadow: 0px 0px 8px red
         top: 2em
         white-space: nowrap
+        z-index: 9
   &.search:disabled:hover::before
     content: 'gib etwas in die Suche ein'
-    right: 0
+    left: 0
+    z-index: 9
 
-#subreddit
+#subredditInput
   color: white
   &.valid
     border: 1px solid green
@@ -93,3 +95,37 @@
   &.invalid
     border: 1px solid red
     background: #ff000038
+.suggestions
+  padding: 0
+  list-style: none
+  display: flex
+  flex-direction: column
+  width: fit-content
+  @media (min-width: 516px)
+    margin: 0 auto
+    transform: translateX(1.6em)
+  li
+    cursor: pointer
+    background: #ffffff29
+    padding: 0.2em 3em 0.2em 0.2em
+    border: solid
+    border-width: 1px 0
+    position: relative
+    .subscriber-count
+      position: absolute
+      right: 0
+
+
+.spinner 
+  position: fixed
+  width: 100vw
+  height: 100vh
+  background: #3f51b5c4
+  z-index: 9999
+  top: 0
+  display: flex
+  left: 0
+  justify-content: center
+  align-items: center
+  font-size: 5em
+  color: white

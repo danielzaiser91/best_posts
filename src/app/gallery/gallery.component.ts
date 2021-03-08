@@ -3,7 +3,13 @@ import { Component, HostListener, Input, Pipe, PipeTransform } from '@angular/co
 @Pipe({ name: 'shortNumber' })
 export class ShortNumberPipe implements PipeTransform {
   transform(number: number): string {
-    return ''+(number > 1000 ? Math.floor(number/1000) + 'k' : number);
+    return (() => {if (number > 1000000) {
+      return Math.floor(number/1000/1000) + 'm'
+    } else if (number > 1000) {
+      return Math.floor(number/1000) + 'k'
+    } else {
+      return number+''
+    }})()
   }
 }
 
@@ -20,11 +26,11 @@ export class GalleryComponent {
 
   onItemClick(e: any) {
     const target = e.target, li = target.closest('li'), aud = li.querySelector('audio') || {},
-      imgs = li.querySelectorAll('img'), vid = li.querySelector('video'), isVid = !!vid;
+      imgs = li.querySelectorAll('img'), vid = li.querySelector('video');
     if(li.classList.contains('fullscreen')) {
       if(target.classList.contains('exit')) {
-        if(li.classList.contains('video')) { aud.pause(); }
-        if(isVid) { vid.pause(); }
+        if(vid && !li.classList.contains('no-audio')) { aud.pause(); }
+        if(vid) { vid.pause(); }
         li.classList.remove('fullscreen');
         imgs.forEach((img: HTMLImageElement) => {
           img.style.transform = "";
@@ -33,7 +39,7 @@ export class GalleryComponent {
     } else {
       li.classList.add('fullscreen');
       if (li.classList.contains('video')) vid.controls = true; 
-      if(isVid) vid.play();
+      if(vid) vid.play();
       else if(li.classList.contains('youtube')) {
         if(!li.classList.contains('has-played')) li.querySelector('iframe').src = li.querySelector('iframe').getAttribute('data-src');
         li.classList.add('has-played');
@@ -50,14 +56,14 @@ export class GalleryComponent {
   }
 
   onPlay(vid: HTMLVideoElement) {
+    if (vid.closest('li')?.classList.contains('no-audio')) return;
     const aud = (vid.nextSibling as HTMLAudioElement);
     aud.currentTime = vid.currentTime;
     aud.play()
   }
 
   onPause(vid: HTMLVideoElement) {
-    const aud = (vid.nextSibling as HTMLAudioElement);
-    aud.pause()
+    if (!vid.closest('li')?.classList.contains('no-audio')) (vid.nextSibling as HTMLAudioElement).pause()
   }
 
   onLeft(gallery: HTMLDivElement | null) {
@@ -66,6 +72,10 @@ export class GalleryComponent {
 
   onRight(gallery: HTMLDivElement | null) {
     this.galleryDir(gallery, 'rechts')
+  }
+  onNoAudio(el: HTMLLIElement, err: ErrorEvent) {
+    el.classList.add('no-audio');
+    return true;
   }
 
   galleryDir(gallery: HTMLDivElement | null, dir: string) {

@@ -14,18 +14,27 @@ const formatMedia = (v: any, is: string): RedditMedia => {
   } else if (is === 'youtube'){
     return v.secure_media_embed.content.match(/http.*(?=\")/)[0]
   } else if (is === 'gifv'){
-    console.log(v)
     return v.preview.reddit_video_preview.fallback_url
+  } else if (is === 'discussion'){
+    return v.selftext
   } else {
     return v.url
   }
 }
 
 export const reddit_format = (data: any): RedditPost => {
+  console.log(data);
   return data.data.children
     .map((v: any) => v.data)
     .map((v: any)=>{
-      const is = ['video','gallery','youtube','gifv','image'][[v.is_video, v.is_gallery, !!v.domain.match(/youtu[\.]*be/), !!v.url.match(/\.gifv/) ,true].indexOf(true)];
+      const is = ['video','gallery','youtube','gifv','discussion','image'][[
+        v.is_video,
+        v.is_gallery,
+        !!v.domain.match(/youtu[\.]*be/),
+        !!v.url.match(/\.gifv/),
+        v.is_self,
+        true
+      ].indexOf(true)];
       return {
         by: v.author,
         is: is,

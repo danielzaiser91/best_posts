@@ -1,11 +1,8 @@
-.my-image-list
-  li:not(.fullscreen)
-    .gallery-container
-      img:nth-of-type(n+2), button
-        display: none
-    .vid-container, .img-container, .gallery-container, .media-container
-      cursor: pointer
-    .vid-container::before, .gallery-container::before, &:not(.has-played) .media-container::before
+.my-image-list li:not(.fullscreen)
+  .content-wrapper
+    cursor: pointer
+  &.video, &.gallery, &.youtube:not(.has-played), &.discussion
+    .content-wrapper::before
       content: '▶️'
       color: white
       position: absolute
@@ -16,58 +13,63 @@
       width: 100%
       height: 100%
       background: rgba(0,0,0,0.75)
-    .gallery-container::before
-      content: 'gallery'
-    &:not(.has-played) .media-container iframe
-      display: none
-    &.gifv .controls
-      display: none
-    &.gifv .mute
-      display: none
+  &.gallery .content-wrapper::before
+    content: 'gallery'
+  &.discussion .content-wrapper::before
+    content: 'discussion'
+  &.youtube:not(.has-played) iframe, .limit-symbol, &.gifv .controls, &.gallery img:nth-of-type(n+2),
+  &.gallery button, &.discussion .discussion-text
+    display: none
+  .text
+    height: 1.5em
 
 .exit, .score
   display: flex
   justify-content: center
   align-items: center
   border-radius: 50%
-  background: black
+  background: #13b300b5
   position: absolute
   width: 0
   height: 0
   opacity: 0
   cursor: pointer
-  color: white
+  color: #ffcdb0
   border-radius: 50%
 .exit
-  top: 2%
-  right: 2%
+  top: 1em
+  right: 2em
   z-index: 5
+  @media (max-width: 900px)
+    right: 1em
 .score
   padding: 15px
-  top: 2%
-  left: 2%
+  top: -5px
+  left: -5px
   z-index: 2
   opacity: 1
   
 .my-image-list
   display: flex
   flex-wrap: wrap
-  gap: 1em
   padding: 0
+  gap: 0.6em
   li
     position: relative
-    flex: 0
+    flex: 1
     display: flex
     min-width: 180px
+    min-height: 200px
     cursor: pointer
     flex-direction: column
     justify-content: space-between
-    margin: 1em
-    &.has-played .media-container
+    &.has-played.youtube
       img
         display: none
       iframe
         width: 100%
+    .mute
+      display: none
   .text
     color: white
     display: flex
@@ -79,7 +81,7 @@
     .label
       text-overflow: ellipsis
       overflow: hidden
-  .img-container, .vid-container, .gallery-container, .media-container
+  .content-wrapper
     display: flex
     flex: 1
     justify-content: center
@@ -110,39 +112,44 @@
       cursor: pointer
       box-shadow: 1px 1px 10px grey
       outline: none
-    &.gifv .mute
+    &.no-audio .mute
+      display: block
       font-style: normal
       font-size: 2em
       opacity: 0.3
       position: absolute
       top: 1.6em
-      left: 0.6em
-      &:hover::before
-        content: 'This Video does not have sound'
-        position: absolute
-        top: 100%
-        font-size: 1em
-        width: 5em
+      left: 0.5em
+      @media (min-width: 901px)
+        &:hover::before
+          content: 'This Video does not have sound'
+          position: absolute
+          top: 100%
+          font-size: 1em
+          width: 5em
     img
       position: relative
     .text
       justify-content: center
-      color: black
-      background: white
+      color: white
+      background: #1B2735
+      border: solid #1B2735
       .label
         white-space: normal
-    .vid-container, .img-container, .gallery-container
+    .content-wrapper
       padding: 0
       width: 100%
       max-height: 100%
       position: relative
+      flex-wrap: wrap
       overflow: auto
       max-height: unset
-    .media-container
-      max-height: unset
+    &.youtube
       img
         display: none
-    .gallery-container
+      .exit, .score
+        top: 5em
+    &.gallery .content-wrapper
       flex-wrap: wrap
       flex-direction: column
       overflow: hidden !important
@@ -152,20 +159,28 @@
         position: absolute
         left: 5em
         top: 50%
-        background: black
+        background: #1B2735
+        border-color: #1B2735
+        outline: none
         padding: 1em
         color: white
         border-radius: 50%
         z-index: 9
         cursor: pointer
+        @media (max-width: 900px)
+          left: 0
       .right
         right: 5em
         left: unset
+        @media (max-width: 900px)
+          right: 0
     .exit
       content: 'x'
       padding: 15px
       opacity: 1
     .score
+      top: 1em
+      left: 1em
       z-index: 5
       opacity: 1
     video
@@ -175,3 +190,30 @@
       margin: 0 auto
       display: block
       position: relative
+    .limit-symbol
+      position: absolute
+      right: .2em
+      top: -.5em
+      padding: 10px
+      background: white
+      display: flex
+      justify-content: center
+      align-items: center
+      width: 0
+      height: 0
+      border-radius: 50%
+      @media (max-width: 900px)
+        right: 1em
+    .max-limit
+      max-height: 1em
+    &.discussion .content-wrapper
+      align-items: center
+      padding: 2em 4em
+      max-width: 100%
+      box-sizing: border-box
+      .discussion-text
+        background: #1B2735
+        color: white
+        padding: 4em
+        white-space: pre-line
+        font-size: 1.6em

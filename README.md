@@ -46,6 +46,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
   - Version-Control mit Git & Github
   - Verwenden von Regulären Ausdrücken
   - Keyboard Controls for Gallery (Left/Right Arrow)
+  - Responsive Design
 
 <u>Probleme/Bugs:</u>
  - Vorspulen:
@@ -81,6 +82,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - autoplay next post (chaining videos, bzw. images after timeout)
  - move heavy logic into a webworker? (not currently necessary, because workload is still low, because of highly efficient code)
  - move everything to a seperate Component (multiple small components > one big component)
+ - pagination for suggestion and popular subreddit (frontend is already implemented, backend logic missing)
 
 # Changelog:
 
@@ -103,7 +105,11 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
   - spinner beim fetchen von api daten (nur wenn sie in view sind, nicht wenn async)
   - Support vom Medientyp "Diskussion"
   - enlarge Button zum Togglen der Maximierung von Inhalten im Vollbildmodus (nur für Bilder und Bilder-Gallerien)
-  - new Component: <u>List of Most Popular Subreddits</u> (with pagination (not yet) and sorted by current popularity, also displaying number of subscribers) that dispatches an event on click and fetches the clicked sub
+  - new Component: <u>List of Most Popular Subreddits</u>
+    - sorted by most popular first
+    - displays number of subscribers)
+    - click sets chosen subreddit to current subreddit, fetches data from api and displays posts
+    - coming soon: pagination
 - <u>Bugfixing:</u>
   - better ErrorHandling for file-not-found
 

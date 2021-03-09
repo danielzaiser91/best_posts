@@ -3,8 +3,8 @@ import { RedditGallery, RedditMedia, RedditPost, Subreddit } from "./redditTypes
 const formatMedia = (v: any, is: string): RedditMedia => {
   if (is === 'video') {
     const
-      vid = v.media.reddit_video.fallback_url,
-      aud = vid.replace(/(?<=DASH_).*/,'audio.mp4');
+      vid = v.media.reddit_video.fallback_url as string,
+      aud = vid.replace(/(?<=DASH_).*/,'audio.mp4') as string;
     return {
       vid: vid,
       aud: aud // todo check if there is an audio file
@@ -18,11 +18,12 @@ const formatMedia = (v: any, is: string): RedditMedia => {
   } else if (is === 'discussion'){
     return v.selftext
   } else {
-    return v.url
+    const imgs = v.preview?.images[0].resolutions;
+    return imgs ? imgs[imgs.length-1].url : v.url;
   }
 }
-
-export const reddit_format = (data: any): RedditPost => {
+const redditURL = (url: string): string => url.startsWith('/r') ? 'https://www.reddit.com'+url : url;
+export const reddit_format = (data: any): RedditPost[] => {
   console.log(data);
   return data.data.children
     .map((v: any) => v.data)
@@ -34,23 +35,25 @@ export const reddit_format = (data: any): RedditPost => {
         !!v.url.match(/\.gifv/),
         v.is_self,
         true
-      ].indexOf(true)];
+      ].indexOf(true)], fallback = v.thumbnail === 'default';
       return {
         by: v.author,
         is: is,
         num_comments: v.num_comments,
-        thread_url: { thread: v.permalink, target: v.url },
-        thumbnail: v.is_gallery ? Object.values(v.media_metadata).map((img: any) => img.p[2].u) : v.thumbnail,
+        thread_url: { thread: redditURL(v.permalink), target: redditURL(v.url) },
+        thumbnail: v.is_gallery ? Object.values(v.media_metadata).map((img: any) => img.p[2].u) : (fallback ? 'default' : v.thumbnail),
         src: formatMedia(v, is),
         score: v.score, // up vs downvote sum
         spoiler: v.spoiler,
         title: v.title,
-        upvote_ratio: v.upvote_ratio
+        upvote_ratio: v.upvote_ratio,
+        nsfw: v.over_18
       }
     });
 }
 
-export const subreddit_format = (data: any): Subreddit => data.data.children.map((v:any)=> ({
+export const subreddit_array = (data: any): Subreddit[] => data.data.children.map(single_sub);
+export const single_sub = (v: any): Subreddit => ({
   identifier: v.data.name,
   name: v.data.display_name,
   subscribers: v.data.subscribers,
@@ -59,4 +62,4 @@ export const subreddit_format = (data: any): Subreddit => data.data.children.map
   description: v.data.description,
   community_icon: v.data.community_icon,
   icon_img: v.data.icon_img
-}));
+});

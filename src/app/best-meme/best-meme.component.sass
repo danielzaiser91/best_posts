@@ -1,8 +1,8 @@
 .select
   display: flex
   position: relative
-  justify-content: center
-  padding: 1em
+  justify-content: space-between
+  padding: 3em 1em 1em
   gap: 2em
   color: white
   #subredditChooser
@@ -90,6 +90,7 @@
 
 #subredditInput
   color: white
+  width: -webkit-fill-available
   &.valid
     border: 1px solid green
     background: #00ff0038
@@ -101,7 +102,6 @@
   list-style: none
   display: flex
   flex-direction: column
-  width: fit-content
   @media (min-width: 516px)
     margin: 0 auto
     transform: translateX(1.6em)

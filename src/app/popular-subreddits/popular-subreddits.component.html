@@ -2,7 +2,7 @@
   <button class="btn toggle-popular" (click)="wrapper.classList.toggle('hide')">📃</button>
   <ul class="subreddits">
     <span>die beliebtesten Subreddits:</span>
-    <li *ngFor="let sub of subreddits.slice(page, page+20)" (click)="onChoose(sub.name)">
+    <li *ngFor="let sub of subreddits?.slice(page, page+20)" (click)="onChoose(sub.name, wrapper)">
       <span *ngIf="sub.subscribers" class="subscriber-count">{{ sub.subscribers | shortNumber }}</span>
       <span *ngIf="sub.over18">18+ </span>
       {{ sub.name }}</li>

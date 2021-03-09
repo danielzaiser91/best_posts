@@ -8,6 +8,7 @@ import { BestMemeComponent } from './best-meme/best-meme.component';
 import { GalleryComponent, ShortNumberPipe } from './gallery/gallery.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PopularSubredditsComponent } from './popular-subreddits/popular-subreddits.component';
+import { GreetingComponent } from './greeting/greeting.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { PopularSubredditsComponent } from './popular-subreddits/popular-subredd
     BestMemeComponent,
     GalleryComponent,
     ShortNumberPipe,
-    PopularSubredditsComponent
+    PopularSubredditsComponent,
+    GreetingComponent
   ],
   imports: [
     BrowserModule,

@@ -1,4 +1,5 @@
 import { Component, HostListener, Input, Pipe, PipeTransform } from '@angular/core';
+import { RedditPost } from '../redditTypes';
 
 @Pipe({ name: 'shortNumber' })
 export class ShortNumberPipe implements PipeTransform {
@@ -19,40 +20,55 @@ export class ShortNumberPipe implements PipeTransform {
   styleUrls: ['./gallery.component.sass']
 })
 export class GalleryComponent {
-  @Input() posts: any;
+  @Input() posts: any[];
   controls = false;
 
   constructor() { }
 
-  onItemClick(e: any) {
-    const target = e.target, li = target.closest('li'), aud = li.querySelector('audio') || {},
-      imgs = li.querySelectorAll('img'), vid = li.querySelector('video');
-    if(li.classList.contains('fullscreen')) {
-      if(target.classList.contains('exit')) {
-        if(vid && !li.classList.contains('no-audio')) { aud.pause(); }
-        if(vid) { vid.pause(); }
-        li.classList.remove('fullscreen');
-        imgs.forEach((img: HTMLImageElement) => {
-          img.style.transform = "";
-        });
-      }
-    } else {
-      li.classList.add('fullscreen');
-      if (li.classList.contains('video')) vid.controls = true; 
-      if(vid) vid.play();
-      else if(li.classList.contains('youtube')) {
-        if(!li.classList.contains('has-played')) li.querySelector('iframe').src = li.querySelector('iframe').getAttribute('data-src');
-        li.classList.add('has-played');
-      } else {
-        Array.from(imgs).forEach((img: any) => {
-          img.onloadstart = () => { // todo: show loader when image is being replaced / lazy loaded
-            console.log('yep');
-          }
-          const lazy = img.getAttribute('data-src');
-          if(lazy) img.src = lazy;
-        });
-      }
+  closeFullscreen(li: HTMLLIElement) {
+    if (!li) return;
+    const aud = li.querySelector('audio')  as HTMLAudioElement, vid = li.querySelector('video') as HTMLVideoElement,
+      imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
+    if (vid && !li.classList.contains('no-audio')) { aud?.pause(); }
+    if (vid) { vid.pause(); vid.controls=false }
+    li.classList.remove('fullscreen', 'enlarge');
+    imgs.forEach(img => img.style.transform = "");
+  }
+
+  openFullscreen(li: HTMLLIElement) {
+    const iframe = li.querySelector('iframe'), text = li.querySelector('.text') as HTMLDivElement,
+      imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>, vid = li.querySelector('video') as HTMLVideoElement;
+    li.classList.add('fullscreen');
+    text.classList.remove('max-limit');
+    if (li.classList.contains('video')) vid.controls = true;
+    if (vid) vid.play();
+    else if (iframe) {
+      if (!li.classList.contains('has-played') && iframe) iframe.src = iframe.getAttribute('data-src') || '';
+      li.classList.add('has-played');
+    } else if (imgs.length) {
+      imgs.forEach(img => {
+        const lazy = img.getAttribute('data-src');
+        if (lazy) {
+          li.classList.add('loading');
+          const newImg = new Image();
+          newImg.src = lazy;
+          newImg.onload = _ => {
+            img.src = lazy;
+            li.classList.remove('loading');
+            newImg.remove();
+          };
+          newImg.onerror = _ => li.classList.add('error');
+        }
+      });
     }
+  }
+
+  onLiClick(li: HTMLLIElement, event?: MouseEvent | TouchEvent) {
+    if (li.classList.contains('fullscreen')) {
+      if ((event!.target as HTMLElement).classList.contains('exit')) {
+        this.closeFullscreen(li);
+      }
+    } else { this.openFullscreen(li); }
   }
 
   onPlay(vid: HTMLVideoElement) {
@@ -79,12 +95,12 @@ export class GalleryComponent {
   }
 
   galleryDir(gallery: HTMLDivElement | null, dir: string) {
-    if(!gallery) return;
+    if (!gallery) return;
     const imgs = gallery.querySelectorAll('img');
     const max = imgs.length - 1;
     const style = imgs.item(0).style.transform.match(/(?<=translateX\([-]).*(?=%\))/);
     const i = Math.floor(Number((style?.[0] || 0))/100);
-    if(dir === 'links') {
+    if (dir === 'links') {
       if (i<max) {
         imgs.forEach(v=>v.style.transform = "translateX(-"+ (100*(i+1)) +"%)");
       } else {
@@ -98,16 +114,21 @@ export class GalleryComponent {
       }
     }
   }
-  @HostListener('document:keydown', ['$event']) onKeydownHandler($event: KeyboardEvent) {
-    const gallery = document.querySelector('.fullscreen .gallery-container') as HTMLDivElement;
-    if ($event.key === 'ArrowRight') {
-      this.onRight(gallery)
-    } else if ($event.key === 'ArrowLeft') {
-      this.onLeft(gallery)
-    } else if ($event.key === 'Escape') {
-      document.querySelector('.fullscreen')?.classList.remove('fullscreen');
-    }
+
+  nextPost(li: HTMLLIElement, dir: number) {
+    const lis = li.parentElement!.children as HTMLCollectionOf<HTMLLIElement>, index = Array.from(lis).indexOf(li), next = lis.item(index + dir);
+    this.closeFullscreen(li);
+    this.openFullscreen(next ? next : lis.item(0)!)
   }
 
-  log(e:any) {console.log(e)}
+  @HostListener('window:keyup', ['$event']) function($event: KeyboardEvent) {
+    const gallery = document.querySelector('.fullscreen.gallery .content-wrapper') as HTMLDivElement,
+      li = document.querySelector('.fullscreen') as HTMLLIElement;
+    console.log($event.key);
+    if ($event.key === 'ArrowRight') this.onRight(gallery);
+    else if ($event.key === 'ArrowLeft') this.onLeft(gallery);
+    else if ($event.key === 'ArrowUp') this.nextPost(li, 1);
+    else if ($event.key === 'ArrowDown') this.nextPost(li, -1);
+    else if ($event.key === 'Escape') this.closeFullscreen(li);
+  }
 }

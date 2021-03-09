@@ -13,46 +13,25 @@
       width: 100%
       height: 100%
       background: rgba(0,0,0,0.75)
+      text-align: center
+  &.nsfw::before
+    content: '🔞'
+    font-size: 10em
+    background: black
   &.gallery .content-wrapper::before
     content: 'gallery'
   &.discussion .content-wrapper::before
     content: 'discussion'
-  &.youtube:not(.has-played) iframe, .limit-symbol, &.gifv .controls, &.gallery img:nth-of-type(n+2),
-  &.gallery button, &.discussion .discussion-text
+  &.youtube:not(.has-played) iframe, &.youtube.has-played img, .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
+  &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link, .right-ctrl .exit
     display: none
   .text
     height: 1.5em
 
-.exit, .score
-  display: flex
-  justify-content: center
-  align-items: center
-  border-radius: 50%
-  background: #13b300b5
-  position: absolute
-  width: 0
-  height: 0
-  opacity: 0
-  cursor: pointer
-  color: #ffcdb0
-  border-radius: 50%
-.exit
-  top: 1em
-  right: 2em
-  z-index: 5
-  @media (max-width: 900px)
-    right: 1em
-.score
-  padding: 15px
-  top: -5px
-  left: -5px
-  z-index: 2
-  opacity: 1
-  
 .my-image-list
   display: flex
   flex-wrap: wrap
-  padding: 0
+  padding: 0 0 5em
   gap: 0.6em
   li
     position: relative
@@ -63,6 +42,32 @@
     cursor: pointer
     flex-direction: column
     justify-content: space-between
+    .controls
+      position: absolute
+      width: 100%
+      height: 100%
+      z-index: 2
+      .left-ctrl
+        position: absolute
+        .score
+          width: fit-content
+          font-weight: bold
+          color: #6d240f
+          position: relative
+          text-shadow: -2px 1px 3px #f30000
+          &::after
+            content: '👍'
+            position: absolute
+            z-index: -1
+            top: -2px
+            left: 50%
+            opacity: 0.6
+            font-size: 2em
+            transform: translate(-50%,-50%)
+      .right-ctrl
+        position: absolute
+        top: 1.6em
+        right: 0.5em
     &.has-played.youtube
       iframe
         width: 100%
@@ -82,7 +87,7 @@
       flex: 1
       justify-content: center
       position: relative
-      max-height: 200px
+      max-height: 180px
       img
         object-fit: contain
         width: 100%
@@ -90,7 +95,6 @@
       width:100%
     .mute, .enlarge-btn
       display: none
-
 
   li.fullscreen
     position: fixed
@@ -101,7 +105,22 @@
     margin: 0
     z-index: 100
     background-color: #ffffffa1
-    &.gifv .controls
+    img
+      position: relative
+    video
+      height: 100%
+      width: 100%
+      max-width: 100%
+      margin: 0 auto
+      display: block
+      position: relative
+    .controls
+      .ctrl-btn
+        font-size: 1.7em
+      .left-ctrl
+        top: 1.6em
+        left: 0.5em
+    &.gifv .gifv-controls
       position: absolute
       top: 3.6em
       right: 1.4em
@@ -115,11 +134,8 @@
     &.no-audio .mute
       display: block
       font-style: normal
-      font-size: 2em
       opacity: 0.3
-      position: absolute
-      top: 1.6em
-      left: 0.5em
+      position: relative
       @media (min-width: 901px)
         &:hover::before
           content: 'This Video does not have sound'
@@ -127,86 +143,10 @@
           top: 100%
           font-size: 1em
           width: 5em
-    img
-      position: relative
-    .text
-      justify-content: center
-      margin-top: 0
-      color: white
-      background: #1B2735
-      border: solid #1B2735
-      .label
-        white-space: normal
-    .content-wrapper
-      padding: 0
-      width: 100%
-      position: relative
-      overflow: auto
-      max-height: unset
-      &.enlarge
-        flex-wrap: wrap
-    .enlarge-btn
-      position: absolute
-      top: 0.4em
-      left: 1.7em
-      font-size: 1.7em
-      border-radius: 50%
-      border: none
-      outline: none
-      background: transparent
-      cursor: pointer
-    &.youtube
-      img
-        display: none
-      .exit, .score
-        top: 5em
-    &.gallery .content-wrapper
-      flex-wrap: wrap
-      flex-direction: column
-      overflow-x: hidden !important
-      &.enlarge
-        justify-content: unset
-      &:not(.enlarge) img
-        height: -webkit-fill-available
-      .left, .right
-        position: absolute
-        left: 5em
-        top: 50%
-        background: #1B2735
-        border-color: #1B2735
-        outline: none
-        padding: 1em
-        color: white
-        border-radius: 50%
-        z-index: 9
-        cursor: pointer
-        @media (max-width: 900px)
-          left: 0
-      .right
-        right: 5em
-        left: unset
-        @media (max-width: 900px)
-          right: 0
-    .exit
-      content: 'x'
-      padding: 15px
-      opacity: 1
-    .score
-      top: 1em
-      left: 1em
-      z-index: 5
-      opacity: 1
-    video
-      height: 100%
-      width: 100%
-      max-width: 100%
-      margin: 0 auto
-      display: block
-      position: relative
     .limit-symbol
       position: absolute
       right: .2em
-      top: -.5em
+      top: -.8em
       padding: 10px
       background: white
       display: flex
@@ -215,10 +155,68 @@
       width: 0
       height: 0
       border-radius: 50%
+      z-index: 1
+      user-select: none
       @media (max-width: 900px)
         right: 1em
     .max-limit
       max-height: 1em
+      .label
+        white-space: nowrap
+        text-overflow: ellipsis
+    .text
+      justify-content: center
+      margin-top: 0
+      color: white
+      background: #1B2735
+      border: solid #1B2735
+      .label
+        white-space: normal
+
+    .content-wrapper
+      padding: 0
+      width: 100%
+      position: relative
+      overflow: auto
+      max-height: unset
+    &.loading .content-wrapper
+      background: url('/assets/images/loading.gif')
+    &.enlarge .content-wrapper
+      flex-wrap: wrap
+
+    &.youtube
+      img
+        display: none
+
+    &.gallery
+      &.enlarge .content-wrapper
+        justify-content: unset
+      &:not(.enlarge) .content-wrapper img
+        height: -webkit-fill-available
+      .content-wrapper
+        flex-wrap: wrap
+        flex-direction: column
+        overflow-x: hidden !important
+        .left, .right
+          position: absolute
+          left: 5em
+          top: 50%
+          background: #1B2735
+          border-color: #1B2735
+          outline: none
+          padding: 1em
+          color: white
+          border-radius: 50%
+          z-index: 9
+          cursor: pointer
+          @media (max-width: 900px)
+            left: 0
+        .right
+          right: 5em
+          left: unset
+          @media (max-width: 900px)
+            right: 0
+
     &.discussion .content-wrapper
       align-items: center
       padding: 2em 4em
@@ -231,5 +229,26 @@
         padding: 4em
         white-space: pre-line
         font-size: 1.6em
+
+    &.image .content-wrapper .discussion-text
+      background: #1b2735f0
+      color: white
+      padding: 4em
+      white-space: pre-line
+      font-size: 1.6em
+      position: absolute
+      z-index: 1
+      width: -webkit-fill-available
+      height: -webkit-fill-available
+      text-align: center
+      a
+        color: #ffd597
+        outline: none
+        &:hover
+          color: #5efdfd
+        &:visited
+          color: #965f0e
     &.gallery .enlarge-btn, &.image .enlarge-btn
       display: block
+    &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus
+      display: none

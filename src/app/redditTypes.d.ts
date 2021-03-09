@@ -1,9 +1,10 @@
-type RedditImage = string
-type RedditGallery = string[]
-type RedditVideo = {
-  [Property in 'vid'|'aud']: string
-}
-type RedditYoutube = string
+export type RedditImage = string;
+export type RedditGallery = string[];
+export type RedditVideo = {
+  vid: string,
+  aud: string
+};
+export type RedditYoutube = string;
 export type RedditMedia = RedditVideo | RedditImage | RedditGallery | RedditYoutube;
 export type RedditSort = 'top'|'hot'|'new'|'rising';
 export interface Subreddit {
@@ -26,5 +27,10 @@ export interface RedditPost {
   score: number
   spoiler: boolean,
   title: string,
-  upvote_ratio: number
+  upvote_ratio: number,
+  nsfw: boolean
+}
+
+export interface SubredditTable extends Partial<Subreddit> {
+  id?: number
 }

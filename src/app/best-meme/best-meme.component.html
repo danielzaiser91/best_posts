@@ -1,18 +1,20 @@
 <div class="spinner" *ngIf="loading">
   ... loading
 </div>
+<app-popular-subreddits (choose)="fetchSub($event, true)"></app-popular-subreddits>
 <div class="select">
-  <app-popular-subreddits [subreddits]="meta" (choose)="fetchSub($event, true)"></app-popular-subreddits>
   <div [formGroup]="subredditChooser">
-    <label for="subredditInput">Zeige Posts von /r/</label>
-    <input id="subredditInput" placeholder="cats" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subredditInput>
-    &nbsp;<button class="search btn" [disabled]="!subExists" (click)="fetchSub(subredditInput.value, true)" disabled>suchen</button>
-    <ul *ngIf="suggestions" class="suggestions" #sugs>
-      <li *ngFor="let sug of suggestions.slice(page, page+10)" (click)="fetchSub(sug.name, true)">
-        <span *ngIf="sug.subscribers" class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
-        <span *ngIf="sug.over18">18+ </span>
-        {{sug.name}}</li>
-    </ul>
+    <label for="subredditInput">Zeige die 25 besten Posts von /r/</label>
+    <div class="wrap-input">
+      <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
+      <input id="subredditInput" [placeholder]="currentSub" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subredditInput>
+      <ul *ngIf="suggestions" class="suggestions" #sugs>
+        <li *ngFor="let sug of suggestions.slice(page, page+10)" (click)="fetchSub(sug.name, true)">
+          <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
+          <span *ngIf="sug.over18">🔞</span>
+          {{sug.name}}</li>
+      </ul>
+    </div>
   </div>
   <div>
     <button class="btn" (click)="getNextSubreddit()">zeige: {{ nextSub }}</button>

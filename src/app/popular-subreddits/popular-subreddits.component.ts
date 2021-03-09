@@ -1,4 +1,7 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { filter } from 'rxjs/operators';
+import { Subreddit } from '../redditTypes';
+import { StorageService } from '../storage.service';
 
 @Component({
   selector: 'app-popular-subreddits',
@@ -6,14 +9,20 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
   styleUrls: ['./popular-subreddits.component.sass']
 })
 export class PopularSubredditsComponent implements OnInit {
-  @Input() subreddits: any[];
   @Output() choose = new EventEmitter<string>();
+  subreddits: Subreddit[];
   page = 0;
 
-  constructor() { }
+  constructor(private store: StorageService) {}
 
-  ngOnInit(): void { }
-  onChoose(sub: string) {
+  ngOnInit(): void {
+    this.store.metaDataState.pipe(filter(val => !!val)).subscribe(() => {
+      this.store.reddit.meta.toArray().then(meta => this.subreddits = meta as Subreddit[]);
+    });
+  }
+
+  onChoose(sub: string, el: HTMLElement) {
+    el.classList.add('hide');
     this.choose.emit(sub);
   }
 }

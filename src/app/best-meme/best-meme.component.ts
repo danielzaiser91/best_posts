@@ -1,30 +1,9 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { RedditAPIService } from '../reddit-api.service';
-import Dexie from 'dexie';
-import { Subreddit } from '../redditTypes';
+import { errHandler, RedditAPIService } from '../reddit-api.service';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { debounceTime } from 'rxjs/operators';
-import { Subscription } from 'rxjs';
-
-interface SubredditTable extends Partial<Subreddit> {
-  id?: number
-}
-class RedditDatabase extends Dexie {
-  public meta: Dexie.Table<SubredditTable, number>; // id is number in this case
-
-  public constructor() {
-    super("redditData");
-    const version = this.version(1).stores({
-      meta: '++id, identifier, name, subscribers, created_utc, over18, description, community_icon, icon_img',
-    });
-    console.log(version);
-    this.meta = this.table("meta");
-  }
-}
-const db = new RedditDatabase();
-
-const getSaved = (param: string) => JSON.parse(sessionStorage.getItem(param) || 'null');
-const save = (param: string, data: any) => sessionStorage.setItem(param, JSON.stringify(data));
+import { catchError, debounceTime, take } from 'rxjs/operators';
+import { StorageService } from '../storage.service';
+import { RedditPost, Subreddit } from '../redditTypes';
 
 @Component({
   selector: 'app-best-meme',
@@ -35,17 +14,16 @@ export class BestMemeComponent implements OnInit {
   @ViewChild('subredditInput') subredditInput: ElementRef;
   subredditChooser: FormGroup;
   postOptions: FormGroup;
-  posts: any;
-  subExists = false;
+  posts: RedditPost[];
+  subExists = true;
   subreddits = ['cats','memes'];
   nextSub = this.subreddits[1];
   currentSub = 'cats';
-  meta: any[] = [];
-  suggestions: any[];
+  suggestions: Subreddit[] = [];
   page = 0;
   loading = false;
 
-  constructor(private api: RedditAPIService, formBuilder: FormBuilder) {
+  constructor(private api: RedditAPIService, formBuilder: FormBuilder, public store: StorageService) {
     this.subredditChooser = formBuilder.group({ subreddit: [''] });
     this.postOptions = formBuilder.group({
       num_posts: ['', Validators.required],
@@ -63,54 +41,50 @@ export class BestMemeComponent implements OnInit {
   }
 
   activateFormValidators() {
+    // listen on input 10 times per second
     this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(100)).subscribe((chunk: string) => {
-      if (chunk === '') {
-        this.suggestions = [];
-        return;
-      }
-      db.transaction('r', db.meta, () => {
-        return db.meta.where('name').startsWithIgnoreCase(chunk).reverse().sortBy('subscribers');
-      }).then(suggestions => this.suggestions = suggestions.sort((a: any, b: any) => a.name.toLowerCase() === chunk.toLowerCase() ? -1 : 1)).then(console.log);
-    });
+      this.subExists = true;
+      if (chunk === '') { this.suggestions = []; return; }
+      this.store.reddit.transaction('r', this.store.reddit.meta, () => {
+        return this.store.reddit.meta.where('name').startsWithIgnoreCase(chunk).reverse().sortBy('subscribers');
+      }).then(suggestions => this.suggestions = suggestions.sort((a: any, b: any) => a.name.toLowerCase() === chunk.toLowerCase() ? -1 : 1) as Subreddit[]);
+    }, catchError(errHandler));
+
+    // listen on input once per second
     this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(1000)).subscribe((chunk: string) => {
       if (chunk === '') return;
-      const $temp: Subscription = this.api.subExists(this.subredditInput.nativeElement.value).subscribe(
-        (subreddit: any) => {
-          this.subExists = true;
-          $temp.unsubscribe();
-          if(!this.suggestions.length) this.suggestions.push({ name: subreddit.data.children[0].data.subreddit });
-        },
-        err => this.subExists = false,
-      );
-    });
+      this.api.getSubreddit(this.subredditInput.nativeElement.value).pipe(take(1)).subscribe({next: subreddit => {
+        this.subExists = true;
+        this.store.reddit.meta.where('name').equalsIgnoreCase(subreddit.name).first().then(v => {
+          if (!v) {
+            this.suggestions.push(subreddit);
+            this.store.reddit.meta.add(subreddit);
+          }
+        });
+      }, error: _ => this.subExists = false });
+    }, catchError(errHandler));
   }
 
   getMetaData() {
     const today = new Date().toDateString();
 
-    // every 100 subreddit ids for pagination and initial fetch for filling suggestions... kinda todo...
-    const arr = ['','t5_2rlgy','t5_32rww','t5_2s3kh','t5_2qs0q','t5_2tkvu','t5_2qhpm','t5_39umt','t5_30qnb','t5_2qh3r','t5_3fmt2','t5_2qhjq','t5_2rg2o','t5_2s61a','t5_37nqy','t5_3aw4y',
-    't5_2qhw9','t5_2yqte','t5_xpfq5','t5_2r8t2','t5_2vso4','t5_2s91q','t5_2rjcb','t5_2rfyw','t5_3ocv3','t5_g53v4','t5_3osjr','t5_2tnbv','t5_2v08h','t5_2qsbv','t5_32rtl','t5_3f1y1',
-    't5_3jwwf','t5_3fnyy','t5_gi5ar'];
+    // one id for every 100 subreddits for pagination and initial fetch for filling suggestions... kinda todo... replace with ngrx?
+    const metaArray = ['','t5_2rlgy','t5_32rww','t5_2s3kh','t5_2qs0q','t5_2tkvu','t5_2qhpm','t5_39umt','t5_30qnb','t5_2qh3r','t5_3fmt2','t5_2qhjq','t5_2rg2o','t5_2s61a',
+      't5_37nqy','t5_3aw4y','t5_2qhw9','t5_2yqte','t5_xpfq5','t5_2r8t2','t5_2vso4','t5_2s91q','t5_2rjcb','t5_2rfyw','t5_3ocv3','t5_g53v4','t5_3osjr','t5_2tnbv','t5_2v08h',
+      't5_2qsbv','t5_32rtl','t5_3f1y1','t5_3jwwf','t5_3fnyy','t5_gi5ar'];
 
-    console.info('%cfetching subreddit meta-data for the '+arr.length*100+' most popular subreddits...','font-size:2em; border:1px solid; padding: 1em; background: #ffe79e; color: black');
-    db.transaction('rw', db.meta, async() => {
-      const noData = await db.meta.count() === 0;
-      const notfetchedToday = getSaved('meta')?.lastFetch !== today;
+    console.info('%cfetching subreddit meta-data for the '+metaArray.length*100+' most popular subreddits...','font-size:2em; border:1px solid; padding: 1em; background: #ffe79e; color: black');
+    this.store.reddit.transaction('rw', this.store.reddit.meta, async() => {
+      const noData = await this.store.reddit.meta.count() === 0;
+      const notfetchedToday = this.store.getSaved('meta')?.lastFetch !== today;
       if( notfetchedToday || noData ) {
-        this.api.getAllSubreddits(arr).subscribe(async meta => {
-          meta = flattenDeep(meta);
-          save('meta', { lastFetch: today });
-          function flattenDeep(arr1: any[]): any[] {
-            return arr1.reduce((acc, val) => Array.isArray(val) ? acc.concat(flattenDeep(val)) : acc.concat(val), []);
-          }
-          await db.meta.clear().then(() => db.meta.bulkPut(meta)).then(() => this.meta = meta);
-          console.log(this.meta);
-        });
-      } else {
-        if(!this.meta?.length) this.meta = await db.meta.toArray();
-        console.log(this.meta);
-      }
+        this.api.getAllSubreddits(metaArray).pipe(take(1)).subscribe(meta => {
+          this.store.save('meta', { lastFetch: today });
+          this.store.reddit.meta.clear().then(() => this.store.reddit.meta.bulkPut(meta)).then(_ => {
+            this.store.metaDataReady(true);
+          });
+        }, catchError(errHandler));
+      } else this.store.metaDataReady(true);
     });
   }
 
@@ -124,28 +98,26 @@ export class BestMemeComponent implements OnInit {
     if (this.subredditInput) this.subredditInput.nativeElement.value = sub;
     console.log(sub);
     const
-      saved = getSaved(sub),
+      saved = this.store.getSaved(sub),
       today = new Date().toDateString();
     if(saved?.lastFetch !== today) {
-      const a = this.api.get(sub).subscribe(data => {
-        a.unsubscribe();
+      this.api.get(sub).pipe(take(1)).subscribe((data: RedditPost[]) => {
         if(base) {
           this.posts = data;
           this.loading = false;
         }
         sessionStorage.setItem(sub, JSON.stringify({data, lastFetch: today}));
-        save(sub, {data, lastFetch: today});
+        this.store.save(sub, {data, lastFetch: today});
         this.currentSub = sub;
         this.subreddits.push(sub);
-      });
+      }, catchError(errHandler));
     } else {
-      console.log('return hier??', this.isCurrentSub(sub));
+      this.loading = false;
       if(!!this.posts && this.isCurrentSub(sub)) return; // prevent load of already loaded data
       if(base) {
         console.log(saved.data);
         this.posts = saved.data;
         this.currentSub = sub;
-        this.loading = false;
       }
     }
   }

@@ -163,13 +163,19 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
   - <u>👨‍🎨 Optisch:</u>
     - control Button Liste ist jetzt auf einer extra Leiste
     - Webseite wurde komplett neu designed um ein einheitliches farbschema zu repräsentieren (Nachthimmelblau)
+    - neue icons bzw icons ersetzt für Vollbildmodus (Redditlink, plus, minus, x)
+    - no-audio-icon redesign
   
   - <u>neue Features:</u>
     - 🐳 Docker Image with automated build on latest release: https://hub.docker.com/r/danielzaiser91/best_reddit
     - Greetings-Component:
       - neue Nutzer werden bei erstem Seitenaufruf mit einem Popup begrüßt der kurz vorstellt was die Seite macht und wie sie funktioniert.
+      - wird nur 1x angezeigt, falls haken gesetzt wird (gespeichert in localstorage)
+      - animiertes selbsterstelltes icon (pfeil nach rechts)
     - show loader when images are being replaced / lazy loaded
     - volume slider on videos, finally 😍 (cool, but needs redesign, beecause it looks ugly, and performs clunky on mobile)
+    - impressum component, but needs to be linked (accessible via /impressum for now)
+    - Player merkt sich Audio Lautstärke und setzt sie beim starten des nächsten Videos. (localstorage)
 
   - <u>🐜 Bugfixing:</u>
     - Medieninhalte sind wieder bedienbar

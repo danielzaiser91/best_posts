@@ -7,6 +7,11 @@
   color: white
   #subredditChooser
     outline: none
+  .saved-subreddits
+    width: 100px
+    white-space: nowrap
+    text-overflow: ellipsis
+    overflow: hidden
 .optionsOverlay
   display: flex
   flex-wrap: wrap
@@ -61,18 +66,17 @@
   outline: none
   background: transparent
   color: white
-  border: 1px solid
-  box-shadow: 0 9px #999
+  border: 1px solid #3e4d67
+  box-shadow: 0 9px #9dbbff4d
   border-radius: 15px
   position: relative
   &:hover, &:active
-    background-color: white
-    color: black
+    background-color: #454c56ba
   &:active
     box-shadow: 0 5px #666
     transform: translateY(4px)
   &:disabled
-    background-color: #ffffffb8
+    background-color: #7f8ca5d4
     &:hover
       content: ''
       &::before
@@ -88,33 +92,34 @@
     left: 0
     z-index: 9
 
-#subredditInput
-  color: white
-  width: -webkit-fill-available
-  &.valid
-    border: 1px solid green
-    background: #00ff0038
-  &.invalid
-    border: 1px solid red
-    background: #ff000038
-.suggestions
-  padding: 0
-  list-style: none
+.wrap-input
   display: flex
   flex-direction: column
-  @media (min-width: 516px)
-    margin: 0 auto
-    transform: translateX(1.6em)
-  li
-    cursor: pointer
-    background: #ffffff29
-    padding: 0.2em 3em 0.2em 0.2em
-    border: solid
-    border-width: 1px 0
-    position: relative
-    .subscriber-count
-      position: absolute
-      right: 0
+  #subredditInput
+    color: white
+    width: -webkit-fill-available
+    outline: none
+    &.valid
+      border: 1px solid #6896ea
+      background: #144aab
+    &.invalid
+      border: 1px solid #e91e1e
+      background: #ff4e4e6b
+  .suggestions
+    padding: 0
+    list-style: none
+    display: flex
+    flex-direction: column
+    li
+      cursor: pointer
+      background: #3444617a
+      padding: 0.2em 3em 0.2em 0.2em
+      border: solid
+      border-width: 1px 0
+      position: relative
+      .subscriber-count
+        position: absolute
+        right: 0
 
 
 .spinner 

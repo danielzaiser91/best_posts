@@ -1,0 +1,39 @@
+<div class="greetings-overlay" *ngIf="page<4">
+  <div class="greetings-body">
+
+    <div *ngIf="page === 0">
+      <svg-icon src="/assets/images/blogging.svg" [svgStyle]="{ 'width.px':250 }"></svg-icon>
+      <span>
+        Hallo! 🤗 <br>
+        ich bin der Entwickler dieser Webseite und möchte dir kurz meine Webseite vorstellen.
+      </span>
+    </div>
+
+    <div *ngIf="page === 1">
+      <svg-icon src="/assets/images/blogging.svg" [svgStyle]="{ 'width.px':90 }"></svg-icon>
+      <span>
+        Die Webseite zeigt die 25 besten Posts des Tages vom Subreddit /r/cats.
+        Reddit ist eine Gemeinschaft zum Austausch von Ideen, Bildern, Videos, Diskussionen und Memes 😁
+      </span>
+    </div>
+
+    <div *ngIf="page === 2">
+      <svg-icon src="/assets/images/blogging.svg" [svgStyle]="{ 'width.px':90 }"></svg-icon>
+      <span>
+        Aber meine Webseite kann natürlich mehr als nur Katzenbilder anzuzeigen. 😀
+        zum Beispiel die 25 besten Posts des Tages von jedem beliebigen der insgesamt 138.000 Subreddits anzuzeigen 😎
+      </span>
+    </div>
+
+    <div *ngIf="page === 3">
+      <svg-icon src="/assets/images/blogging.svg" [svgStyle]="{ 'width.px':90 }"></svg-icon>
+      <span>
+        Benutze also die Suche oder wähle einen Subreddit aus der Liste der beliebtesten Subreddits,
+        durch anklicken des Buttons in der linken, oberen Ecke des Bildschirms,
+        viel Vergnügen 🤩
+      </span>
+    </div>
+
+    <button class="btn next" (click)="page=page+1"></button>
+  </div>
+</div>

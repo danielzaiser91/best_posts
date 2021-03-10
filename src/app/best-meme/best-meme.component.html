@@ -1,6 +1,7 @@
 <div class="spinner" *ngIf="loading">
   ... loading
 </div>
+<app-greetings></app-greetings>
 <app-popular-subreddits (choose)="fetchSub($event, true)"></app-popular-subreddits>
 <div class="select">
   <div [formGroup]="subredditChooser">
@@ -17,7 +18,7 @@
     </div>
   </div>
   <div>
-    <button class="btn" (click)="getNextSubreddit()">zeige: {{ nextSub }}</button>
+    <button class="btn saved-subreddits" (click)="getNextSubreddit()" title="wechsle zu: r/{{nextSub}}">{{ nextSub }}</button>
     <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')" disabled>Optionen</button>
   </div>
 </div>

@@ -1,6 +1,7 @@
-import { NgModule } from '@angular/core';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
+import { AngularSvgIconModule } from 'angular-svg-icon';
 
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
@@ -9,6 +10,7 @@ import { GalleryComponent, ShortNumberPipe } from './gallery/gallery.component';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PopularSubredditsComponent } from './popular-subreddits/popular-subreddits.component';
 import { GreetingComponent } from './greeting/greeting.component';
+import { GreetingsComponent } from './greetings/greetings.component';
 
 @NgModule({
   declarations: [
@@ -17,14 +19,17 @@ import { GreetingComponent } from './greeting/greeting.component';
     GalleryComponent,
     ShortNumberPipe,
     PopularSubredditsComponent,
-    GreetingComponent
+    GreetingComponent,
+    GreetingsComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    AngularSvgIconModule.forRoot()
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

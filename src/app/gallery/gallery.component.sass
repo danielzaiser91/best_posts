@@ -1,7 +1,7 @@
 .my-image-list li:not(.fullscreen)
   .content-wrapper
     cursor: pointer
-  &.video, &.gallery, &.youtube:not(.has-played), &.discussion
+  &.video, &.gallery, &.youtube:not(.has-played), &.discussion, &.spoiler, &.nsfw, &.gifv
     .content-wrapper::before
       content: '▶️'
       color: white
@@ -12,16 +12,21 @@
       align-items: center
       width: 100%
       height: 100%
+      line-height: 1
       background: rgba(0,0,0,0.75)
       text-align: center
-  &.nsfw::before
+  &.gallery .content-wrapper::before
+    content: 'Gallerie'
+  &.discussion .content-wrapper::before
+    content: 'Diskussion'
+  &.nsfw .content-wrapper::before
     content: '🔞'
     font-size: 10em
     background: black
-  &.gallery .content-wrapper::before
-    content: 'gallery'
-  &.discussion .content-wrapper::before
-    content: 'discussion'
+  &.spoiler .content-wrapper::before
+    content: 'Spoiler'
+    font-size: 2em
+    background: grey
   &.youtube:not(.has-played) iframe, &.youtube.has-played img, .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
   &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link, .right-ctrl .exit
     display: none
@@ -39,35 +44,28 @@
     display: flex
     min-width: 180px
     min-height: 200px
-    cursor: pointer
     flex-direction: column
     justify-content: space-between
     .controls
-      position: absolute
-      width: 100%
-      height: 100%
-      z-index: 2
+      border-top: 2px solid #4a5d73
       .left-ctrl
-        position: absolute
         .score
           width: fit-content
           font-weight: bold
-          color: #6d240f
+          color: #7bb8ff
           position: relative
-          text-shadow: -2px 1px 3px #f30000
+          text-shadow: 0px -1px 14px #7eb9ffba
           &::after
             content: '👍'
             position: absolute
-            z-index: -1
-            top: -2px
-            left: 50%
+            z-index: 0
+            top: 0
+            right: -8px
             opacity: 0.6
-            font-size: 2em
-            transform: translate(-50%,-50%)
-      .right-ctrl
-        position: absolute
-        top: 1.6em
-        right: 0.5em
+            font-size: 0.6em
+            transform: translate(50%, -40%)
+        .enlarge-btn
+          line-height: 0
     &.has-played.youtube
       iframe
         width: 100%
@@ -75,7 +73,7 @@
       color: white
       display: flex
       white-space: nowrap
-      border: solid
+      border: solid #4d6994
       margin-top: 6px
       padding: 4px 0
       border-width: 1px 0 2px 0
@@ -103,11 +101,12 @@
     height: 100%
     width: 100vw
     margin: 0
-    z-index: 100
-    background-color: #ffffffa1
+    z-index: 2
+    background-color: #1b2735b0
     img
       position: relative
     video
+      cursor: pointer
       height: 100%
       width: 100%
       max-width: 100%
@@ -115,11 +114,19 @@
       display: block
       position: relative
     .controls
+      display: flex
+      height: 2em
+      justify-content: space-between
+      padding: .5em 6%
+      background: #1b2735
+      user-select: none
+      .ctrl-btn:not(.score)
+        cursor: pointer
       .ctrl-btn
         font-size: 1.7em
       .left-ctrl
-        top: 1.6em
-        left: 0.5em
+        display: flex
+        gap: 1em
     &.gifv .gifv-controls
       position: absolute
       top: 3.6em
@@ -133,16 +140,23 @@
       outline: none
     &.no-audio .mute
       display: block
-      font-style: normal
-      opacity: 0.3
-      position: relative
-      @media (min-width: 901px)
-        &:hover::before
-          content: 'This Video does not have sound'
-          position: absolute
-          top: 100%
-          font-size: 1em
-          width: 5em
+      position: absolute
+      z-index: 1
+      left: 0
+      top: 0
+      font-size: 2em
+      .icon
+        opacity: 0.3
+      &:hover::before
+        content: 'This Video does not have sound'
+        position: absolute
+        color: white
+        top: 100%
+        left: 10px
+        background: #1b2735
+        padding: 5px
+        font-size: 0.8em
+        width: 50vw
     .limit-symbol
       position: absolute
       right: .2em
@@ -165,11 +179,13 @@
         white-space: nowrap
         text-overflow: ellipsis
     .text
+      cursor: pointer
       justify-content: center
       margin-top: 0
       color: white
       background: #1B2735
-      border: solid #1B2735
+      border: solid #6b829e
+      border-width: 2px 0 0 0
       .label
         white-space: normal
 

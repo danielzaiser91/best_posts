@@ -1,11 +1,18 @@
 <ul class="my-image-list">
-  <li *ngFor="let post of posts; index as post_id" [class.nsfw]="post.nsfw" [class]="post.is" [class.default]="post.thumbnail === 'default'" (click)="onLiClick(li, $event)" #li>
+  <!-- post.spoiler ? 'spoiler' : '', post.nsfw ? 'nsfw' : '', post.thumbnail === 'default' ? 'default' : '',  -->
+  <li 
+    *ngFor="let post of posts; index as post_id"
+    [ngClass]="[
+      post.spoiler ? 'spoiler' : '',
+      post.nsfw ? 'nsfw' : '',
+      post.thumbnail === 'default' ? 'default' : '',
+      post.is]"
+    (click)="onLiClick(li, $event)" #li>
     <div class="controls">
       <div class="left-ctrl">
         <div class="score ctrl-btn">{{ post.score | shortNumber }}</div>
-        <i class="mute ctrl-btn">🔇</i>
         <button class="enlarge-btn ctrl-btn" (click)="li.classList.toggle('enlarge')"><span class="minus">➖</span><span class="plus">➕</span></button>
-        <a class="open-link ctrl-btn" [href]="post.thread_url.thread">🧬</a>
+        <a class="open-link ctrl-btn" [href]="post.thread_url.thread" target="_blank"></a>
       </div>
       <div class="right-ctrl">
         <div class="exit ctrl-btn">❎</div>
@@ -33,6 +40,7 @@
     </div>
     <ng-template #elseif1>
       <div *ngIf="post.is === 'video' else elseif2" class="content-wrapper">
+        <div class="mute"><span class="icon">🔇</span></div>
         <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
           <source [src]="post.src.vid" type="video/mp4">
           Your browser does not support the video tag.
@@ -59,6 +67,7 @@
     </ng-template>
     <ng-template #elseif4>
       <div *ngIf="post.is === 'gifv'; else elseif5" class="content-wrapper no-audio">
+        <i class="mute">🔇</i>
         <video [poster]="post.thumbnail" class="" loop #gifv>
           <source [src]="post.src" type="video/mp4">
           Your browser does not support the video tag.

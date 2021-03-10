@@ -1,7 +1,8 @@
 # BestOfReddit
 eine Single Page Application, die Daten von der Reddit-API fetched und diese darstellt.
 
-Link zur Webseite: https://best-reddit-post.netlify.app/
+Link zur Webseite: https://best-reddit-post.netlify.app/ (Always up to date - automagically 🤗)
+Link zum Dockerimage: https://hub.docker.com/r/danielzaiser91/best_reddit (Always up to date - automagically 🤗)
 
 kleine Vorwarnung: Ich beschreibe im Nachfolgenden die App in einem Gemisch aus Deutsch und Englisch :D
 
@@ -47,6 +48,8 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
   - Verwenden von Regulären Ausdrücken
   - Keyboard Controls for Gallery (Left/Right Arrow)
   - Responsive Design
+  - Automatisches Deployen der Webseite auf Netlify
+  - Automatisches Deployen des Docker-Images auf DockerHub
 
 <u>Probleme/Bugs:</u>
  - Vorspulen:
@@ -77,7 +80,6 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - Design Rework
  - Bughunting
  - I can't get enough - Feature (add a "more of this" button, which loads the next "page" (pagination api call by id+limit))
- - show loader when data is being replaced / lazy loaded
  - cinema Mode (Fullscreen which never needs to be left)
  - autoplay next post (chaining videos, bzw. images after timeout)
  - move heavy logic into a webworker? (not currently necessary, because workload is still low, because of highly efficient code)
@@ -86,6 +88,8 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - feature-rich User Preference Settings (see <a href="#zukunft1">Changelog-Entry</a> from <a href="#09.03.2021">09.03.2021</a>)
  - bigTodo: replace everything with ngrx-store?
  - Users like to scroll, so maybe add a scrollfeature that lets you scroll through all posts vertically one by one
+ - better touch device support
+ - dont show enlarge button when it wont have an effect
 
 # Changelog:
 
@@ -134,14 +138,12 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
     - 🐳 Docker Support (optimized Dockerfile) 🐳
     - Support neuer Medieninhalte (Links zu Artikeln)
       - --> default Image + Styling
-    - Greetings-Component:
-      - neue Nutzer werden bei erstem Seitenaufruf mit einem Popup begrüßt der kurz vorstellt was die Seite macht und wie sie funktioniert.
     - nach verlassen des Fullscreens wird das Vergrößern des Bildes (falls vom User gemacht) wieder rückgängig gemacht
     - 💾 Suche speichert jetzt gefundene, nicht indexierte Subreddits für zukünftige Suchen
     - SubredditSuche: Exakte Treffer haben Priorität (werden zuerst vorgeschlagen)
     - Man kann jetzt zwischen Posts mit den ⬆⬇ Pfeiltasten wechseln 🤩
   - <u>🐜 Bugfixing:</u>
-    - 🎬 Escape pausiert jetzt laufende Videos korrekt
+    - 🎬 Die Escape-Taste pausiert jetzt laufende Videos korrekt
     - fixing a rare occurence of infinite loading
   - <u>🔋 Performance/Optimierungen:</u>
     - Code Refactoring --> kürzere Ladezeiten
@@ -155,6 +157,29 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
       - in Zukunft kann man persönliche Einstellungen pflegen, sodass man eine bessere Nutzererfahrung hat, zB bevorzugte Subs,
         preloading von bevorzugten Inhalten, anzeigen/verstecken von nsfw Posts, speichern aller bereits gesehenen Inhalte und 
         Option keine Inhalte angezeigt zu bekommen, die man bereits angesehen hat.
+
+
+<span>10.03.2021:</span>
+  - <u>👨‍🎨 Optisch:</u>
+    - control Button Liste ist jetzt auf einer extra Leiste
+    - Webseite wurde komplett neu designed um ein einheitliches farbschema zu repräsentieren (Nachthimmelblau)
+  
+  - <u>neue Features:</u>
+    - 🐳 Docker Image with automated build on latest release: https://hub.docker.com/r/danielzaiser91/best_reddit
+    - Greetings-Component:
+      - neue Nutzer werden bei erstem Seitenaufruf mit einem Popup begrüßt der kurz vorstellt was die Seite macht und wie sie funktioniert.
+    - show loader when images are being replaced / lazy loaded
+
+  - <u>🐜 Bugfixing:</u>
+    - Medieninhalte sind wieder bedienbar
+    - Diskussions-Text läuft nicht mehr über den Rand
+  
+  - <u>🔋 Performance/Optimierungen:</u>
+    - centralizing core logic (moving MetadataFetch from component to service)
+    - refactoring
+
+  - <u>Vorarbeit für zukünftige Features:</u>
+    - Future SVG Support via angular-svg-icon 🤗
 
 
 © Daniel Zaiser - 2021

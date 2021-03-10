@@ -11,11 +11,22 @@
     <div class="controls">
       <div class="left-ctrl">
         <div class="score ctrl-btn">{{ post.score | shortNumber }}</div>
-        <button class="enlarge-btn ctrl-btn" (click)="li.classList.toggle('enlarge')"><span class="minus">➖</span><span class="plus">➕</span></button>
-        <a class="open-link ctrl-btn" [href]="post.thread_url.thread" target="_blank"></a>
+        <button class="enlarge-btn ctrl-btn" (click)="li.classList.toggle('enlarge')">
+          <span class="minus">
+            <svg-icon src="/assets/images/minus.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+          </span>
+          <span class="plus">
+            <svg-icon src="/assets/images/plus.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+          </span>
+        </button>
+        <a class="open-link ctrl-btn" [href]="post.thread_url.thread" target="_blank">
+          <svg-icon src="/assets/images/reddit.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+        </a>
       </div>
       <div class="right-ctrl">
-        <div class="exit ctrl-btn">❎</div>
+        <div class="exit ctrl-btn">
+          <svg-icon src="/assets/images/cross.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+        </div>
       </div>
     </div>
 
@@ -41,6 +52,9 @@
     <ng-template #elseif1>
       <div *ngIf="post.is === 'video' else elseif2" class="content-wrapper">
         <div class="mute"><span class="icon">🔇</span></div>
+        <div class="volume">
+          <input type="range" min="0" max="1" value="0.5" step="0.01" (change)="changeVolume(vol.value, li)" #vol>
+        </div>
         <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
           <source [src]="post.src.vid" type="video/mp4">
           Your browser does not support the video tag.
@@ -67,12 +81,11 @@
     </ng-template>
     <ng-template #elseif4>
       <div *ngIf="post.is === 'gifv'; else elseif5" class="content-wrapper no-audio">
-        <i class="mute">🔇</i>
-        <video [poster]="post.thumbnail" class="" loop #gifv>
+        <div class="mute"><span class="icon">🔇</span></div>
+        <video [poster]="post.thumbnail" class="" loop controls #gifv>
           <source [src]="post.src" type="video/mp4">
           Your browser does not support the video tag.
         </video>
-        <button class="gifv-controls" (click)="gifv.controls = (controls = !controls)">⚙️</button>
       </div>
     </ng-template>
     <ng-template #elseif5>

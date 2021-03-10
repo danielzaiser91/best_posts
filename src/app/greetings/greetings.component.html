@@ -1,4 +1,4 @@
-<div class="greetings-overlay" *ngIf="page<4">
+<div class="greetings-overlay" *ngIf="!doRemember && page<4">
   <div class="greetings-body">
 
     <div *ngIf="page === 0">
@@ -32,8 +32,9 @@
         durch anklicken des Buttons in der linken, oberen Ecke des Bildschirms,
         viel Vergnügen 🤩
       </span>
+      <input class="remember" type="checkbox" #remember>
     </div>
 
-    <button class="btn next" (click)="page=page+1"></button>
+    <button class="btn next" (click)="onNext()"></button>
   </div>
 </div>

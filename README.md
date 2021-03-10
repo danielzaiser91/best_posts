@@ -169,6 +169,7 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
     - Greetings-Component:
       - neue Nutzer werden bei erstem Seitenaufruf mit einem Popup begrüßt der kurz vorstellt was die Seite macht und wie sie funktioniert.
     - show loader when images are being replaced / lazy loaded
+    - volume slider on videos, finally 😍 (cool, but needs redesign, beecause it looks ugly, and performs clunky on mobile)
 
   - <u>🐜 Bugfixing:</u>
     - Medieninhalte sind wieder bedienbar
@@ -180,6 +181,9 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
 
   - <u>Vorarbeit für zukünftige Features:</u>
     - Future SVG Support via angular-svg-icon 🤗
+
+  - Changes:
+    - Removing the gifv-settings button, and always showing gifv controls instead.
 
 
 © Daniel Zaiser - 2021

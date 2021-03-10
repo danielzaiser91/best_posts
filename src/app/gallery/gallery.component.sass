@@ -4,7 +4,6 @@
   &.video, &.gallery, &.youtube:not(.has-played), &.discussion, &.spoiler, &.nsfw, &.gifv
     .content-wrapper::before
       content: '▶️'
-      color: white
       position: absolute
       z-index: 1
       display: flex
@@ -66,11 +65,12 @@
             transform: translate(50%, -40%)
         .enlarge-btn
           line-height: 0
+      .right-ctrl .exit *
+        pointer-events: none
     &.has-played.youtube
       iframe
         width: 100%
     .text
-      color: white
       display: flex
       white-space: nowrap
       border: solid #4d6994
@@ -91,7 +91,7 @@
         width: 100%
     video
       width:100%
-    .mute, .enlarge-btn
+    .mute, .enlarge-btn, .volume
       display: none
 
   li.fullscreen
@@ -113,6 +113,23 @@
       margin: 0 auto
       display: block
       position: relative
+    .volume
+      display: block
+      position: absolute
+      right: 0.9em
+      bottom: 4.8em
+      font-size: 1.5em
+      z-index: 1
+      transform: rotate(270deg)
+      &::before, &::after
+        transform: rotate(90deg)
+        display: inline-block
+        padding: 6px 0 6px 12px
+      &::before
+        content: '🔉'
+      &::after
+        content: '🔊'
+        
     .controls
       display: flex
       height: 2em
@@ -127,18 +144,7 @@
       .left-ctrl
         display: flex
         gap: 1em
-    &.gifv .gifv-controls
-      position: absolute
-      top: 3.6em
-      right: 1.4em
-      background: #d2e6cc
-      border-radius: 50%
-      padding: 0.3em
-      font-size: 1em
-      cursor: pointer
-      box-shadow: 1px 1px 10px grey
-      outline: none
-    &.no-audio .mute
+    &.no-audio .mute, .no-audio .mute
       display: block
       position: absolute
       z-index: 1
@@ -150,7 +156,6 @@
       &:hover::before
         content: 'This Video does not have sound'
         position: absolute
-        color: white
         top: 100%
         left: 10px
         background: #1b2735
@@ -182,7 +187,6 @@
       cursor: pointer
       justify-content: center
       margin-top: 0
-      color: white
       background: #1B2735
       border: solid #6b829e
       border-width: 2px 0 0 0
@@ -221,7 +225,6 @@
           border-color: #1B2735
           outline: none
           padding: 1em
-          color: white
           border-radius: 50%
           z-index: 9
           cursor: pointer
@@ -239,16 +242,17 @@
       max-width: 100%
       box-sizing: border-box
       flex-wrap: wrap
+      @media (max-width: 500px)
+        padding: 0
+        justify-content: left
       .discussion-text
         background: #1B2735
-        color: white
-        padding: 4em
+        padding: 2em
         white-space: pre-line
         font-size: 1.6em
 
     &.image .content-wrapper .discussion-text
       background: #1b2735f0
-      color: white
       padding: 4em
       white-space: pre-line
       font-size: 1.6em

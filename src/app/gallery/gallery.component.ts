@@ -1,5 +1,6 @@
 import { Component, HostListener, Input, Pipe, PipeTransform } from '@angular/core';
 import { RedditPost } from '../redditTypes';
+import { StorageService } from '../storage.service';
 
 @Pipe({ name: 'shortNumber' })
 export class ShortNumberPipe implements PipeTransform {
@@ -23,29 +24,43 @@ export class GalleryComponent {
   @Input() posts: any[];
   controls = false;
 
-  constructor() { }
+  constructor(private store: StorageService) { }
 
   closeFullscreen(li: HTMLLIElement) {
     if (!li) return;
     const aud = li.querySelector('audio')  as HTMLAudioElement, vid = li.querySelector('video') as HTMLVideoElement,
       imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
-    if (vid && !li.classList.contains('no-audio')) { aud?.pause(); }
-    if (vid) { vid.pause(); vid.controls=false }
+    if (aud) {
+      aud.pause();
+      this.store.saveLS('volume', aud.volume);
+    }
+    if (vid) {
+      vid.pause();
+      vid.controls = false;
+    }
     li.classList.remove('fullscreen', 'enlarge');
     imgs.forEach(img => img.style.transform = "");
   }
 
   openFullscreen(li: HTMLLIElement) {
-    const iframe = li.querySelector('iframe'), text = li.querySelector('.text') as HTMLDivElement,
+    const iframe = li.querySelector('iframe'), text = li.querySelector('.text') as HTMLDivElement, aud = li.querySelector('audio') as HTMLAudioElement,
       imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>, vid = li.querySelector('video') as HTMLVideoElement;
     li.classList.add('fullscreen');
     text.classList.remove('max-limit');
-    if (li.classList.contains('video')) vid.controls = true;
-    if (vid) vid.play();
-    else if (iframe) {
+    if (vid) { // videos & gifv
+      if (aud) {
+        const pref = this.store.getSavedLS('volume');
+        if (pref) {
+          aud.volume = pref;
+          (li.querySelector('.volume input') as HTMLInputElement).value = pref;
+        }
+      }
+      vid.controls = true;
+      vid.play();
+    } else if (iframe) { // youtube
       if (!li.classList.contains('has-played') && iframe) iframe.src = iframe.getAttribute('data-src') || '';
       li.classList.add('has-played');
-    } else if (imgs.length) {
+    } else if (imgs.length) { // images & gallery
       imgs.forEach(img => {
         const lazy = img.getAttribute('data-src');
         if (lazy) {
@@ -80,6 +95,12 @@ export class GalleryComponent {
 
   onPause(vid: HTMLVideoElement) {
     if (!vid.closest('li')?.classList.contains('no-audio')) (vid.nextSibling as HTMLAudioElement).pause()
+  }
+
+  changeVolume(vol: string, li: HTMLLIElement) {
+    const aud = li.querySelector('audio');
+    if (!aud) return;
+    aud.volume = +vol;
   }
 
   onLeft(gallery: HTMLDivElement | null) {

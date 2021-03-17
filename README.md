@@ -51,25 +51,6 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
   - Automatisches Deployen der Webseite auf Netlify
   - Automatisches Deployen des Docker-Images auf DockerHub
 
-<u>Probleme/Bugs:</u>
- - Vorspulen:
- 
-    von Reddit kann man nur Video und Audio Tracks getrennt fetchen.
-    Das parallele pausieren / abspielen der beiden Tracks ist kein Problem, allerdings
-    kann man mit der Audio WebAPI nicht vor-/zurückspulen, ich habe das Problem versucht zu lösen, indem ich die ffmpeg.wasm library eingebunden habe und die beiden Mediastreams gemerged habe, das hat allerdings zu einem out of memory bug geführt, woraufhin ich diesen Lösungsweg wieder verworfen habe und den Bug vorerst akzeptiere...
-    ----> Ich konnte den Bug nun lösen, indem ich die currentTime Methode der Audio/Video Web-Api verwende
- - background:
-   die Webseite wurde beim Aufruf aus der Sicht geschoben, lag an den CSS Vorgaben des eingebundenen
-   Backgrounds, konnte ich beheben.
-
- - viele verschiedene media-formate, führen dazu, dass sehr viel custom code eingebaut werden muss, der die daten korrekt parsed...
-   Beispiel: Reddit image, Reddit gallery, Video, Audio, Youtube, etc.
- - iframe src attribute angular binding bug... erst mit DomSanitizer versucht, dann aber gelöst indem man "lazy loaded"
- - youtube eingebundene iframes lassen sich nur per youtube api pausieren (was notwendig ist nach schließen vom custom fullscreen)... problematisch...
-   --> meine Lösung: Nach dem Schließen des custom gallery fullscreens wird der iframe weiterhin angezeigt.
- - deploying with netlify (automated builds on each github master commit)
- - bundling with webpack
- - aus irgendeinem Grund werden manche Metadaten doppelt gespeichert...
 
 <u>Roadmap / ToDo:</u>
  - Animations
@@ -90,6 +71,10 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - Fallback for empty discussion texts, if topic is in title instead
  - option to autoplay gifs on thumbnail
  - add Unittests for evertything and connect repository to an automated ci tool (like travis for example)
+ - img.gif optimizations...
+ - Trending Subreddits
+ - Offline Usability
+ - PWA
 
 # Changelog:
 
@@ -188,8 +173,80 @@ hier dokumentiere ich ab dem 08.03.2021 auf, was ich geändert habe:
   - <u>Vorarbeit für zukünftige Features:</u>
     - Future SVG Support via angular-svg-icon 🤗
 
-  - Changes:
+  - <u>Changes:</u>
     - Removing the gifv-settings button, and always showing gifv controls instead.
+
+<span>17.03.2021:</span>
+  - <u>👨‍🎨 Optisch:</u>
+    - Volume Control überarbeitet
+      - wird jetzt mobil nicht mehr angezeigt und auf desktop nur noch bei hover
+      - mute icon bei Lautstärke 0
+  
+  - <u>neue Features:</u>
+    - <h1>OPTIONEN!!</h1> 🙌 endlich gibt es die Optionen 👏
+
+      - damit ist es jetzt möglich Suchen zu filtern, sortieren und zu verfeinern.
+      - Optionen sind:
+        - Posts Filtern nach Zeit (Stunde, Tag, Woche, ...)
+        - Posts sortieren nach Kriterien: Top, Hot, New, Rising
+        - Posts limitieren auf 25,50,75,100 pro Seite (Seitenfunktion kommt in Zukunft)
+        - Suchbegriff: Einschränkung der Ergebnisse auf eingegebenen Suchbegriff
+      - ---> Das Coole: Ein Preferencing System wurde direkt mit implementiert, es werden also viele Optionen vom Nutzer gespeichert, zB Suchoptionen, Lautstärke, etc.
+    - <h2>Routing</h2>
+      - 👏 jetzt wird in der URL der aktive Subreddit angezeigt und ist auch über die URL erreichbar!
+    - Suchvorschläge sind nach Relevanz sortiert (neuer reddit-API-Suchalgorithmus)
+    - Suchvorschläge können private Subreddits enthalten, diese werden besonders angezeigt (subCount NULL und alert on click)
+    - Caching von geladenen Inhalten (sehr schnelles Neuladen)
+      - für jede gewählte Optionen-Kombination wird existiert ein eigener, seperater Cache
+      - Löschung von gecachedten Inhalten manuell möglich (nicht empfohlen, da schon automatisch sehr gut)
+    - Fehlermeldung, wenn ein Subreddit nicht geladen werden konnte (Hauptgrund: Privat)
+    - neue unterstützte Medieninhalte: 
+      - Crosspost
+        - Anzeigen von Crosspost-Daten (von wo und wieviele Likes hat das Original)
+      - Vimeo
+        - wird ähnlich wie youtube behandelt und dargestellt
+    - Volume Control überarbeitet
+      - klick auf unteren Lautsprecher -> Mute / Unmute (vorherige Lautstärke)
+      - klick auf oberen Lautsprecher -> Max Lautstärke / vorherige Lautstärke
+      - Lautstärkeanpassungen werden nach schließen des Vollbildmodusses als preference gespeichert und für zukünftige Videos übernommen.
+    - pagination für empfohlene Subreddit-Liste (most popular subreddits / Button oben links)
+      - zeigt jetzt 100 Vorschläge (10 pro Seite)
+    
+
+  - <u>Änderung:</u>
+    - der Button oben rechts wurde entfernt, mit dem man zwischen bereits besuchten Subreddits wechseln konnte, Grund: man soll lieber neue Subreddits suchen statt zwischen den selben hin und herzuwechseln, das ist zwar immer noch möglich, dieses Verhalten soll aber nicht gefördert werden.
+    - durch die neue Suche ist das vorherige fetchen von 3500 subreddits für meine eigene implementierung der Suche inklusive der dazugehörigen IndexedDB Datenbank (mit Dexie) nicht mehr notwendig geworden.
+      - --> entfernt
+    
+
+  - <u>🐜 Bugfixing:</u>
+    - Diskussionen ohne Inhalt (die ihren kompletten Inhalt im Titel haben), bekommen jetzt den Titel als Text
+    - bessere Lesbarkeit / Darstellung von Diskussionstexten (Text läuft nicht mehr über Bildschirmrand)
+
+  - <u>🔋 Performance/Optimierungen:</u>
+    - viel refactoring, siehe Dev-Changes
+
+  - <u>Vorarbeit für zukünftige Features:</u>
+    - Seitenfunktion: In zukunft gibt es unendlich viele anzeigbare Seiten
+      - evtl automatisches Laden neuer Seiten, beim erreichen des unterren Bildschirmrandes
+    - User Preferencing: Eröffnet viele neue Möglichkeiten
+
+  - <u>👨‍💻 Dev-Changes:</u>
+    - customWebpackConfig - customizing Angular Webpacker Config for dev and prod
+      - circularDependency Detection
+      - aggregateTimeout -- only recompile after a set timeout value (1.5s), to be able to save multiple files without bundler recompiling every single file
+      - webpack-bundle-analyzer
+    - clean filestructur, big re-organization of files, preparing for scalability & Cleaner Code
+      - one file for all subfiles that are used accross the app, specifically:
+        - functions
+        - components
+        - services
+        - pipes
+        - types
+      - -> resulting in clean imports (one import call instead of many)
+    - using ReactiveFormsModule for all forms now = better validation & stream of formData
+      - clean up html-form code
+    - gallery Component refactored, von ngIfElse zu ngSwitch
 
 
 © Daniel Zaiser - 2021

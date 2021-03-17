@@ -1,4 +1,5 @@
 import { Component, HostListener, Input } from '@angular/core';
+import { RedditPost } from 'app/types';
 import { StorageService } from '../services';
 
 @Component({
@@ -60,6 +61,15 @@ export class GalleryComponent {
           newImg.onerror = _ => li.classList.add('error');
         }
       });
+    }
+  }
+
+  share(post: RedditPost) {
+    if (navigator.share) {
+      navigator.share({
+        title: post.title,
+        url: post.thread_url.target
+      })
     }
   }
 

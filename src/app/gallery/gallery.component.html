@@ -23,6 +23,9 @@
         <a class="open-link ctrl-btn" [href]="post.thread_url.thread" target="_blank">
           <svg-icon src="/assets/images/reddit.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
         </a>
+        <button class="share-btn ctrl-btn icon-wrapper" (click)="share(post)">
+          <img class="img-icon" src="/assets/images/share.png">
+        </button>
       </div>
       <div class="right-ctrl">
         <div class="exit ctrl-btn">

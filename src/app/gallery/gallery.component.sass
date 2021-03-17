@@ -35,7 +35,8 @@
   &.youtube:not(.has-played) iframe, &.youtube.has-played img, &.youtube.has-played .content-wrapper::before,
   &.vimeo:not(.has-played) iframe, &.vimeo.has-played img, &.vimeo.has-played .content-wrapper::before,
   .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
-  &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link, .right-ctrl .exit
+  &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link,
+  .right-ctrl .exit
     display: none
   .text
     height: 1.5em
@@ -105,7 +106,7 @@
         width: 100%
     video
       width:100%
-    .mute, .enlarge-btn, .volume
+    .mute, .enlarge-btn, .volume, .share-btn
       display: none
 
   li.fullscreen
@@ -127,23 +128,24 @@
       margin: 0 auto
       display: block
       position: relative
-    &:hover .volume
-      display: block
-      position: absolute
-      right: 2.3em
-      bottom: 4.8em
-      font-size: 1.5em
-      z-index: 1
-      transform: rotate(270deg)
-      .up, .down
-        transform: rotate(90deg)
+    @media (min-width: 761px)
+      &:hover .volume
+        display: block
         position: absolute
-      .up
-        top: 0
-        left: 5.4em
-      .down
-        bottom: -0.2em
-        right: 5.2em
+        right: 2.3em
+        bottom: 4.8em
+        font-size: 1.5em
+        z-index: 1
+        transform: rotate(270deg)
+        .up, .down
+          transform: rotate(90deg)
+          position: absolute
+        .up
+          top: 0
+          left: 5.4em
+        .down
+          bottom: -0.2em
+          right: 5.2em
 
     .controls
       display: flex
@@ -286,7 +288,10 @@
           color: #5efdfd
         &:visited
           color: #965f0e
+    @media (max-width: 900px)
+      .share-btn
+        display: block
     &.gallery .enlarge-btn, &.image .enlarge-btn
       display: block
-    &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus, &.no-audio .volume, .no-audio .volume
+    &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus
       display: none

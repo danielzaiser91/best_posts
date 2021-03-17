@@ -70,6 +70,9 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - Trending Subreddits
  - Offline Usability
  - PWA
+ - show comments
+
+(viele Punkte auf der Roadmap habe ich bereits gelöscht, da ich sie umgesetzt habe 😉)
 
 # Changelog:
 

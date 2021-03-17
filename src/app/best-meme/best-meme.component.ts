@@ -84,7 +84,6 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, base = false) {
-    if (this.posts.length && this.currentSub === sub) return;
     if (base) this.loading = true;
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
@@ -154,5 +153,13 @@ export class BestMemeComponent implements OnInit {
     alert(msg);
   }
 
-  hideOverlay(e: any) { if (e.target.classList.contains('optionsOverlay')) e.target.classList.remove('fullscreen') }
+  onLeavingOptions(el: HTMLElement) {
+    el.classList.remove('fullscreen');
+    this.fetchSub(this.currentSub, true);
+  }
+  hideOverlay(e: any) {
+    if (e.target.classList.contains('optionsOverlay')) {
+      this.onLeavingOptions(e.target)
+    }
+  }
 }

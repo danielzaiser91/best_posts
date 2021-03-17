@@ -23,7 +23,7 @@
   </div>
 </div>
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
-  <div class="exit" (click)="optionsOverlay.classList.toggle('fullscreen')">x</div>
+  <div class="exit" (click)="onLeavingOptions(optionsOverlay)">x</div>
   <div>
     <form [formGroup]="postOptions" class="wrapper" novalidate>
       <label for="perPage">Anzahl Posts pro Seite:</label>

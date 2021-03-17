@@ -12,8 +12,17 @@
   &.hide
     padding: 0
     background: unset
-    .subreddits
+    .subreddits, .page-indicator, .left, .right
       display: none
+  .left, .right
+    background: center center / 80% no-repeat url(/assets/images/left-button.png)
+    width: 35px
+    height: 35px
+    padding: 0
+  .right
+    transform: rotate(180deg)
+  .page-indicator
+    text-align: center
   .subreddits
     padding: 0
     list-style: none
@@ -30,11 +39,16 @@
       .subscriber-count
         position: absolute
         right: 0
-  .btn.toggle-popular
-    cursor: pointer
+  &.hide .btn-wrapper
+    width: unset
+  .btn-wrapper
     padding: 0.2em
-    font-size: 1.6em
-    border-radius: 0 10% 50% 0
     background: #263348
-    border: none
-    outline: none
+    border-radius: 0 10% 50% 0
+    display: flex
+    align-items: center
+    justify-content: space-around
+    width: 170px
+    > button
+      cursor: pointer
+      font-size: 1.6em

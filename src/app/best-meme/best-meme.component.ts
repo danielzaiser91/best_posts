@@ -1,9 +1,12 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { errHandler, RedditAPIService } from '../reddit-api.service';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, debounceTime, take } from 'rxjs/operators';
-import { StorageService } from '../storage.service';
-import { RedditPost, Subreddit } from '../redditTypes';
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { debounceTime, take } from 'rxjs/operators';
+
+import { errHandler, RedditAPIService } from 'app/services/reddit-api.service';
+import { StorageService } from 'app/services/storage.service';
+import { RedditPost, Subreddit } from 'app/types';
+import { uniq } from 'app/functions';
 
 @Component({
   selector: 'app-best-meme',
@@ -11,78 +14,118 @@ import { RedditPost, Subreddit } from '../redditTypes';
   styleUrls: ['./best-meme.component.sass']
 })
 export class BestMemeComponent implements OnInit {
-  @ViewChild('subredditInput') subredditInput: ElementRef;
-  subredditChooser: FormGroup;
+  subredditChooser: FormControl;
   postOptions: FormGroup;
   posts: RedditPost[] = [];
   subExists = true;
-  subreddits = ['cats','memes'];
-  nextSub = this.subreddits[1];
   currentSub = 'cats';
   suggestions: Subreddit[] = [];
   page = 0;
   loading = false;
+  err = '';
 
-  constructor(private api: RedditAPIService, formBuilder: FormBuilder, public store: StorageService) {
-    this.subredditChooser = formBuilder.group({ subreddit: [''] });
+  constructor(
+    private api: RedditAPIService,
+    private formBuilder: FormBuilder,
+    public store: StorageService,
+    private route: ActivatedRoute,
+    private router: Router)
+  {
+    this.subredditChooser = new FormControl('');
+    const opt = store.userOptions;
     this.postOptions = formBuilder.group({
-      num_posts: ['', Validators.required],
-      sort: [''],
-      time: [''],
-      query: ['']
+      perPage: [opt.params.limit, Validators.required],
+      sort: [opt.sort, Validators.required],
+      time: [opt.params.t, Validators.required],
+      query: [opt.params.q]
     })
   }
 
   ngOnInit(): void {
-    this.fetchSub('memes');
-    this.fetchSub('cats', true);
-    this.store.fetchMetaData();
+    this.initialFetch();
     this.activateFormValidators();
   }
 
-  activateFormValidators() {
-    // listen on input 10 times per second
-    this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(100)).subscribe((chunk: string) => {
-      this.subExists = true;
-      if (chunk === '') { this.suggestions = []; return; }
-      this.store.reddit.transaction('r', this.store.reddit.meta, () => {
-        return this.store.reddit.meta.where('name').startsWithIgnoreCase(chunk).reverse().sortBy('subscribers');
-      }).then(suggestions => this.suggestions = suggestions.sort((a, _) => a.name?.toLowerCase() === chunk.toLowerCase() ? -1 : 1) as Subreddit[]);
-    }, catchError(errHandler));
+  initialFetch(): void {
+    const sub = this.route.snapshot.params.subreddit;
+    if (sub) this.fetchSub(sub, true);
+    else {
+      this.fetchSub('memes');
+      this.fetchSub('cats', true);
+    }
+  }
 
-    // listen on input once per second
-    this.subredditChooser.get('subreddit')?.valueChanges.pipe(debounceTime(1000)).subscribe((chunk: string) => {
+  activateFormValidators() {
+    const options = this.store.userOptions;
+    this.postOptions.patchValue({
+      perPage: options.params.limit,
+      sort: options.sort,
+      time: options.params.t,
+      query: options.params.q
+    });
+
+    this.subredditChooser.valueChanges.pipe(debounceTime(500)).subscribe((chunk: string) => {
       if (chunk === '') return;
-      this.api.getSubreddit(this.subredditInput.nativeElement.value).pipe(take(1)).subscribe({next: subreddit => {
-        this.subExists = true;
-        this.store.reddit.meta.where('name').equalsIgnoreCase(subreddit.name).first().then(v => {
-          if (!v) {
-            this.suggestions.push(subreddit);
-            this.store.reddit.meta.add(subreddit);
-          }
-        });
-      }, error: _ => this.subExists = false });
-    }, catchError(errHandler));
+      this.subExists = true;
+      this.api.subredditSearch(chunk).pipe(take(1)).subscribe({
+        next: subreddits => {
+          this.suggestions = subreddits;
+        },
+        error: err => {
+          errHandler(err);
+          this.subExists = false;
+          this.suggestions = [];
+        }
+      })
+    }, errHandler);
+    this.postOptions.valueChanges.subscribe(form => {
+      this.store.saveLS('userOptions', { sort: form.sort, params: { t: form.time, limit: form.perPage, q: form.query } } );
+    });
   }
 
   fetchSub(sub: string, base = false) {
     if (this.posts.length && this.currentSub === sub) return;
     if (base) this.loading = true;
+    this.subredditChooser.setValue(sub, { emitEvent: false });
+    this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
-    if (this.subredditInput) this.subredditInput.nativeElement.value = sub;
-    const saved = this.store.getSaved(sub), today = new Date().toDateString();
+    /*
+      user options:
+      - sortieren nach
+      - wieviele ergebnisse pro seite
+      - zeitraum filter
+      - query filter
+      - ...
+    */
+    const options = this.store.userOptions;
+    const optionsString = options.sort+':'+ Object.values(options.params).join(':');
+    /* 
+      we are caching redditPosts depending on specific user options 
+      caching example:
+      subreddit: sorted by hot, filtered by day => hot:day:cats ---> RedditPost[] --- notice, we dont differentiate the limits param
+      subreddit: sorted by hot, filtered by day => hot:day:memes ---> RedditPost[]
+      subredditArr: sorted by hot, filtered by day => hot:day ---> ['cats', 'memes']
+    */
+    const saved = this.store.getSaved(optionsString+':'+sub), today = new Date().toDateString();
     if (saved?.lastFetch !== today) {
       console.info('fetching data for /r/'+sub+'...');
-      this.api.get(sub).pipe(take(1)).subscribe((data: RedditPost[]) => {
+      this.err = '';
+      this.api.get(sub, options).pipe(take(1)).subscribe((data: RedditPost[]) => {
+        console.log('received: ', data, 'for options: ', options);
         if (base) {
           this.posts = data;
           this.loading = false;
+          this.currentSub = sub;
         }
-        sessionStorage.setItem(sub, JSON.stringify({data, lastFetch: today}));
-        this.store.save(sub, {data, lastFetch: today});
+        this.store.save(optionsString+':'+sub, {data, lastFetch: today});
+        const savedArr = this.store.getSaved(sub) || [];
+        savedArr.push(optionsString);
+        this.store.save(sub, uniq(savedArr));
+      }, err => {
+        this.loading = false;
         this.currentSub = sub;
-        this.subreddits.push(sub);
-      }, catchError(errHandler));
+        this.err = err.error.reason;
+      });
     } else {
       this.loading = false;
       if (base) {
@@ -92,11 +135,24 @@ export class BestMemeComponent implements OnInit {
     }
   }
 
-  getNextSubreddit() {
-    let i = this.subreddits.indexOf(this.nextSub);
-    i = (!this.subreddits[i+1]) ? 0 : i+1;
-    this.fetchSub(this.nextSub, true);
-    this.nextSub = this.subreddits[i];
+  deleteCache(method: string) {
+    switch(method) {
+      case 'all': {
+        return this.store.clearSS()
+      }
+      case 'options-specific': {
+        const options = this.store.userOptions;
+        const optionsString = options.sort+':'+ Object.values(options.params).join(':');
+        return this.store.clearSS(optionsString, this.currentSub)
+      }
+      default:
+        return
+    }
+  }
+
+  onPrivateClick() {
+    const msg = 'Dieser Subreddit ist privat, wenn du Mitglied bist, kannst du dich auf reddit.com einloggen um ihn anzusehen.'
+    alert(msg);
   }
 
   hideOverlay(e: any) { if (e.target.classList.contains('optionsOverlay')) e.target.classList.remove('fullscreen') }

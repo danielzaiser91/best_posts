@@ -4,13 +4,14 @@
 <app-greetings></app-greetings>
 <app-popular-subreddits (choose)="fetchSub($event, true)"></app-popular-subreddits>
 <div class="select">
-  <div [formGroup]="subredditChooser">
-    <label for="subredditInput">Zeige die 25 besten Posts von /r/</label>
+  <div>
+    <label>Zeige die 25 besten Posts von /r/</label>
     <div class="wrap-input">
       <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
-      <input id="subredditInput" [placeholder]="currentSub" formControlName="subreddit" [class]="subExists ? 'valid' : 'invalid'" #subredditInput>
+      <input [formControl]="subredditChooser" [placeholder]="currentSub" [class]="subExists ? 'valid' : 'invalid'">
       <ul *ngIf="suggestions" class="suggestions" #sugs>
-        <li *ngFor="let sug of suggestions.slice(page, page+10)" (click)="fetchSub(sug.name, true)">
+        <li *ngFor="let sug of suggestions.slice(page, page+10)"
+          [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, true)">
           <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
           <span *ngIf="sug.over18">🔞</span>
           {{sug.name}}</li>
@@ -18,16 +19,20 @@
     </div>
   </div>
   <div>
-    <button class="btn saved-subreddits" (click)="getNextSubreddit()" title="wechsle zu: r/{{nextSub}}">{{ nextSub }}</button>
-    <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')" disabled>Optionen</button>
+    <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')">Optionen</button>
   </div>
 </div>
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
   <div class="exit" (click)="optionsOverlay.classList.toggle('fullscreen')">x</div>
-  <div class="wrapper">
-    <form [formGroup]="postOptions" novalidate>
-      <label for="a">Anzahl Posts</label>
-      <input type="range" name="" id="a" value="25" min="1" max="100" formControlName="num_posts">
+  <div>
+    <form [formGroup]="postOptions" class="wrapper" novalidate>
+      <label for="perPage">Anzahl Posts pro Seite:</label>
+      <select name="perPage" id="perPage" formControlName="perPage">
+        <option value="25">25</option>
+        <option value="50">50</option>
+        <option value="75">75</option>
+        <option value="100">100</option>
+      </select>
       <label for="sort">Sortieren nach:</label>
       <select name="sort" id="sort" formControlName="sort">
         <option value="top">Top</option>
@@ -46,6 +51,33 @@
       <label for="query">Posts nach query filtern:</label>
       <input type="text" name="query" id="query" formControlName="query">
     </form>
+    <button class="advanced btn" (click)="advancedOptions.classList.toggle('none')">Lösch-Optionen:</button>
+  </div>
+  <div class="deleteCache none" #advancedOptions>
+    <p class="warning">
+      Info: Um Ergebnis besonders schnell anzuzeigen, werden geladene Posts zwischengespeichert.<br>
+      Hier kannst du die gespeicherten Daten für Redditposts löschen<br>
+      Das ist zB hilfreich, wenn dir fehlerhafter-weise alte Posts angezeigt werden <br>
+      oder wenn du aktuellere Ergebnisse sehen willst<br><br>
+      !Beachte: Es werden nur Ergebnisse der aktuellen Sitzung zwischengespeichert, <br>
+      also wenn du den Browser oder den Tab schließt, wird der Speicher automatisch gelöscht.<br>
+      Deshalb ist es meistens nicht notwendig hier manuell etwas zu löschen, die angezeigten Ergebnisse sind im Normalfall sehr aktuell.<br><br>
+      Außerdem wird max 1x am Tag gecached, das bedeutet, morgen kriegst du automatisch aktuelle Ergebnisse!<br><br>
+      !Achtung diese Optionen sollten nur benutzt werden, wenn du weißt was du tust!
+    </p>
+    <button class="options-specific btn warning" (click)="deleteCache('options-specific')" [disabled]="!store.getSaved(currentSub)">Cache für oben ausgewählte Optionen löschen</button>
+    <button class="all btn danger" (click)="deleteCache('all')" [disabled]="!store.anySS()">kompletten Cache löschen</button>
   </div>
 </div>
 <app-gallery [posts]="posts"></app-gallery>
+<div *ngIf="err.length > 0" class="error">
+  <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
+  <u> Grund:</u><br>
+  <span *ngIf="err == 'private'">
+    Der Subreddit ist privat und kann deshalb nur eingeloggten Reddit-Nutzern angezeigt werden, die Mitglied dieses Subreddits sind.
+    Wenn du Mitglied bist, dann kannst du es auf Reddit versuchen:
+    <div style="text-align: center;">
+      <a [href]="'http://www.reddit.com/r/'+ currentSub" target="_blank">{{ 'http://www.reddit.com/r/'+ currentSub }}</a>
+    </div>
+  </span>
+</div>

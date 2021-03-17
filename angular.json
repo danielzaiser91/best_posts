@@ -1,3 +1,5 @@
+
+
 {
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
@@ -21,7 +23,7 @@
       "prefix": "app",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-builders/custom-webpack:browser",
           "options": {
             "outputPath": "dist/bestOfReddit",
             "index": "src/index.html",
@@ -46,6 +48,12 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
+              "customWebpackConfig": {
+                "path": "./config/webpack.config.prod.ts",
+                "mergeRules": {
+                  "externals": "replace"
+                }
+              },
               "optimization": true,
               "outputHashing": "all",
               "sourceMap": false,
@@ -61,7 +69,30 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "2kb",
+                  "maximumWarning": "5kb",
+                  "maximumError": "50kb"
+                }
+              ]
+            },
+            "development": {
+              "customWebpackConfig": {
+                "path": "./config/webpack.config.dev.ts",
+                "mergeRules": {
+                  "module": {
+                    "rules": "prepend"
+                  }
+                }
+              },
+              "sourceMap": true,
+              "budgets": [
+                {
+                  "type": "initial",
+                  "maximumWarning": "500kb",
+                  "maximumError": "10mb"
+                },
+                {
+                  "type": "anyComponentStyle",
+                  "maximumWarning": "5kb",
                   "maximumError": "50kb"
                 }
               ]
@@ -69,9 +100,9 @@
           }
         },
         "serve": {
-          "builder": "@angular-devkit/build-angular:dev-server",
+          "builder": "@angular-builders/custom-webpack:dev-server",
           "options": {
-            "browserTarget": "bestOfReddit:build"
+            "browserTarget": "bestOfReddit:build:development"
           },
           "configurations": {
             "production": {

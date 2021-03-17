@@ -1,10 +1,15 @@
 <div class="wrapper hide" #wrapper>
-  <button class="btn toggle-popular" (click)="wrapper.classList.toggle('hide')">📃</button>
+  <div class="btn-wrapper">
+    <button (click)="wrapper.classList.toggle('hide')">📃</button>
+    <button class="left" (click)="paginate('left')"></button>
+    <button class="right" (click)="paginate('right')"></button>
+  </div>
   <ul class="subreddits">
     <span>die beliebtesten Subreddits:</span>
-    <li *ngFor="let sub of subreddits?.slice(page, page+20)" (click)="onChoose(sub.name, wrapper)">
+    <li *ngFor="let sub of subreddits?.slice((page*perPage), (page*perPage)+perPage)" (click)="onChoose(sub.name, wrapper)">
       <span *ngIf="sub.subscribers" class="subscriber-count">{{ sub.subscribers | shortNumber }}</span>
       <span *ngIf="sub.over18">18+ </span>
       {{ sub.name }}</li>
   </ul>
+  <div class="page-indicator">page: {{ page+1 }}/{{ numPages()+1 }}</div>
 </div>

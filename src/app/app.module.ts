@@ -1,35 +1,39 @@
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
 import { HttpClientModule } from '@angular/common/http';
-import { AngularSvgIconModule } from 'angular-svg-icon';
-
-import { AppRoutingModule } from './app-routing.module';
-import { AppComponent } from './app.component';
-import { BestMemeComponent } from './best-meme/best-meme.component';
-import { GalleryComponent, ShortNumberPipe } from './gallery/gallery.component';
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
-import { PopularSubredditsComponent } from './popular-subreddits/popular-subreddits.component';
-import { GreetingsComponent } from './greetings/greetings.component';
-import { ImpressumComponent } from './impressum/impressum.component';
+import { BrowserModule } from '@angular/platform-browser';
+
+import { AngularSvgIconModule } from 'angular-svg-icon';
+import { RootRoutingModule } from './root-routing.module';
+import { ShortNumberPipe } from './pipes/pipes'
+
+import {
+  RootComponent,
+  BestMemeComponent,
+  GalleryComponent,
+  PopularSubredditsComponent,
+  GreetingsComponent,
+  ImpressumComponent
+} from './components';
 
 @NgModule({
   declarations: [
-    AppComponent,
+    RootComponent,
     BestMemeComponent,
     GalleryComponent,
-    ShortNumberPipe,
     PopularSubredditsComponent,
     GreetingsComponent,
-    ImpressumComponent
+    ImpressumComponent,
+    ShortNumberPipe
   ],
   imports: [
     BrowserModule,
-    AppRoutingModule,
+    RootRoutingModule,
     HttpClientModule,
     ReactiveFormsModule,
     AngularSvgIconModule.forRoot()
   ],
-  bootstrap: [AppComponent],
+  bootstrap: [RootComponent],
   schemas: [ CUSTOM_ELEMENTS_SCHEMA ]
 })
 export class AppModule { }

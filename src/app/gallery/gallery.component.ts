@@ -1,19 +1,5 @@
-import { Component, HostListener, Input, Pipe, PipeTransform } from '@angular/core';
-import { RedditPost } from '../redditTypes';
-import { StorageService } from '../storage.service';
-
-@Pipe({ name: 'shortNumber' })
-export class ShortNumberPipe implements PipeTransform {
-  transform(number: number): string {
-    return (() => {if (number > 1000000) {
-      return Math.floor(number/1000/1000) + 'm'
-    } else if (number > 1000) {
-      return Math.floor(number/1000) + 'k'
-    } else {
-      return number+''
-    }})()
-  }
-}
+import { Component, HostListener, Input } from '@angular/core';
+import { StorageService } from '../services';
 
 @Component({
   selector: 'app-gallery',
@@ -23,6 +9,8 @@ export class ShortNumberPipe implements PipeTransform {
 export class GalleryComponent {
   @Input() posts: any[];
   controls = false;
+  localPref = 1;
+  currentVolume = 0;
 
   constructor(private store: StorageService) { }
 
@@ -32,7 +20,7 @@ export class GalleryComponent {
       imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
     if (aud) {
       aud.pause();
-      this.store.saveLS('volume', aud.volume);
+      this.store.preferences({ volume: aud.volume });
     }
     if (vid) {
       vid.pause();
@@ -49,15 +37,12 @@ export class GalleryComponent {
     text.classList.remove('max-limit');
     if (vid) { // videos & gifv
       if (aud) {
-        const pref = this.store.getSavedLS('volume');
-        if (pref) {
-          aud.volume = pref;
-          (li.querySelector('.volume input') as HTMLInputElement).value = pref;
-        }
+        const pref = this.store.userPrefs.volume;
+        this.changeVolume(pref, li);
       }
       vid.controls = true;
       vid.play();
-    } else if (iframe) { // youtube
+    } else if (iframe) { // youtube & vimeo
       if (!li.classList.contains('has-played') && iframe) iframe.src = iframe.getAttribute('data-src') || '';
       li.classList.add('has-played');
     } else if (imgs.length) { // images & gallery
@@ -79,9 +64,14 @@ export class GalleryComponent {
   }
 
   onLiClick(li: HTMLLIElement, event?: MouseEvent | TouchEvent) {
+    const el = (event!.target as HTMLElement), pref = this.localPref;
     if (li.classList.contains('fullscreen')) {
-      if ((event!.target as HTMLElement).classList.contains('exit')) {
+      if (el.classList.contains('exit')) {
         this.closeFullscreen(li);
+      } else if (el.classList.contains('up')) {
+        this.changeVolume((this.currentVolume === 1 ? pref : 1), li);
+      } else if (el.classList.contains('down')) {
+        this.changeVolume((this.currentVolume === 0 ? pref : 0), li);
       }
     } else { this.openFullscreen(li); }
   }
@@ -97,10 +87,14 @@ export class GalleryComponent {
     if (!vid.closest('li')?.classList.contains('no-audio')) (vid.nextSibling as HTMLAudioElement).pause()
   }
 
-  changeVolume(vol: string, li: HTMLLIElement) {
+  changeVolume(vol: number, li: HTMLLIElement) {
     const aud = li.querySelector('audio');
     if (!aud) return;
-    aud.volume = +vol;
+    if (vol > 0 && vol < 1) this.localPref = vol;
+    const slider = li.querySelector('.volume input') as HTMLInputElement;
+    aud.volume = vol;
+    slider.value = ''+vol;
+    this.currentVolume = vol;
   }
 
   onLeft(gallery: HTMLDivElement | null) {
@@ -110,6 +104,7 @@ export class GalleryComponent {
   onRight(gallery: HTMLDivElement | null) {
     this.galleryDir(gallery, 'rechts')
   }
+
   onNoAudio(el: HTMLLIElement, err: ErrorEvent) {
     el.classList.add('no-audio');
     return true;
@@ -145,7 +140,6 @@ export class GalleryComponent {
   @HostListener('window:keyup', ['$event']) function($event: KeyboardEvent) {
     const gallery = document.querySelector('.fullscreen.gallery .content-wrapper') as HTMLDivElement,
       li = document.querySelector('.fullscreen') as HTMLLIElement;
-    console.log($event.key);
     if ($event.key === 'ArrowRight') this.onRight(gallery);
     else if ($event.key === 'ArrowLeft') this.onLeft(gallery);
     else if ($event.key === 'ArrowUp') this.nextPost(li, 1);

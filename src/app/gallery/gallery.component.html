@@ -3,6 +3,7 @@
   <li 
     *ngFor="let post of posts; index as post_id"
     [ngClass]="[
+      post.crosspost ? 'crosspost' : '',
       post.spoiler ? 'spoiler' : '',
       post.nsfw ? 'nsfw' : '',
       post.thumbnail === 'default' ? 'default' : '',
@@ -10,7 +11,7 @@
     (click)="onLiClick(li, $event)" #li>
     <div class="controls">
       <div class="left-ctrl">
-        <div class="score ctrl-btn">{{ post.score | shortNumber }}</div>
+        <div class="score ctrl-btn">{{ post.score.onThis | shortNumber }}</div>
         <button class="enlarge-btn ctrl-btn" (click)="li.classList.toggle('enlarge')">
           <span class="minus">
             <svg-icon src="/assets/images/minus.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
@@ -30,68 +31,69 @@
       </div>
     </div>
 
-    <div *ngIf="post.is === 'image' else elseif1" class="content-wrapper">
-      <ng-container *ngIf="post.thumbnail === 'default' else ifelse">
-        <article></article>
-        <p class="discussion-text">
-          <span>
-            {{ post.title }}
-          </span>
-          --
-          <a [href]="post.src" target="_blank">
-            Open Article in new Tab
-          </a>
-        </p>
-        <img src="/assets/images/default.png">
+    <ng-container>
+      <div *ngIf="post.crosspost else content" class="crosspost-wrapper">
+        <h5>dieser Post wurde crossposted von <a [href]="'https://www.reddit.com/r/' + post.subreddit" target="_blank">r/{{ post.subreddit }}</a></h5>
+        <h5>Der Originale Post hat: {{ post.score.onSource | shortNumber}} Likes</h5>
+        <ng-container *ngTemplateOutlet="content"></ng-container>
+      </div>
+    </ng-container>
 
-      </ng-container>
-      <ng-template #ifelse>
-        <img [src]="post.thumbnail" alt="" [attr.data-src]="post.src">
-      </ng-template>
-    </div>
-    <ng-template #elseif1>
-      <div *ngIf="post.is === 'video' else elseif2" class="content-wrapper">
-        <div class="mute"><span class="icon">🔇</span></div>
-        <div class="volume">
-          <input type="range" min="0" max="1" value="0.5" step="0.01" (change)="changeVolume(vol.value, li)" #vol>
+    <ng-template #content>
+      <ng-container [ngSwitch]="post.is">
+        <div *ngSwitchCase="'image'" class="content-wrapper">
+          <img [src]="post.thumbnail" alt="" [attr.data-src]="post.src">
         </div>
-        <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
-          <source [src]="post.src.vid" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-        <audio hidden>
-          <source [src]="post.src.aud" type="audio/mp3" (error)="onNoAudio(li, $event)">
-          <p>Your browser doesn't support HTML5 audio. Here is a <a href="viper.mp3">link to the audio</a> instead.</p>
-        </audio>
-      </div>
-    </ng-template>
-    <ng-template #elseif2>
-      <div *ngIf="post.is === 'gallery' else elseif3" class="content-wrapper" #gallery>
-        <button class="left" (click)="onLeft(gallery)"><-</button>
-        <img *ngFor="let img of post.src; index as i" [src]="post.thumbnail[i]" [attr.data-src]="img">
-        <button class="right" (click)="onRight(gallery)">-></button>
-      </div>
-    </ng-template>
-    <ng-template #elseif3>
-      <div *ngIf="post.is === 'youtube' else elseif4" class="content-wrapper">
-        <img [src]="post.thumbnail" alt="">
-        <div [id]="'yt-player-'+post_id"></div>
-        <iframe frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen [attr.data-src]="post.src"></iframe>
-      </div>
-    </ng-template>
-    <ng-template #elseif4>
-      <div *ngIf="post.is === 'gifv'; else elseif5" class="content-wrapper no-audio">
-        <div class="mute"><span class="icon">🔇</span></div>
-        <video [poster]="post.thumbnail" class="" loop controls #gifv>
-          <source [src]="post.src" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-    </ng-template>
-    <ng-template #elseif5>
-      <div *ngIf="post.is === 'discussion'" class="content-wrapper">
-        <p class="discussion-text">{{ post.src }}</p>
-      </div>
+
+        <div *ngSwitchCase="'video'" class="content-wrapper">
+          <div class="mute"><span class="icon">🔇</span></div>
+          <div class="volume">
+            <button class="up">🔊</button>
+            <button class="down" [textContent]="!currentVolume ? '🔇' : '🔉'"></button>
+            <input type="range" min="0" max="1" value="0.5" step="0.01" (change)="changeVolume(+vol.value, li)" #vol>
+          </div>
+          <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
+            <source [src]="post.src.vid" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+          <audio hidden>
+            <source [src]="post.src.aud" type="audio/mp3" (error)="onNoAudio(li, $event)">
+            <p>Your browser doesn't support HTML5 audio. Here is a <a href="viper.mp3">link to the audio</a> instead.</p>
+          </audio>
+        </div>
+
+        <div *ngSwitchCase="'gallery'" class="content-wrapper" #gallery>
+          <button class="left" (click)="onLeft(gallery)"><-</button>
+          <img *ngFor="let img of post.src; index as i" [src]="post.thumbnail[i]" [attr.data-src]="img">
+          <button class="right" (click)="onRight(gallery)">-></button>
+        </div>
+
+        <div *ngSwitchCase="'youtube'" class="content-wrapper">
+          <img [src]="post.thumbnail" alt="">
+          <iframe frameborder="0" title="YouTube embed"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            [attr.data-src]="post.src"></iframe>
+        </div>
+
+        <div *ngSwitchCase="'vimeo'" class="content-wrapper">
+          <img [src]="post.thumbnail" alt="">
+          <iframe frameborder="0" scrolling="no" title="Vimeo embed"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
+            [attr.data-src]="post.src"></iframe>
+        </div>
+
+        <div *ngSwitchCase="'gifv'" class="content-wrapper no-audio">
+          <div class="mute"><span class="icon">🔇</span></div>
+          <video [poster]="post.thumbnail" class="" loop controls #gifv>
+            <source [src]="post.src" type="video/mp4">
+            Your browser does not support the video tag.
+          </video>
+        </div>
+
+        <div *ngSwitchDefault class="content-wrapper">
+          <article class="discussion-text">{{ post.src.length ? post.src : post.title }}</article>
+        </div>
+      </ng-container>
     </ng-template>
 
     <div class="text max-limit rel" (click)="li.classList.contains('fullscreen') ? text.classList.toggle('max-limit') : ''" #text>

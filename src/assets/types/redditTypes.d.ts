@@ -15,22 +15,22 @@ export interface Subreddit {
   over18: boolean,
   description: string,
   community_icon: string,
-  icon_img: string
+  icon_img: string,
+  private: boolean
 }
 export interface RedditPost {
   by: string,
   is: string,
+  uid: string,
+  crosspost: boolean,
+  subreddit: string,
   num_comments: number,
   thread_url: { thread: string, target: string },
   thumbnail: string | string[],
   src: RedditMedia,
-  score: number
+  score: { onThis: number, onSource: number },
   spoiler: boolean,
   title: string,
   upvote_ratio: number,
   nsfw: boolean
-}
-
-export interface SubredditTable extends Partial<Subreddit> {
-  id?: number
 }

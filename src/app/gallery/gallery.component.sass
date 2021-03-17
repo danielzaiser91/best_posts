@@ -1,7 +1,7 @@
 .my-image-list li:not(.fullscreen)
   .content-wrapper
     cursor: pointer
-  &.video, &.gallery, &.youtube:not(.has-played), &.discussion, &.spoiler, &.nsfw, &.gifv
+  &.video, &.gallery, &.youtube, &.vimeo, &.discussion, &.spoiler, &.nsfw, &.gifv
     .content-wrapper::before
       content: '▶️'
       position: absolute
@@ -14,6 +14,12 @@
       line-height: 1
       background: rgba(0,0,0,0.75)
       text-align: center
+  &.youtube .content-wrapper::before
+    content: ""
+    background-image: url(/assets/images/youtube.png)
+    background-size: 50%, contain
+    background-position: center
+    background-repeat: no-repeat
   &.gallery .content-wrapper::before
     content: 'Gallerie'
   &.discussion .content-wrapper::before
@@ -26,7 +32,9 @@
     content: 'Spoiler'
     font-size: 2em
     background: grey
-  &.youtube:not(.has-played) iframe, &.youtube.has-played img, .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
+  &.youtube:not(.has-played) iframe, &.youtube.has-played img, &.youtube.has-played .content-wrapper::before,
+  &.vimeo:not(.has-played) iframe, &.vimeo.has-played img, &.vimeo.has-played .content-wrapper::before,
+  .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
   &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link, .right-ctrl .exit
     display: none
   .text
@@ -67,7 +75,7 @@
           line-height: 0
       .right-ctrl .exit *
         pointer-events: none
-    &.has-played.youtube
+    &.has-played.youtube, &.has-played.vimeo
       iframe
         width: 100%
     .text
@@ -80,6 +88,12 @@
       .label
         text-overflow: ellipsis
         overflow: hidden
+    &.crosspost .crosspost-wrapper
+      flex: 1
+      display: flex
+      flex-direction: column
+      text-align: center
+      overflow: auto
     .content-wrapper
       display: flex
       flex: 1
@@ -113,23 +127,24 @@
       margin: 0 auto
       display: block
       position: relative
-    .volume
+    &:hover .volume
       display: block
       position: absolute
-      right: 0.9em
+      right: 2.3em
       bottom: 4.8em
       font-size: 1.5em
       z-index: 1
       transform: rotate(270deg)
-      &::before, &::after
+      .up, .down
         transform: rotate(90deg)
-        display: inline-block
-        padding: 6px 0 6px 12px
-      &::before
-        content: '🔉'
-      &::after
-        content: '🔊'
-        
+        position: absolute
+      .up
+        top: 0
+        left: 5.4em
+      .down
+        bottom: -0.2em
+        right: 5.2em
+
     .controls
       display: flex
       height: 2em
@@ -208,6 +223,10 @@
       img
         display: none
 
+    &.vimeo
+      img
+        display: none
+
     &.gallery
       &.enlarge .content-wrapper
         justify-content: unset
@@ -237,19 +256,18 @@
             right: 0
 
     &.discussion .content-wrapper
-      align-items: center
+      display: block
       padding: 2em 4em
       max-width: 100%
       box-sizing: border-box
-      flex-wrap: wrap
-      @media (max-width: 500px)
+      @media ( max-width: 900px )
         padding: 0
-        justify-content: left
       .discussion-text
         background: #1B2735
         padding: 2em
         white-space: pre-line
         font-size: 1.6em
+        word-break: break-word
 
     &.image .content-wrapper .discussion-text
       background: #1b2735f0
@@ -270,5 +288,5 @@
           color: #965f0e
     &.gallery .enlarge-btn, &.image .enlarge-btn
       display: block
-    &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus
+    &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus, &.no-audio .volume, .no-audio .volume
       display: none

@@ -72,15 +72,10 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - aus irgendeinem Grund werden manche Metadaten doppelt gespeichert...
 
 <u>Roadmap / ToDo:</u>
- - Angular FormDirective + Validation
- - check audio file exist
  - Animations
- - more Features
- - more Supported Formats
- - Design Rework
  - Bughunting
  - I can't get enough - Feature (add a "more of this" button, which loads the next "page" (pagination api call by id+limit))
- - cinema Mode (Fullscreen which never needs to be left)
+ - ~~cinema Mode (Fullscreen which never needs to be left)~~ (on Desktop you can use Arrow Down/Up, still need to implement the mobile version of this)
  - autoplay next post (chaining videos, bzw. images after timeout)
  - move heavy logic into a webworker? (not currently necessary, because workload is still low, because of highly efficient code)
  - move everything to a seperate Component (multiple small components > one big component)
@@ -90,6 +85,11 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - Users like to scroll, so maybe add a scrollfeature that lets you scroll through all posts vertically one by one
  - better touch device support
  - dont show enlarge button when it wont have an effect
+ - localization (translate to en)
+ - Datenschutzanpassungen für youtube cookies
+ - Fallback for empty discussion texts, if topic is in title instead
+ - option to autoplay gifs on thumbnail
+ - add Unittests for evertything and connect repository to an automated ci tool (like travis for example)
 
 # Changelog:
 

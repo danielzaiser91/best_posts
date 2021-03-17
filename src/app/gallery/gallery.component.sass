@@ -74,6 +74,17 @@
             transform: translate(50%, -40%)
         .enlarge-btn
           line-height: 0
+        .open-link
+          position: relative
+          &:hover::after
+            content: 'in reddit öffnen'
+            position: absolute
+            font-size: .7em
+            bottom: -1em
+            left: 0
+            z-index: 9
+            text-shadow: 0px 0px 8px red
+            white-space: nowrap
       .right-ctrl .exit *
         pointer-events: none
     &.has-played.youtube, &.has-played.vimeo
@@ -288,9 +299,8 @@
           color: #5efdfd
         &:visited
           color: #965f0e
-    @media (max-width: 900px)
-      .share-btn
-        display: block
+    .share-btn
+      display: block
     &.gallery .enlarge-btn, &.image .enlarge-btn
       display: block
     &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus

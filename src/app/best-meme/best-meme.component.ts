@@ -86,7 +86,6 @@ export class BestMemeComponent implements OnInit {
   fetchSub(sub: string, base = false) {
     if (this.posts.length && this.currentSub === sub) return;
     if (base) this.loading = true;
-    this.subredditChooser.setValue(sub, { emitEvent: false });
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
     /*

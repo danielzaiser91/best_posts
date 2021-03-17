@@ -72,12 +72,18 @@
 <app-gallery [posts]="posts"></app-gallery>
 <div *ngIf="err.length > 0" class="error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
-  <u> Grund:</u><br>
-  <span *ngIf="err == 'private'">
-    Der Subreddit ist privat und kann deshalb nur eingeloggten Reddit-Nutzern angezeigt werden, die Mitglied dieses Subreddits sind.
-    Wenn du Mitglied bist, dann kannst du es auf Reddit versuchen:
-    <div style="text-align: center;">
-      <a [href]="'http://www.reddit.com/r/'+ currentSub" target="_blank">{{ 'http://www.reddit.com/r/'+ currentSub }}</a>
-    </div>
-  </span>
+  <u> Grund:</u>
+  <ng-container [ngSwitch]="err">
+    <span *ngSwitchCase="'private'"><br>
+      Der Subreddit ist privat und kann deshalb nur eingeloggten Reddit-Nutzern angezeigt werden, die Mitglied dieses Subreddits sind.
+      Wenn du Mitglied bist, dann kannst du es auf Reddit versuchen:
+      <div style="text-align: center;">
+        <a [href]="'http://www.reddit.com/r/'+ currentSub" target="_blank">{{ 'http://www.reddit.com/r/'+ currentSub }}</a>
+      </div>
+    </span>
+    <span *ngSwitchCase="'banned'"><br>
+      Der Subreddit wurde gebannt und kann deshalb nicht angezeigt werden.
+    </span>
+    <span *ngSwitchDefault>{{ err | json }}</span>
+  </ng-container>
 </div>

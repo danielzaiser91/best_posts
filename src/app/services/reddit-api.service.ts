@@ -2,8 +2,13 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
 import { map, mergeMap } from 'rxjs/operators';
-import { RedditPost, Subreddit } from '../types';
-import { reddit_format, single_sub, subreddit_array } from '../functions';
+import { RedditComment, RedditPost, Subreddit } from '../types';
+import {
+  reddit_format,
+  single_sub,
+  subreddit_array,
+  comment_array
+} from '../functions';
 
 const base = 'https://www.reddit.com/';
 export const errHandler = (err: HttpErrorResponse) => {
@@ -40,7 +45,7 @@ export class RedditAPIService {
     );
   }
 
-  getComments(subreddit: string, id: string) {
+  getComments(subreddit: string, id: string): Observable<RedditComment[]> {
     // https://www.reddit.com/dev/api#GET_comments_{article}
     const options = { params: {
       raw_json: '1',
@@ -48,7 +53,8 @@ export class RedditAPIService {
       sort: 'top'
     }}
     return this.http.get(base + 'r/' + subreddit + '/comments/' + id + '/.json', options).pipe(
-      map(reddit_format)
+      map((v:any)=> v[1].data),
+      map(comment_array)
     );
   }
 

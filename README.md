@@ -91,6 +91,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
 
 
   - <u>	🛠 Änderung:</u>
+    - Diskussionen haben jetzt einen externen Link zum Artikel
   
   - <u>🐜 Bugfixing:</u>
     - Videos sind jetzt pausierbar im Vollbildmodus durch klick auf video
@@ -99,6 +100,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
     - Bug behoben: Bild lädt nicht höchste Qualität
       - war eigentlich kein Bug, sondern eine Reddit unerwartete JSON-Namenskonvention...
       - --> Bilder werden jetzt wie zu erwarten in Original-Qualität geladen beim Wechsel in Vollbildmodus
+    - Diskussionen werden nicht mehr falsch als Bild gekennzeichnet
   
   - <u>🔋 Performance/Optimierungen:</u>
     - schnelleres Laden von Videos, durch Preloading

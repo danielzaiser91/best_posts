@@ -109,10 +109,15 @@
       </ng-container>
     </ng-template>
 
+    <app-comment-section *ngIf="post.uid === commentsForPost" [comments]="comments"></app-comment-section>
+
     <div class="text max-limit rel" (click)="li.classList.contains('fullscreen') ? text.classList.toggle('max-limit') : ''" #text>
       <div class="limit-symbol" ><span *ngIf="text.classList.contains('max-limit'); else down">🔺</span></div>
       <ng-template #down><span>🔻</span></ng-template>
       <span class="label">{{ post.title }}</span>
+      <div class="comments icon-wrapper" (click)="loadComments(post.subreddit, post.uid, $event)">
+        <img class="img-icon" src="/assets/images/comments.png" alt="comments">
+      </div>
     </div>
   </li>
 </ul>

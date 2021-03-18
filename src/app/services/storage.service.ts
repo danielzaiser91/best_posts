@@ -1,16 +1,16 @@
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
-import { RedditPost, UserPrefs } from '../types';
+import { RedditComment, UserPrefs } from '../types';
 
 class RedditDatabase extends Dexie {
-  public posts: Dexie.Table<RedditPost, number>; // id is number in this case
+  public comments: Dexie.Table<RedditComment, string>;
 
   public constructor() {
     super("redditData");
-    const version = this.version(1).stores({
-      posts: 'uid, by, is, subreddit, score.onThis, upvote_ratio',
+    this.version(1).stores({
+      comments: 'permalink, [subreddit+post_id]'
     });
-    this.posts = this.table("posts");
+    this.comments = this.table("comments");
   }
 }
 const redditDB = new RedditDatabase();

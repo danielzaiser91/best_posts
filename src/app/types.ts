@@ -6,7 +6,8 @@ import {
   RedditMedia,
   RedditSort,
   Subreddit,
-  RedditPost
+  RedditPost,
+  RedditComment
 } from '../assets/types/redditTypes'
 import { UserPrefs } from '../assets/types/user';
 
@@ -20,5 +21,6 @@ export {
   RedditSort,
   Subreddit,
   RedditPost,
+  RedditComment,
   UserPrefs
 }

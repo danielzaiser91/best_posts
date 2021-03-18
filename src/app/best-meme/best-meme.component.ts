@@ -3,8 +3,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, take } from 'rxjs/operators';
 
-import { errHandler, RedditAPIService } from 'app/services/reddit-api.service';
-import { StorageService } from 'app/services/storage.service';
+import { StorageService, errHandler, RedditAPIService } from 'app/services';
 import { RedditPost, Subreddit } from 'app/types';
 import { uniq } from 'app/functions';
 

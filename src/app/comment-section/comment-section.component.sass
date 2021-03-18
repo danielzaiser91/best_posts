@@ -1,0 +1,18 @@
+.comments
+  padding: 2em
+  background: #1b2735
+
+.comment > .comment
+  transform: translateX(1em)
+  word-break: break-word
+  border-left: 2px solid
+  padding-left: 1em
+  margin-right: 1em
+  &::before
+    position: absolute
+    bottom: 0
+    content: ''
+    width: 2em
+    height: 1px
+    background: white
+    left: 0

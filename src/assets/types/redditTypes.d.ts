@@ -34,3 +34,18 @@ export interface RedditPost {
   upvote_ratio: number,
   nsfw: boolean
 }
+export interface RedditComment {
+  post_id: string,
+  author: string,
+  depth: number,
+  text_md: string,
+  created_utc: number,
+  permalink: string,
+  children: RedditComment[],
+  score: number,
+  stickied: boolean,
+  subreddit: string,
+  is_submitter: boolean,
+  edited: boolean,
+  collapsed: boolean
+}

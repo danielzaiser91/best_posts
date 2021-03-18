@@ -1,7 +1,8 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
-import { filter, take } from 'rxjs/operators';
-import { Subreddit } from '../types';
-import { RedditAPIService } from '../services';
+import { take } from 'rxjs/operators';
+
+import { Subreddit } from 'app/types';
+import { RedditAPIService } from 'app/services';
 
 @Component({
   selector: 'app-popular-subreddits',

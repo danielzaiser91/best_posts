@@ -13,7 +13,8 @@ import {
   GalleryComponent,
   PopularSubredditsComponent,
   GreetingsComponent,
-  ImpressumComponent
+  ImpressumComponent,
+  CommentSectionComponent
 } from './components';
 
 @NgModule({
@@ -24,6 +25,7 @@ import {
     PopularSubredditsComponent,
     GreetingsComponent,
     ImpressumComponent,
+    CommentSectionComponent,
     ShortNumberPipe
   ],
   imports: [

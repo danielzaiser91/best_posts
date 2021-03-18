@@ -1,5 +1,5 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { StorageService } from '../services';
+import { StorageService } from 'app/services';
 
 @Component({
   selector: 'app-greetings',

@@ -36,7 +36,7 @@
   &.vimeo:not(.has-played) iframe, &.vimeo.has-played img, &.vimeo.has-played .content-wrapper::before,
   .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
   &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link,
-  .right-ctrl .exit
+  .right-ctrl .exit, .comments
     display: none
   .text
     height: 1.5em
@@ -120,7 +120,7 @@
         width: 100%
     video
       width:100%
-    .mute, .enlarge-btn, .volume, .share-btn, .pager, .loadMore
+    .mute, .enlarge-btn, .volume, .share-btn, .pager, .loadMore, app-comment-section
       display: none
 
   li.fullscreen
@@ -132,6 +132,15 @@
     margin: 0
     z-index: 2
     background-color: #1b2735b0
+    will-change: contents
+    .comments
+      top: -4em
+      right: 1.4em
+      background: #1e3046eb
+      height: 2.4em
+      padding: 0.7em 0.7em 0 1em
+      border-radius: 40%
+      position: absolute
     img
       position: relative
     video
@@ -243,8 +252,23 @@
       position: relative
       overflow: auto
       max-height: unset
-    &.loading .content-wrapper
+      transition: 1s transform
+    &.show-comments
+      .content-wrapper
+        transform: rotateY(90deg)
+      app-comment-section
+        display: block
+        overflow: auto
+    &.loading
       background: url('/assets/images/loading.gif')
+    &.loading-comments
+      &::after
+        content: "Lade Kommentare..."
+        font-size: 6em
+        position: absolute
+        top: 50%
+        left: 50%
+        transform: translate(-50%, -50%)
     &.enlarge .content-wrapper
       flex-wrap: wrap
 

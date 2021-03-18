@@ -1,0 +1,28 @@
+<div class="comments">
+  <ng-container *ngFor="let comment of comments; index as i">
+    <ng-container *ngTemplateOutlet="commentTemplate; context: { comment: comment, i: i }"></ng-container>
+  </ng-container>
+</div>
+
+
+<ng-template #commentTemplate let-comment="comment" let-i="i" let-isChild="isChild">
+  <div [ngClass]="[
+        comment.collapsed ? 'collapsed' : '',
+        comment.edited ? 'edited' : '',
+        comment.is_submitter ? 'is_submitter' : '',
+        comment.stickied ? 'stickied' : '',
+        'comment',
+        'is-child-'+comment.depth
+      ]" #comment>
+    <div class="score">{{ comment.score }}</div>
+    <a class="source icon-wrapper" [href]="comment.permalink" target="_blank">
+      <img class="img-icon" src="/assets/images/externer-link.png" alt="externer-link">
+    </a>
+    <div class="created_at">{{ comment.created_utc | date }}</div>
+    <div class="author">{{ comment.author }}</div>
+    <div class="text" [innerHTML]="comment.text_md"></div>
+    <ng-container *ngFor="let child of comment.children">
+      <ng-container *ngTemplateOutlet="commentTemplate; context: { comment: child }"></ng-container>
+    </ng-container>
+  </div>
+</ng-template>

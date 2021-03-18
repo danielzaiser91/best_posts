@@ -4,6 +4,7 @@ import { GalleryComponent } from './gallery/gallery.component';
 import { PopularSubredditsComponent } from './popular-subreddits/popular-subreddits.component';
 import { GreetingsComponent } from './greetings/greetings.component';
 import { ImpressumComponent } from './impressum/impressum.component';
+import { CommentSectionComponent } from './comment-section/comment-section.component';
 
 export {
   RootComponent,
@@ -11,5 +12,6 @@ export {
   GalleryComponent,
   PopularSubredditsComponent,
   GreetingsComponent,
-  ImpressumComponent
+  ImpressumComponent,
+  CommentSectionComponent
 } 

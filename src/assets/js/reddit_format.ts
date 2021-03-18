@@ -1,4 +1,4 @@
-import { RedditGallery, RedditMedia, RedditPost, Subreddit } from "../../app/types";
+import { RedditComment, RedditGallery, RedditMedia, RedditPost, Subreddit } from "../../app/types";
 
 const formatMedia = (v: any, is: string): RedditMedia => {
   if (is === 'video') {
@@ -62,7 +62,7 @@ export const reddit_format = (data: any): RedditPost[] => {
         v = v.crosspost_parent_list[0];
       }
       return {
-        uid: v.name,
+        uid: v.id,
         by: v.author,
         is: is,
         crosspost: crosspost,
@@ -85,10 +85,32 @@ export const single_sub = (v: any): Subreddit => ({
   identifier: v.data.name,
   name: v.data.display_name,
   subscribers: v.data.subscribers,
-  created_utc: v.data.created_utc,
+  created_utc: v.data.created_utc * 1000,
   over18: v.data.over18,
   description: v.data.description,
   community_icon: v.data.community_icon,
   icon_img: v.data.icon_img,
   private: v.data.subreddit_type === 'private'
 });
+
+export const comment_array = (data: any): RedditComment[] => {
+  return data.children.map(single_comment);
+}
+export const single_comment = (v: any): RedditComment => {
+  const exists = v.data.replies?.data?.children?.[0]?.data?.author;
+  return ({
+    post_id: v.data.link_id.match(/(?<=_).*/)?.[0],
+    author: v.data.author,
+    depth: v.data.depth,
+    text_md: v.data.body_html,
+    created_utc: v.data.created_utc * 1000,
+    permalink: v.data.permalink,
+    children: exists ? comment_array(v.data.replies.data) : [],
+    score: v.data.score,
+    stickied: v.data.stickied,
+    subreddit: v.data.subreddit,
+    is_submitter: v.data.is_submitter,
+    edited: v.data.edited,
+    collapsed: v.data.collapsed
+  })
+}

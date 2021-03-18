@@ -1,6 +1,9 @@
 import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
-import { RedditPost } from 'app/types';
-import { StorageService } from '../services';
+import { take } from 'rxjs/operators';
+
+import { deepEquals } from 'app/functions';
+import { RedditComment, RedditPost } from 'app/types';
+import { RedditAPIService, StorageService } from 'app/services';
 
 @Component({
   selector: 'app-gallery',
@@ -15,8 +18,10 @@ export class GalleryComponent {
   currentVolume = 0;
   lastY = 0;
   lastX = 0;
+  comments: RedditComment[] = [];
+  commentsForPost = '';
 
-  constructor(private store: StorageService) { }
+  constructor(private store: StorageService, private api: RedditAPIService) { }
 
   closeFullscreen(li: HTMLLIElement) {
     if (!li) return;
@@ -30,7 +35,7 @@ export class GalleryComponent {
       vid.pause();
       vid.controls = false;
     }
-    li.classList.remove('fullscreen', 'enlarge');
+    li.classList.remove('fullscreen', 'enlarge', 'show-comments');
     imgs.forEach(img => img.style.transform = "");
   }
 
@@ -178,6 +183,28 @@ export class GalleryComponent {
             gallery = li.classList.contains('gallery') && li.querySelector('.content-wrapper') as HTMLDivElement;
       if (userIntention === 'y') this.nextPost(li, swipeDirY);
       else if (userIntention === 'x' && gallery) swipeDirX ? this.onRight(gallery) : this.onLeft(gallery);
+    }
+  }
+
+  async loadComments(sub: string, id: string, ev: Event) {
+    const li = document.querySelector('li.fullscreen') as HTMLLIElement;
+    this.commentsForPost = id;
+    li.classList.add('loading-comments');
+    ev.stopPropagation();
+    li.classList.toggle('show-comments');
+    const cached = await this.store.db.comments.where({'subreddit': sub, 'post_id': id}).toArray();
+    if (cached.length) {
+      li.classList.remove('loading-comments');
+      if (deepEquals(cached,this.comments)) return;
+      this.comments = cached;
+      console.log('loading comments from Cache:', cached);
+    } else {
+      this.api.getComments(sub, id).pipe(take(1)).subscribe(comments => {
+        li.classList.remove('loading-comments');
+        this.comments = comments;
+        this.store.db.comments.bulkPut(comments);
+        console.log('loading comments from API:', comments);
+      });
     }
   }
 

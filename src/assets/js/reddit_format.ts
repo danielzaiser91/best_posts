@@ -45,7 +45,7 @@ const is_a = (v: any) => ['crosspost','video','gallery','youtube','vimeo','gifv'
   !!v.domain.match(/youtu[\.]*be/),
   !!v.domain.match(/vimeo/),
   !!v.url.match(/\.gifv/),
-  v.is_self,
+  v.is_self || !('preview' in v),
   true
 ].indexOf(true)];
 

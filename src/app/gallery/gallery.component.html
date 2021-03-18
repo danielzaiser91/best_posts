@@ -99,7 +99,12 @@
         </div>
 
         <div *ngSwitchDefault class="content-wrapper">
-          <article class="discussion-text">{{ post.src.length ? post.src : post.title }}</article>
+          <article class="discussion-text">
+            <a class="icon-wrapper" target="_blank" [href]="post.thread_url.target" style="display: inline-block;">
+              <img class="img-icon" src="/assets/images/externer-link.png">
+            </a>
+            {{ post.src.length ? post.src : post.title }}
+          </article>
         </div>
       </ng-container>
     </ng-template>

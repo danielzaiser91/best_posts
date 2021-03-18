@@ -54,16 +54,13 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
 
 <u>Roadmap / ToDo:</u>
  - Animations
- - I can't get enough - Feature (add a "more of this" button, which loads the next "page" (pagination api call by id+limit))
- - cinema Mode for mobile version (desktop has this with arrow down/up)
  - autoplay next post (chaining videos, bzw. images after timeout)
  - move heavy logic into a webworker? (not currently necessary)
  - move everything to a seperate Component (multiple small components > one big component)
  - bigTodo: replace everything with ngrx-store?
- - better touch device support
  - dont show enlarge button when it wont have an effect
  - localization (translate to en, and possible more languages)
- - Datenschutzanpassungen für youtube cookies
+ - Datenschutzanpassungen für youtube cookies, und mehr
  - option to autoplay gifs on thumbnail
  - add Unittests for evertything and connect repository to an automated ci tool (like travis for example)
  - img.gif optimizations...
@@ -78,78 +75,38 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
 
 ## Aktueller Changelog:
 
-<span>17.03.2021:</span>
+<span>18.03.2021:</span>
   - <u>👨‍🎨 Optisch:</u>
-    - Volume Control überarbeitet
-      - wird jetzt mobil nicht mehr angezeigt und auf desktop nur noch bei hover
-      - mute icon bei Lautstärke 0
+    - Postnummer wird oben rechts im Vollbild angezeigt
+    - Anpassung der loading-Grafik (für Vollbildmodus, wenn höhere Qualität geladen wird)
   
-  - <u>neue Features:</u>
-    - <h1>OPTIONEN!!</h1> 🙌 endlich gibt es die Optionen 👏
+  - <u>🤩 neue Features:</u>
+    - 👏 unendlich weiterladen:
+      - ein Button mit dem man weitere Posts mit selben Suchoptionen laden und hinzufügen kann
+        - Button wird einmal unten auf der Seite angezeigt
+        - und einmal im Vollbildmodus auf dem letzten Post der aktuellen Liste (zB auf Post 25/25)
+      - Cache angepasst um dieses neue Feature zu unterstützen
+      - Anzeige des aktuellen Posts als Nummer oben rechts im Vollbild-Modus
+    - 👏📲 Touch Support für Vollbildmodus zum Wechseln zwischen Posts und zum Wechseln zwischen Galleriebildern
 
-      - damit ist es jetzt möglich Suchen zu filtern, sortieren und zu verfeinern.
-      - Optionen sind:
-        - Posts Filtern nach Zeit (Stunde, Tag, Woche, ...)
-        - Posts sortieren nach Kriterien: Top, Hot, New, Rising
-        - Posts limitieren auf 25,50,75,100 pro Seite (Seitenfunktion kommt in Zukunft)
-        - Suchbegriff: Einschränkung der Ergebnisse auf eingegebenen Suchbegriff
-      - ---> Das Coole: Ein Preferencing System wurde direkt mit implementiert, es werden also viele Optionen vom Nutzer gespeichert, zB Suchoptionen, Lautstärke, etc.
-    - <h2>Routing</h2>
-      - 👏 jetzt wird in der URL der aktive Subreddit angezeigt und ist auch über die URL erreichbar!
-    - Suchvorschläge sind nach Relevanz sortiert (neuer reddit-API-Suchalgorithmus)
-    - Suchvorschläge können private Subreddits enthalten, diese werden besonders angezeigt (subCount NULL und alert on click)
-    - Caching von geladenen Inhalten (sehr schnelles Neuladen)
-      - für jede gewählte Optionen-Kombination wird existiert ein eigener, seperater Cache
-      - Löschung von gecachedten Inhalten manuell möglich (nicht empfohlen, da schon automatisch sehr gut)
-    - Fehlermeldung, wenn ein Subreddit nicht geladen werden konnte (Hauptgrund: Privat)
-    - neue unterstützte Medieninhalte: 
-      - Crosspost
-        - Anzeigen von Crosspost-Daten (von wo und wieviele Likes hat das Original)
-      - Vimeo
-        - wird ähnlich wie youtube behandelt und dargestellt
-    - Volume Control überarbeitet
-      - klick auf unteren Lautsprecher -> Mute / Unmute (vorherige Lautstärke)
-      - klick auf oberen Lautsprecher -> Max Lautstärke / vorherige Lautstärke
-      - Lautstärkeanpassungen werden nach schließen des Vollbildmodusses als preference gespeichert und für zukünftige Videos übernommen.
-    - pagination für empfohlene Subreddit-Liste (most popular subreddits / Button oben links)
-      - zeigt jetzt 100 Vorschläge (10 pro Seite)
-    
 
-  - <u>Änderung:</u>
-    - der Button oben rechts wurde entfernt, mit dem man zwischen bereits besuchten Subreddits wechseln konnte, Grund: man soll lieber neue Subreddits suchen statt zwischen den selben hin und herzuwechseln, das ist zwar immer noch möglich, dieses Verhalten soll aber nicht gefördert werden.
-    - durch die neue Suche ist das vorherige fetchen von 3500 subreddits für meine eigene implementierung der Suche inklusive der dazugehörigen IndexedDB Datenbank (mit Dexie) nicht mehr notwendig geworden.
-      - --> entfernt
-    
-
+  - <u>	🛠 Änderung:</u>
+  
   - <u>🐜 Bugfixing:</u>
-    - Diskussionen ohne Inhalt (die ihren kompletten Inhalt im Titel haben), bekommen jetzt den Titel als Text
-    - bessere Lesbarkeit / Darstellung von Diskussionstexten (Text läuft nicht mehr über Bildschirmrand)
-
+    - Videos sind jetzt pausierbar im Vollbildmodus durch klick auf video
+      - und nicht nur pausierbar, sondern auch weiterspielbar
+    - Pfeil Navigation war invertiert, ist jetzt wie zu erwarten: Pfeil nach unten = nächster Post, Pfeil nach oben = vorheriger Post
+    - Bug behoben: Bild lädt nicht höchste Qualität
+      - war eigentlich kein Bug, sondern eine Reddit unerwartete JSON-Namenskonvention...
+      - --> Bilder werden jetzt wie zu erwarten in Original-Qualität geladen beim Wechsel in Vollbildmodus
+  
   - <u>🔋 Performance/Optimierungen:</u>
-    - viel refactoring, siehe Dev-Changes
-
-  - <u>Vorarbeit für zukünftige Features:</u>
-    - Seitenfunktion: In zukunft gibt es unendlich viele anzeigbare Seiten
-      - evtl automatisches Laden neuer Seiten, beim erreichen des unterren Bildschirmrandes
-    - User Preferencing: Eröffnet viele neue Möglichkeiten
-
+    - schnelleres Laden von Videos, durch Preloading
+  
   - <u>👨‍💻 Dev-Changes:</u>
-    - customWebpackConfig - customizing Angular Webpacker Config for dev and prod
-      - circularDependency Detection
-      - aggregateTimeout -- only recompile after a set timeout value (1.5s), to be able to save multiple files without bundler recompiling every single file
-      - webpack-bundle-analyzer
-    - clean filestructur, big re-organization of files, preparing for scalability & Cleaner Code
-      - one file for all subfiles that are used accross the app, specifically:
-        - functions
-        - components
-        - services
-        - pipes
-        - types
-      - -> resulting in clean imports (one import call instead of many)
-    - using ReactiveFormsModule for all forms now = better validation & stream of formData
-      - clean up html-form code
-    - gallery Component refactored, von ngIfElse zu ngSwitch
+    - Auslagerung von CSS Code um ihn global Verfügbar zu machen (Button Styles)
 
+  
 Ältere Changelog findet man unter "changelogs/changelog.md"
 
 

@@ -1,4 +1,4 @@
-import { Component, HostListener, Input } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, Output } from '@angular/core';
 import { RedditPost } from 'app/types';
 import { StorageService } from '../services';
 
@@ -9,9 +9,12 @@ import { StorageService } from '../services';
 })
 export class GalleryComponent {
   @Input() posts: any[];
+  @Output() loadMorePls = new EventEmitter();
   controls = false;
   localPref = 1;
   currentVolume = 0;
+  lastY = 0;
+  lastX = 0;
 
   constructor(private store: StorageService) { }
 
@@ -82,11 +85,21 @@ export class GalleryComponent {
         this.changeVolume((this.currentVolume === 1 ? pref : 1), li);
       } else if (el.classList.contains('down')) {
         this.changeVolume((this.currentVolume === 0 ? pref : 0), li);
+      } else if (el.classList.contains('content-wrapper')) {
+        const vid = el.querySelector('video');
+        if (vid) {
+          vid.classList.contains('playing') ? vid.pause() : vid.play();
+        }
       }
     } else { this.openFullscreen(li); }
   }
 
+  loadMore() {
+    this.loadMorePls.emit()
+  }
+
   onPlay(vid: HTMLVideoElement) {
+    vid.classList.add('playing');
     if (vid.closest('li')?.classList.contains('no-audio')) return;
     const aud = (vid.nextSibling as HTMLAudioElement);
     aud.currentTime = vid.currentTime;
@@ -94,6 +107,7 @@ export class GalleryComponent {
   }
 
   onPause(vid: HTMLVideoElement) {
+    vid.classList.remove('playing');
     if (!vid.closest('li')?.classList.contains('no-audio')) (vid.nextSibling as HTMLAudioElement).pause()
   }
 
@@ -142,9 +156,29 @@ export class GalleryComponent {
   }
 
   nextPost(li: HTMLLIElement, dir: number) {
-    const lis = li.parentElement!.children as HTMLCollectionOf<HTMLLIElement>, index = Array.from(lis).indexOf(li), next = lis.item(index + dir);
+    if (!li) return;
+    const lis = li.parentElement!.children as HTMLCollectionOf<HTMLLIElement>,
+          index = Array.from(lis).indexOf(li), next = lis.item(index + dir) ?? (dir === -1 ? lis.item(lis.length-1) : lis.item(0));
     this.closeFullscreen(li);
-    this.openFullscreen(next ? next : lis.item(0)!)
+    this.openFullscreen(next!);
+  }
+
+  touch(method: string, ev: TouchEvent) {
+    const li = document.querySelector('.fullscreen') as HTMLLIElement;
+    if (!li || !ev.changedTouches) return;
+
+    const y = ev.changedTouches[0].clientY, x = ev.changedTouches[0].clientX;
+    if (method === 'start') {
+      this.lastY = y;
+      this.lastX = x;
+    }
+    else {
+      const swipeDirY = this.lastY < y ? -1 : 1, swipeDirX = this.lastX < x ? 1 : 0,
+            userIntention = (Math.abs(this.lastY - y) > Math.abs(this.lastX - x)) ? 'y' : 'x',
+            gallery = li.classList.contains('gallery') && li.querySelector('.content-wrapper') as HTMLDivElement;
+      if (userIntention === 'y') this.nextPost(li, swipeDirY);
+      else if (userIntention === 'x' && gallery) swipeDirX ? this.onRight(gallery) : this.onLeft(gallery);
+    }
   }
 
   @HostListener('window:keyup', ['$event']) function($event: KeyboardEvent) {
@@ -152,8 +186,8 @@ export class GalleryComponent {
       li = document.querySelector('.fullscreen') as HTMLLIElement;
     if ($event.key === 'ArrowRight') this.onRight(gallery);
     else if ($event.key === 'ArrowLeft') this.onLeft(gallery);
-    else if ($event.key === 'ArrowUp') this.nextPost(li, 1);
-    else if ($event.key === 'ArrowDown') this.nextPost(li, -1);
+    else if ($event.key === 'ArrowUp') this.nextPost(li, -1);
+    else if ($event.key === 'ArrowDown') this.nextPost(li, 1);
     else if ($event.key === 'Escape') this.closeFullscreen(li);
   }
 }

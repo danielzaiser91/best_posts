@@ -20,8 +20,8 @@ const formatMedia = (v: any, is: string): RedditMedia => {
   } else if (is === 'discussion'){
     return v.selftext
   } else {
-    const imgs = v.preview?.images[0].resolutions;
-    return imgs ? imgs[imgs.length-1].url : v.url;
+    const img = v.preview?.images[0].source.url;
+    return img ? img : v.url;
   }
 }
 
@@ -35,7 +35,7 @@ const getThumbnail = (v: any, is: string): string[] | string => {
   } else if (v.thumbnail === '') {
     return v.url;
   }
-  return v.thumbnail === 'nsfw' ? '' : v.thumbnail;
+  return v.thumbnail.match('http')?.[0] ? v.thumbnail : '';
 }
 
 const is_a = (v: any) => ['crosspost','video','gallery','youtube','vimeo','gifv','discussion','image'][[

@@ -85,8 +85,11 @@
             z-index: 9
             text-shadow: 0px 0px 8px red
             white-space: nowrap
-      .right-ctrl .exit *
-        pointer-events: none
+      .right-ctrl
+        display: flex
+        gap: 1em
+        .exit *
+          pointer-events: none
     &.has-played.youtube, &.has-played.vimeo
       iframe
         width: 100%
@@ -117,7 +120,7 @@
         width: 100%
     video
       width:100%
-    .mute, .enlarge-btn, .volume, .share-btn
+    .mute, .enlarge-btn, .volume, .share-btn, .pager, .loadMore
       display: none
 
   li.fullscreen
@@ -139,7 +142,8 @@
       margin: 0 auto
       display: block
       position: relative
-    @media (min-width: 761px)
+      z-index: -1
+    @media (min-width: 769px)
       &:hover .volume
         display: block
         position: absolute
@@ -172,6 +176,18 @@
       .left-ctrl
         display: flex
         gap: 1em
+      .right-ctrl
+        .pager
+          position: relative
+          top: 0.6em
+          display: block
+    &:nth-last-of-type(1) .right-ctrl .loadMore
+      display: block
+      position: absolute
+      top: 4em
+      left: 50%
+      z-index: 10
+      transform: translateX(-50%)
     &.no-audio .mute, .no-audio .mute
       display: block
       position: absolute

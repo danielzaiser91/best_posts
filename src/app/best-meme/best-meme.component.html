@@ -1,8 +1,11 @@
 <div class="spinner" *ngIf="loading">
   ... loading
 </div>
+
 <app-greetings></app-greetings>
-<app-popular-subreddits (choose)="fetchSub($event, true)"></app-popular-subreddits>
+
+<app-popular-subreddits (choose)="fetchSub($event, 'fill')"></app-popular-subreddits>
+
 <div class="select">
   <div>
     <label>Zeige die 25 besten Posts von /r/</label>
@@ -11,7 +14,7 @@
       <input [formControl]="subredditChooser" [placeholder]="currentSub" [class]="subExists ? 'valid' : 'invalid'">
       <ul *ngIf="suggestions" class="suggestions" #sugs>
         <li *ngFor="let sug of suggestions.slice(page, page+10)"
-          [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, true)">
+          [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">
           <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
           <span *ngIf="sug.over18">🔞</span>
           {{sug.name}}</li>
@@ -22,6 +25,7 @@
     <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')">Optionen</button>
   </div>
 </div>
+
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
   <div class="exit" (click)="onLeavingOptions(optionsOverlay)">x</div>
   <div>
@@ -69,7 +73,10 @@
     <button class="all btn danger" (click)="deleteCache('all')" [disabled]="!store.anySS()">kompletten Cache löschen</button>
   </div>
 </div>
-<app-gallery [posts]="posts"></app-gallery>
+
+<app-gallery [posts]="posts" (loadMorePls)="loadMore()"></app-gallery>
+<button class="loadMore" (click)="loadMore()">load More...</button>
+
 <div *ngIf="err.length > 0" class="error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
   <u> Grund:</u>

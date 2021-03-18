@@ -61,58 +61,10 @@
     border-radius: 50%
     z-index: 5
 
-.btn
-  padding: 0.3em 0.6em
-  outline: none
-  background: transparent
-  border: 1px solid #3e4d67
-  box-shadow: 0 9px #9dbbff4d
-  border-radius: 15px
-  position: relative
-  &.warning
-    background-color: #86710e
-    border-color: #a18e31
-    box-shadow: 0 9px #fff39d4d
-  &.danger
-    background: #860e0e
-    border: 1px solid #a13131
-    box-shadow: 0 9px #f7000061
-  &:hover, &:active
-    background-color: #454c56ba
-    &.warning
-      background-color: #fff8a08a
-    &.danger
-      background-color: #ff6767
-  &:active
-    box-shadow: 0 5px #666
-    transform: translateY(4px)
-    &.warning
-      box-shadow: 0 5px #5b6016
-    &.danger
-      box-shadow: 0 5px #601616
-  &:disabled
-    background-color: #7f8ca5d4
-    &.warning
-      background-color: #feffc682
-      box-shadow: 0 9px #6862344a
-    &.danger
-      background-color: #ffc6c682
-      box-shadow: 0 9px #6834344a
-    &:hover
-      content: ''
-      &::before
-        content: 'coming soon'
-        position: absolute
-        text-shadow: 0px 0px 8px red
-        top: 2em
-        white-space: nowrap
-        z-index: 9
-      &.warning::before, &.danger::before
-        content: 'kein Cache zum Löschen gefunden'
-  &.search:disabled:hover::before
-    content: 'gib etwas in die Suche ein'
-    left: 0
-    z-index: 9
+.btn.search:disabled:hover::before
+  content: 'gib etwas in die Suche ein'
+  left: 0
+  z-index: 9
 
 .wrap-input
   display: flex

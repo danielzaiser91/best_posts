@@ -23,6 +23,7 @@ export class BestMemeComponent implements OnInit {
   page = 0;
   loading = false;
   err = '';
+  cacheNr = 0;
 
   constructor(
     private api: RedditAPIService,
@@ -48,10 +49,10 @@ export class BestMemeComponent implements OnInit {
 
   initialFetch(): void {
     const sub = this.route.snapshot.params.subreddit;
-    if (sub) this.fetchSub(sub, true);
+    if (sub) this.fetchSub(sub, 'fill');
     else {
       this.fetchSub('memes');
-      this.fetchSub('cats', true);
+      this.fetchSub('cats', 'fill');
     }
   }
 
@@ -83,8 +84,8 @@ export class BestMemeComponent implements OnInit {
     });
   }
 
-  fetchSub(sub: string, base = false) {
-    if (base) this.loading = true;
+  fetchSub(sub: string, method = 'silentCaching') {
+    if (method !== 'silentCaching') this.loading = true;
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
     /*
@@ -96,9 +97,9 @@ export class BestMemeComponent implements OnInit {
       - ...
     */
     const options = this.store.userOptions;
-    const optionsString = options.sort+':'+ Object.values(options.params).join(':');
-    /* 
-      we are caching redditPosts depending on specific user options 
+    const optionsString = options.sort+':'+ [...Object.values(options.params), this.cacheNr].join(':');
+    /*
+      we are caching redditPosts depending on specific user options
       caching example:
       subreddit: sorted by hot, filtered by day => hot:day:cats ---> RedditPost[] --- notice, we dont differentiate the limits param
       subreddit: sorted by hot, filtered by day => hot:day:memes ---> RedditPost[]
@@ -106,12 +107,25 @@ export class BestMemeComponent implements OnInit {
     */
     const saved = this.store.getSaved(optionsString+':'+sub), today = new Date().toDateString();
     if (saved?.lastFetch !== today) {
+      // important informative console info message:
       console.info('fetching data for /r/'+sub+'...');
       this.err = '';
-      this.api.get(sub, options).pipe(take(1)).subscribe((data: RedditPost[]) => {
-        console.log('received: ', data, 'for options: ', options);
-        if (base) {
-          this.posts = data;
+      let afterId = '';
+      if (this.cacheNr > 0) {
+        const lastOptionsString = options.sort+':'+ [...Object.values(options.params), this.cacheNr-1].join(':');
+        const lastSaved = this.store.getSaved(lastOptionsString+':'+sub).data;
+        afterId = lastSaved[lastSaved.length-1].uid;
+      }
+      this.api.get(sub, options, afterId).pipe(take(1)).subscribe((data: RedditPost[]) => {
+        // rich console log info text
+        console.log(
+          'received: ', data, 'for options: ', options, ' and fetch-method: ' + method,
+          afterId.length ? ', after: ' + afterId : '', ', page: ' + this.cacheNr
+        );
+
+        if (method !== 'silentCaching') {
+          if (method === 'fill') this.posts = data;
+          else if (method === 'append') this.posts = this.posts.concat(data);
           this.loading = false;
           this.currentSub = sub;
         }
@@ -120,14 +134,23 @@ export class BestMemeComponent implements OnInit {
         savedArr.push(optionsString);
         this.store.save(sub, uniq(savedArr));
       }, err => {
+        console.info('Error while fetching data from /r/'+sub+': ');
+        console.error(err);
         this.loading = false;
         this.currentSub = sub;
         this.err = err.error.reason;
       });
-    } else {
+    } else { // do this when there is a cached version of query
       this.loading = false;
-      if (base) {
-        this.posts = saved.data;
+      // rich console log info text
+      console.log(
+        'using saved data: ', saved.data, 'for options: ',options,
+        ' and fetch-method: '+method,', page: ' + this.cacheNr
+      );
+
+      if (method !== 'silentCaching') {
+        if (method === 'fill') this.posts = saved.data;
+        else if (method === 'append') this.posts = this.posts.concat(saved.data);
         this.currentSub = sub;
       }
     }
@@ -155,8 +178,14 @@ export class BestMemeComponent implements OnInit {
 
   onLeavingOptions(el: HTMLElement) {
     el.classList.remove('fullscreen');
-    this.fetchSub(this.currentSub, true);
+    this.fetchSub(this.currentSub, 'fill');
   }
+
+  loadMore() {
+    this.cacheNr += 1;
+    this.fetchSub(this.currentSub, 'append');
+  }
+
   hideOverlay(e: any) {
     if (e.target.classList.contains('optionsOverlay')) {
       this.onLeavingOptions(e.target)

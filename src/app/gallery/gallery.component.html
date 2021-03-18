@@ -1,14 +1,16 @@
 <ul class="my-image-list">
-  <!-- post.spoiler ? 'spoiler' : '', post.nsfw ? 'nsfw' : '', post.thumbnail === 'default' ? 'default' : '',  -->
-  <li 
-    *ngFor="let post of posts; index as post_id"
+  <li
+    *ngFor="let post of posts; index as p_i"
     [ngClass]="[
       post.crosspost ? 'crosspost' : '',
       post.spoiler ? 'spoiler' : '',
       post.nsfw ? 'nsfw' : '',
       post.thumbnail === 'default' ? 'default' : '',
       post.is]"
-    (click)="onLiClick(li, $event)" #li>
+    (click)="onLiClick(li, $event)"
+    (touchstart)="touch('start', $event)"
+    (touchend)="touch('end', $event)"
+    #li>
     <div class="controls">
       <div class="left-ctrl">
         <div class="score ctrl-btn">{{ post.score.onThis | shortNumber }}</div>
@@ -28,6 +30,8 @@
         </button>
       </div>
       <div class="right-ctrl">
+        <div class="loadMore btn" (click)="loadMore()">load more...</div>
+        <div class="pager">{{ (p_i+1)+'/'+(posts.length) }}</div>
         <div class="exit ctrl-btn">
           <svg-icon src="/assets/images/cross.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
         </div>
@@ -55,7 +59,7 @@
             <button class="down" [textContent]="!currentVolume ? '🔇' : '🔉'"></button>
             <input type="range" min="0" max="1" value="0.5" step="0.01" (change)="changeVolume(+vol.value, li)" #vol>
           </div>
-          <video [poster]="post.thumbnail" class="" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
+          <video preload="auto" [poster]="post.thumbnail" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
             <source [src]="post.src.vid" type="video/mp4">
             Your browser does not support the video tag.
           </video>
@@ -87,7 +91,8 @@
 
         <div *ngSwitchCase="'gifv'" class="content-wrapper no-audio">
           <div class="mute"><span class="icon">🔇</span></div>
-          <video [poster]="post.thumbnail" class="" loop controls #gifv>
+          <video preload="auto" [poster]="post.thumbnail" loop controls
+                (play)="gifv.classList.add('playing')" (pause)="gifv.classList.remove('playing')" #gifv>
             <source [src]="post.src" type="video/mp4">
             Your browser does not support the video tag.
           </video>

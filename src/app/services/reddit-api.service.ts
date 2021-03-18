@@ -17,8 +17,9 @@ export const errHandler = (err: HttpErrorResponse) => {
 export class RedditAPIService {
   constructor(private http: HttpClient) { }
 
-  get(subreddit: string, { params = {}, sort = 'hot' } = {}): Observable<RedditPost[]> {
+  get(subreddit: string, { params = { limit: '25' }, sort = 'hot' } = {}, id = ''): Observable<RedditPost[]> {
     if (params) {}
+    if (id.length) Object.assign(params, { after: id, count: params.limit });
     const options = {
       params: Object.assign({
         // --- for some reasons these options dont seem to work as expected

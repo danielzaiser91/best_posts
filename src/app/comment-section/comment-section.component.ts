@@ -13,4 +13,8 @@ export class CommentSectionComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void { }
+  onTouch(ev: TouchEvent) { ev.stopPropagation() }
+  showComments(el: HTMLDivElement) {
+    el.parentElement!.classList.toggle('show-children');
+  }
 }

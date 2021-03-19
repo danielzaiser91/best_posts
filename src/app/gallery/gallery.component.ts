@@ -170,7 +170,7 @@ export class GalleryComponent {
 
   touch(method: string, ev: TouchEvent) {
     const li = document.querySelector('.fullscreen') as HTMLLIElement;
-    if (!li || !ev.changedTouches) return;
+    if (!li || !ev.changedTouches || ev.targetTouches.length > 1) return;
 
     const y = ev.changedTouches[0].clientY, x = ev.changedTouches[0].clientX;
     if (method === 'start') {

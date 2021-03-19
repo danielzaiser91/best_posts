@@ -75,7 +75,6 @@
 </div>
 
 <app-gallery [posts]="posts" (loadMorePls)="loadMore()"></app-gallery>
-<button class="loadMore" (click)="loadMore()">load More...</button>
 
 <div *ngIf="err.length > 0" class="error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>

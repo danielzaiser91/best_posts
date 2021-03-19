@@ -2,9 +2,8 @@
   padding: 2em
   background: #1b2735
   .comment
-    outline: 0px solid
     position: relative
-    border-left: 1px solid
+    border-left: 1px solid #4d5b6c
     .source
       position: absolute
       right: 0
@@ -13,72 +12,73 @@
       position: absolute
       right: 1.2em
       border-bottom: 1px solid
-      top: 0.4em
-      font-size: 0.75em
-      opacity: 0.6
+      top: .4em
+      font-size: .75em
+      opacity: .6
     .author
       padding: .5em
-      font-size: 0.8em
+      font-size: .8em
       position: relative
-      top: -0.3em
-      left: -0.4em
+      top: -.3em
+      left: -.4em
       text-decoration: underline
-      opacity: 0.6
+      opacity: .6
     .score
       left: 0
       transform: translateX(-100%)
-      background: #1b2735
+      background: #3a4e66
       top: 0
       position: absolute
       border-radius: 20px 0 0 20px
-      border: 1px solid
-      padding: 0.5em
-      font-size: 0.7em
+      border: 1px solid #728499
+      padding: .5em
+      font-size: .7em
       &::after
         white-space: nowrap
         writing-mode: tb
         position: absolute
         height: 30px
         bottom: -1em
-        border: 1px solid #788ca39c
-        border-width: 0px 0px 3px 0px
-        padding: 0.3em 0em .3em 0.3em
+        border: 1px solid #728499
+        border-width: 0 1px 2px 1px
+        box-sizing: border-box
+        padding: .3em 0em .3em .3em
         border-radius: 0 0 100% 100%
         right: 0
         top: 1.3em
         background: #3a4e66
         font-size: 1.4em
         font-weight: 700
+        transform: translateX(1px)
     &.has-children .score::after
       content: "..."
     .text
-      padding: 0.5em
+      padding: .5em
       transform: translateX(.5em)
       margin-right: .5em
-      margin-bottom: .5em
-      outline: 1px solid
+      outline: 1px solid #4d5b6c
 
 .comment
+  &::before
+    position: absolute
+    bottom: -1px
+    left: -1px
+    content: ''
+    width: 1em
+    height: 1px
+    background: #4d5b6c
   & > .comment
     display: none
     transform: translateX(1em)
     word-break: break-word
-    border-left: 2px solid
     padding-left: 1em
     margin-right: 1em
-    &::before
-      position: absolute
-      bottom: 0
-      content: ''
-      width: .9em
-      height: 1px
-      background: white
-      left: 0
   &.show-children > .comment
     display: block
     
 .comment-self
-  outline: 1px solid
+  outline: 1px solid #4d5b6c
+  margin-bottom: 0.5em
 
 
 

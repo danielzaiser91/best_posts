@@ -59,7 +59,7 @@
             <button class="down" [textContent]="!currentVolume ? '🔇' : '🔉'"></button>
             <input type="range" min="0" max="1" value="0.5" step="0.01" (change)="changeVolume(+vol.value, li)" #vol>
           </div>
-          <video preload="auto" [poster]="post.thumbnail" (play)="onPlay(vid)" (pause)="onPause(vid)" #vid>
+          <video preload="auto" [poster]="post.thumbnail" (play)="onPlay(vid)" (pause)="onPause(vid)" (ended)="onPause(vid)" #vid>
             <source [src]="post.src.vid" type="video/mp4">
             Your browser does not support the video tag.
           </video>

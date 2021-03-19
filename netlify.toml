@@ -42,4 +42,4 @@
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
-    Content-Security-Policy = "default-src 'self'"
+    Content-Security-Policy = "default-src *; script-src 'self'"

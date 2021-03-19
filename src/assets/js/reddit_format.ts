@@ -98,13 +98,14 @@ export const comment_array = (data: any): RedditComment[] => {
 }
 export const single_comment = (v: any): RedditComment => {
   const exists = v.data.replies?.data?.children?.[0]?.data?.author;
+  console.log('trying to format:', v.data);
   return ({
     post_id: v.data.link_id.match(/(?<=_).*/)?.[0],
     author: v.data.author,
     depth: v.data.depth,
     text_md: v.data.body_html,
     created_utc: v.data.created_utc * 1000,
-    permalink: v.data.permalink,
+    permalink: redditURL(v.data.permalink),
     children: exists ? comment_array(v.data.replies.data) : [],
     score: v.data.score,
     stickied: v.data.stickied,

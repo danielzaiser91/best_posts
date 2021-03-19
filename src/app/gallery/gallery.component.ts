@@ -204,7 +204,7 @@ export class GalleryComponent {
         this.comments = comments;
         this.store.db.comments.bulkPut(comments);
         console.log('loading comments from API:', comments);
-      });
+      }, err => li.classList.remove('loading-comments'));
     }
   }
 

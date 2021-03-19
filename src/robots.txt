@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://best-reddit-post.netlify.app/sitemaps/sitemap_index.xml

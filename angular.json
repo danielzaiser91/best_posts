@@ -33,7 +33,11 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/sitemap.xml",
+              "src/r/sitemap.xml",
+              "src/sitemaps/sitemap_index.xml",
+              "src/robots.txt"
             ],
             "styles": [
               "src/styles.sass"

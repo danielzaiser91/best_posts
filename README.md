@@ -68,6 +68,7 @@ Das Projekt habe ich am 03.03.2021 begonnen um zum einen meine Fähigkeiten als 
  - Offline Usability
  - PWA
  - show comments
+ - make my own background version, to reduce file size
 
 (viele Punkte auf der Roadmap habe ich bereits gelöscht, da ich sie umgesetzt habe 😉)
 

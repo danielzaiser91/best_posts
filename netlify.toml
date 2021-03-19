@@ -1,9 +1,45 @@
 [build]
   base = "/"
   publish = "dist/bestOfReddit/"
+  functions = "functions/"
+
   command = "npm run build"
+
+[[redirects]]
+  from = "/robots.txt"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/r/sitemap.xml"
+  status = 200
+
+[[redirects]]
+  from = "/sitemap_index.xml"
+  status = 200
 
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    cache-control = '''
+      max-age=0,
+      no-cache,
+      no-store,
+      must-revalidate'''
+    Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
+    X-Robots-Tag = "all"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    X-XSS-Protection = "1; mode=block"
+    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+    Referrer-Policy = "strict-origin"
+    Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = "default-src 'self'"

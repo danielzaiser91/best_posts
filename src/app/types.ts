@@ -10,6 +10,7 @@ import {
   RedditComment
 } from '../assets/types/redditTypes'
 import { UserPrefs } from '../assets/types/user';
+import { Recommendation } from '../assets/types/myTypes';
 
 
 export {
@@ -22,5 +23,6 @@ export {
   Subreddit,
   RedditPost,
   RedditComment,
-  UserPrefs
+  UserPrefs,
+  Recommendation
 }

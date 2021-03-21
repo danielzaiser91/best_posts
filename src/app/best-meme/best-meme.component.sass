@@ -1,9 +1,17 @@
+.sticky-top
+  position: fixed
+  width: 100%
+  z-index: 2
+  top: 0
+  left: 0
 .select
   display: flex
-  position: relative
   justify-content: space-between
-  padding: 3em 1em 1em
   gap: 2em
+  background-color: #1a2634
+  padding: 0.5em 0.5em 0.5em 4em
+  > div:nth-child(1)
+    flex: 1
   #subredditChooser
     outline: none
   .saved-subreddits
@@ -69,6 +77,13 @@
 .wrap-input
   display: flex
   flex-direction: column
+  position: relative
+  .reset
+    position: absolute
+    right: 0
+    border: 1px solid
+    font-size: 0.8em
+    opacity: 1
   input
     width: -webkit-fill-available
     outline: none
@@ -78,21 +93,24 @@
     &.invalid
       border: 1px solid #e91e1e
       background: #ff4e4e6b
-  .suggestions
-    padding: 0
-    list-style: none
+.suggestions
+  padding: 0
+  list-style: none
+  display: flex
+  flex-direction: column
+  li
+    cursor: pointer
+    background: #3444617a
+    padding: 0.2em 3em 0.2em 0.2em
+    border: solid
+    border-width: 1px 0
+    position: relative
     display: flex
-    flex-direction: column
-    li
-      cursor: pointer
-      background: #3444617a
-      padding: 0.2em 3em 0.2em 0.2em
-      border: solid
-      border-width: 1px 0
-      position: relative
-      .subscriber-count
-        position: absolute
-        right: 0
+    align-items: center
+    gap: 0.6em
+    .subscriber-count
+      position: absolute
+      right: .2em
 
 
 .spinner 

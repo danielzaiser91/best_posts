@@ -46,6 +46,8 @@
   flex-wrap: wrap
   padding: 0
   gap: 0.6em
+  *
+    box-sizing: content-box
   li
     position: relative
     flex: 1
@@ -151,9 +153,8 @@
       margin: 0 auto
       display: block
       position: relative
-      z-index: -1
     @media (min-width: 769px)
-      &:hover .volume
+      &:not(.no-audio):hover .volume
         display: block
         position: absolute
         right: 2.3em
@@ -269,6 +270,10 @@
         top: 50%
         left: 50%
         transform: translate(-50%, -50%)
+        word-break: break-all
+        @media (max-width: 770px)
+          left: 0
+          transform: translateY(-50%)
     &.enlarge .content-wrapper
       flex-wrap: wrap
 
@@ -340,7 +345,7 @@
         &:visited
           color: #965f0e
     .share-btn
-      display: block
+      display: inline-block
     &.gallery .enlarge-btn, &.image .enlarge-btn
       display: block
     &.image.default .enlarge-btn, &.enlarge .plus, &:not(.enlarge) .minus
@@ -350,7 +355,6 @@
   left: 50%
   transform: translateX(-50%)
   margin-top: 1.5em
-  margin-bottom: 15em
   font-size: 1.6em
   
 

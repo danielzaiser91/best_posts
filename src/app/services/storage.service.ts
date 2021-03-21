@@ -44,7 +44,7 @@ export class StorageService {
   }
 
   get userPrefs(): UserPrefs {
-    return this.getSavedLS('userPrefs') || { volume: 1 };
+    return this.getSavedLS('userPrefs') || { volume: 1, over18: false, warn18: true, warnSpoiler: true };
   }
   set userPrefs(prefs: UserPrefs) {
     this.saveLS('userPrefs', prefs);

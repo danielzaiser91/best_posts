@@ -13,6 +13,7 @@ import { RedditAPIService, StorageService } from 'app/services';
 export class GalleryComponent {
   @Input() posts: any[];
   @Output() loadMorePls = new EventEmitter();
+  @Output() hideSuggestions = new EventEmitter();
   controls = false;
   localPref = 1;
   currentVolume = 0;
@@ -21,12 +22,27 @@ export class GalleryComponent {
   comments: RedditComment[] = [];
   commentsForPost = '';
 
-  constructor(private store: StorageService, private api: RedditAPIService) { }
+  constructor(public store: StorageService, private api: RedditAPIService) { }
 
   closeFullscreen(li: HTMLLIElement) {
     if (!li) return;
-    const aud = li.querySelector('audio')  as HTMLAudioElement, vid = li.querySelector('video') as HTMLVideoElement,
-      imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
+    const imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>;
+    this.pauseMedia(li)
+    li.classList.remove('fullscreen', 'enlarge', 'show-comments');
+    imgs.forEach(img => img.style.transform = "");
+  }
+
+  openFullscreen(li: HTMLLIElement) {
+    const text = li.querySelector('.text') as HTMLDivElement;
+    this.hideSuggestions.emit();
+    li.classList.add('fullscreen');
+    text.classList.remove('max-limit');
+    
+    this.loadMedia(li)
+  }
+
+  pauseMedia(li: HTMLLIElement) {
+    const aud = li.querySelector('audio')  as HTMLAudioElement, vid = li.querySelector('video') as HTMLVideoElement;
     if (aud) {
       aud.pause();
       this.store.preferences({ volume: aud.volume });
@@ -35,15 +51,11 @@ export class GalleryComponent {
       vid.pause();
       vid.controls = false;
     }
-    li.classList.remove('fullscreen', 'enlarge', 'show-comments');
-    imgs.forEach(img => img.style.transform = "");
   }
 
-  openFullscreen(li: HTMLLIElement) {
-    const iframe = li.querySelector('iframe'), text = li.querySelector('.text') as HTMLDivElement, aud = li.querySelector('audio') as HTMLAudioElement,
+  loadMedia(li: HTMLLIElement) {
+    const iframe = li.querySelector('iframe'), aud = li.querySelector('audio') as HTMLAudioElement,
       imgs = li.querySelectorAll('img') as NodeListOf<HTMLImageElement>, vid = li.querySelector('video') as HTMLVideoElement;
-    li.classList.add('fullscreen');
-    text.classList.remove('max-limit');
     if (vid) { // videos & gifv
       if (aud) {
         const pref = this.store.userPrefs.volume;
@@ -188,17 +200,20 @@ export class GalleryComponent {
 
   async loadComments(sub: string, id: string, ev: Event) {
     const li = document.querySelector('li.fullscreen') as HTMLLIElement;
+    li.classList.contains('show-comments') ? this.loadMedia(li) : this.pauseMedia(li);
     this.commentsForPost = id;
-    li.classList.add('loading-comments');
+    id = id.split('_')[1];
     ev.stopPropagation();
     li.classList.toggle('show-comments');
+    // todo: improve caching performance, remove unnecessary loading, and for gods sake please refactor this component x___x
     const cached = await this.store.db.comments.where({'subreddit': sub, 'post_id': id}).toArray();
     if (cached.length) {
       li.classList.remove('loading-comments');
-      if (deepEquals(cached,this.comments)) return;
+      if (deepEquals(cached, this.comments)) return;
       this.comments = cached;
       console.log('loading comments from Cache:', cached);
     } else {
+      li.classList.add('loading-comments');
       this.api.getComments(sub, id).pipe(take(1)).subscribe(comments => {
         li.classList.remove('loading-comments');
         this.comments = comments;

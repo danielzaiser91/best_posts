@@ -2,12 +2,10 @@ import { RedditComment, RedditGallery, RedditMedia, RedditPost, Subreddit } from
 
 const formatMedia = (v: any, is: string): RedditMedia => {
   if (is === 'video') {
-    const vid = v.media.reddit_video.fallback_url as string,
-      aud = vid.replace(/(?<=DASH_).*/,'audio.mp4') as string;
-    return {
-      vid: vid,
-      aud: aud // todo check if there is an audio file
-    }
+    const redGif = (v.preview && ('reddit_video_preview' in v.preview)),
+      vid = redGif ? v.preview.reddit_video_preview.fallback_url : v.media.reddit_video.fallback_url,
+      aud = vid.replace(/(?<=DASH_).*/,'audio.mp4');
+    return ({ vid, aud })
   } else if (is === 'gallery') {
     return Object.values(v.media_metadata).map((v:any) => v.p[v.p.length-1].u) as RedditGallery
   } else if (is === 'youtube'){
@@ -40,7 +38,7 @@ const getThumbnail = (v: any, is: string): string[] | string => {
 
 const is_a = (v: any) => ['crosspost','video','gallery','youtube','vimeo','gifv','discussion','image'][[
   "crosspost_parent_list" in v,
-  v.is_video,
+  v.is_video || (v.preview && ('reddit_video_preview' in v.preview)),
   v.is_gallery,
   !!v.domain.match(/youtu[\.]*be/),
   !!v.domain.match(/vimeo/),
@@ -98,7 +96,7 @@ export const comment_array = (data: any): RedditComment[] => {
 }
 export const single_comment = (v: any): RedditComment => {
   const exists = v.data.replies?.data?.children?.[0]?.data?.author;
-  console.log('trying to format:', v.data);
+  // console.log('trying to format:', v.data);
   return ({
     post_id: v.data.link_id.match(/(?<=_).*/)?.[0],
     author: v.data.author,

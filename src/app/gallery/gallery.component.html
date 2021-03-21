@@ -3,8 +3,8 @@
     *ngFor="let post of posts; index as p_i"
     [ngClass]="[
       post.crosspost ? 'crosspost' : '',
-      post.spoiler ? 'spoiler' : '',
-      post.nsfw ? 'nsfw' : '',
+      post.spoiler && store.userPrefs.warnSpoiler ? 'spoiler' : '',
+      post.nsfw && store.userPrefs.warn18 ? 'nsfw' : '',
       post.thumbnail === 'default' ? 'default' : '',
       post.is]"
     (click)="onLiClick(li, $event)"
@@ -100,7 +100,7 @@
 
         <div *ngSwitchDefault class="content-wrapper">
           <article class="discussion-text">
-            <a class="icon-wrapper" target="_blank" [href]="post.thread_url.target" style="display: inline-block;">
+            <a class="icon-wrapper" target="_blank" [href]="post.thread_url.target">
               <img class="img-icon" src="/assets/images/externer-link.png">
             </a>
             {{ post.src.length ? post.src : post.title }}
@@ -121,4 +121,4 @@
     </div>
   </li>
 </ul>
-<button class="loadMore-b btn" (click)="loadMore()">load More...</button>
+<button *ngIf="posts.length" class="loadMore-b btn" (click)="loadMore()">load More...</button>

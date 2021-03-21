@@ -3,26 +3,26 @@
 </div>
 
 <app-greetings></app-greetings>
+<header class="wrapper sticky-top">
+  <app-popular-subreddits (choose)="fetchSub($event, 'fill')"></app-popular-subreddits>
+  <ng-container [ngTemplateOutlet]="searchAndOptions"></ng-container>
+</header>
 
-<app-popular-subreddits (choose)="fetchSub($event, 'fill')"></app-popular-subreddits>
-
-<div class="select">
+<div *ngIf="!posts.length" class="recommendations">
+  <h1>Empfohlene Subreddits:</h1>
+  <h5>wähle einen Subreddit aus der Liste unten aus, oder aus den 100 beliebtesten Subreddit mit einem Klick auf den Button oben links!</h5>
+  <h5>alternativ kannst du natürlich auch die Suchleiste oben benutzen (+optionen oben rechts) um selbstständig nach einem Subreddit zu suchen 😊</h5>
+  <!-- todo: make this dynamic -->
   <div>
-    <label>Zeige die 25 besten Posts von /r/</label>
-    <div class="wrap-input">
-      <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
-      <input [formControl]="subredditChooser" [placeholder]="currentSub" [class]="subExists ? 'valid' : 'invalid'">
-      <ul *ngIf="suggestions" class="suggestions" #sugs>
-        <li *ngFor="let sug of suggestions.slice(page, page+10)"
-          [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">
-          <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
-          <span *ngIf="sug.over18">🔞</span>
-          {{sug.name}}</li>
-      </ul>
-    </div>
-  </div>
-  <div>
-    <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')">Optionen</button>
+    <ul *ngFor="let rec of recommendations" [ngClass]="['suggestions', rec.category]">
+      <h2>{{ rec.title }}</h2>
+      <li *ngFor="let sug of rec.suggestions.slice(0, 5)"
+        [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">
+        <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
+        <span *ngIf="sug.icon_img?.length" class="icon-wrapper"><img [src]="sug.icon_img" alt="Subreddit Icon" class="img-icon"></span>
+        <span *ngIf="sug.over18">🔞</span>
+        {{sug.name}}</li>
+    </ul>
   </div>
 </div>
 
@@ -55,6 +55,18 @@
       <label for="query">Posts nach query filtern:</label>
       <input type="text" name="query" id="query" formControlName="query">
     </form>
+    <form [formGroup]="userPrefs" class="wrapper" novalidate>
+      <label for="over18">ü18 Subreddits in Suchergebnissen anzeigen?:</label>
+      <input type="checkbox" name="over18" id="over18" formControlName="over18">
+      <label for="warn18">vor ü18 Posts mit ü18-Thumbnail warnen?:</label>
+      <input type="checkbox" name="warn18" id="warn18" formControlName="warn18">
+      <label for="warnSpoiler">vor Spoilern warnen?:</label>
+      <input type="checkbox" name="warnSpoiler" id="warnSpoiler" formControlName="warnSpoiler">
+    </form>
+    <div *ngIf="userPrefs.dirty || postOptions.dirty">
+      <h3>Änderungen wurden gespeichert ✔</h3>
+      <button class="btn" (click)="hideOverlay($event,true)">jetzt auf neue Ergebnisse prüfen?</button>
+    </div>
     <button class="advanced btn" (click)="advancedOptions.classList.toggle('none')">Lösch-Optionen:</button>
   </div>
   <div class="deleteCache none" #advancedOptions>
@@ -74,7 +86,7 @@
   </div>
 </div>
 
-<app-gallery [posts]="posts" (loadMorePls)="loadMore()"></app-gallery>
+<app-gallery [posts]="posts" (loadMorePls)="loadMore()" (hideSuggestions)="suggestions=[]"></app-gallery>
 
 <div *ngIf="err.length > 0" class="error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
@@ -93,3 +105,26 @@
     <span *ngSwitchDefault>{{ err | json }}</span>
   </ng-container>
 </div>
+
+<ng-template #searchAndOptions>
+  <div class="select">
+    <div>
+      <label>Zeige die 25 besten Posts von /r/</label>
+      <div class="wrap-input">
+        <button class="reset" (click)="subredditChooser.setValue('')" [ngStyle]="subredditChooser.value.length ? {} : {  'opacity': '0' }">x</button>
+        <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
+        <input [formControl]="subredditChooser" [placeholder]="currentSub" [class]="subExists ? 'valid' : 'invalid'">
+        <ul *ngIf="suggestions" class="suggestions">
+          <li *ngFor="let sug of suggestions.slice(page, page+10)"
+            [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">
+            <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
+            <span *ngIf="sug.over18">🔞</span>
+            {{sug.name}}</li>
+        </ul>
+      </div>
+    </div>
+    <div>
+      <button class="btn" (click)="optionsOverlay.classList.toggle('fullscreen')">Optionen</button>
+    </div>
+  </div>
+</ng-template>

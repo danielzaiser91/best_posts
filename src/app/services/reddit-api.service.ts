@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, Observable, of } from 'rxjs';
-import { filter, map, mergeMap } from 'rxjs/operators';
+import { forkJoin, Observable, of, Subject } from 'rxjs';
+import { filter, map, mergeMap, take } from 'rxjs/operators';
 import { RedditComment, RedditPost, Subreddit } from '../types';
 import {
   reddit_format,
@@ -16,22 +16,28 @@ export const errHandler = (err: HttpErrorResponse) => {
   return of(err);
 }
 
+export type FilterRedditPost = 'text' | 'videos' | 'images' | '';
+export interface CustomOptions {
+  after?: string,
+  sub?: string,
+  userOptions?: any,
+  data?: RedditPost[],
+  exclude?: FilterRedditPost[]
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class RedditAPIService {
   constructor(private http: HttpClient) { }
 
-  get(subreddit: string, { params = { limit: '25' }, sort = 'hot' } = {}, id = ''): Observable<RedditPost[]> {
-    if (params) {}
+  get(subreddit: string, { params = { limit: '25' }, sort = 'hot' }, id = ''): Observable<RedditPost[]> {
     if (id.length) Object.assign(params, { after: id, count: params.limit });
     const options = {
       params: Object.assign({
-        // --- for some reasons these options dont seem to work as expected
-        // q: ['search','blub'], // filter posts by search query
-        t: 'day', // filter by time: hour, day, week, month, all
-        limit: '25', // amount of listings: 0-100
-        raw_json: '1' // For legacy reasons, all JSON response bodies currently have <, >, and & replaced with &lt;, &gt;, and &amp;, respectively. If you wish to opt out of this behaviour, add a raw_json=1 parameter to your request.
+        // documentation: https://www.reddit.com/dev/api
+        t: 'day',
+        raw_json: '1'
       }, params)
     }
     return this.http.get(base + 'r/' + subreddit + '/' + sort + '.json', options).pipe(
@@ -39,8 +45,44 @@ export class RedditAPIService {
     );
   }
 
-  subredditSearch(query: string): Observable<Subreddit[]> {
-    return this.http.get(base + 'subreddits/search.json?q=' + query).pipe(
+  // todo: add param except type
+  exclude(sub: string, exclude: FilterRedditPost[]): Subject<RedditPost[]> {
+    const result = new Subject<RedditPost[]>();
+    this.gatherData(result, { sub, exclude })
+    return result;
+  }
+
+  count = 0;
+  gatherData(res: Subject<RedditPost[]>, { after = '', sub = 'cats', userOptions = {}, data = [], exclude = [''] }: CustomOptions) {
+    console.log('called fn', this.count);
+    const reject = exclude.map(v => ({
+      "images": ['gallery', 'image'],
+      "text": ['discussion'],
+      "videos": ['gifv', 'video', 'youtube', 'vimeo'],
+      "": ['']
+    })[v]).flat()
+
+    this.get(sub, userOptions, after).pipe(take(1)).subscribe(v => {
+      let found = false;
+      const filtered = v.filter(x => {
+        const yes = reject.includes(x.is);
+        if (yes) found = true;
+        return !yes
+      });
+      data.push(...filtered);
+      this.count++;
+      console.log(v);
+      if (found && this.count < 4) this.gatherData(res, { after: v[v.length-1].uid, sub, userOptions, data, exclude });
+      else {
+        res.next(data);
+        this.count = 0;
+      }
+    })
+  }
+
+
+  subredditSearch(query: string, includeOver18 = false): Observable<Subreddit[]> {
+    return this.http.get(base + 'subreddits/search.json?q=' + query + (includeOver18 ? '&include_over_18=on' : '')).pipe(
       map(subreddit_array)
     );
   }
@@ -53,8 +95,7 @@ export class RedditAPIService {
       sort: 'top'
     }}
     return this.http.get(base + 'r/' + subreddit + '/comments/' + id + '/.json', options).pipe(
-      map((v:any)=> { console.log(v);
-        return v[1].data}),
+      map((v:any)=> v[1].data),
       map(comment_array)
     );
   }

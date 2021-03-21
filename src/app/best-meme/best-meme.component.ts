@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, take } from 'rxjs/operators';
+import { debounceTime, first, take } from 'rxjs/operators';
 
 import { StorageService, errHandler, RedditAPIService } from 'app/services';
-import { RedditPost, Subreddit } from 'app/types';
+import { Recommendation, RedditPost, Subreddit } from 'app/types';
 import { uniq } from 'app/functions';
+
+
 
 @Component({
   selector: 'app-best-meme',
@@ -15,9 +17,10 @@ import { uniq } from 'app/functions';
 export class BestMemeComponent implements OnInit {
   subredditChooser: FormControl;
   postOptions: FormGroup;
+  userPrefs: FormGroup;
   posts: RedditPost[] = [];
   subExists = true;
-  currentSub = 'cats';
+  currentSub = '';
   suggestions: Subreddit[] = [];
   page = 0;
   loading = false;
@@ -26,24 +29,41 @@ export class BestMemeComponent implements OnInit {
 
   constructor(
     private api: RedditAPIService,
-    private formBuilder: FormBuilder,
+    formBuilder: FormBuilder,
     public store: StorageService,
     private route: ActivatedRoute,
     private router: Router)
   {
     this.subredditChooser = new FormControl('');
     const opt = store.userOptions;
+    const userPrefs = store.userPrefs;
     this.postOptions = formBuilder.group({
       perPage: [opt.params.limit, Validators.required],
       sort: [opt.sort, Validators.required],
       time: [opt.params.t, Validators.required],
       query: [opt.params.q]
     })
+    this.userPrefs = formBuilder.group({
+      over18: [userPrefs.over18],
+      warn18: [userPrefs.warn18],
+      warnSpoiler: [userPrefs.warnSpoiler]
+    })
   }
 
   ngOnInit(): void {
-    this.initialFetch();
+    if ('subreddit' in this.route.snapshot.params) this.initialFetch();
+    else this.loadRecommendations()
     this.activateFormValidators();
+  }
+
+  recommendations: Recommendation[] = [];
+  async loadRecommendations() {
+    this.recommendations = [
+      { category: 'funny', suggestions: await this.getSuggestions('funny'), title: 'lustige Subreddits' },
+      { category: 'politics', suggestions: await this.getSuggestions('politics'), title: 'Politische Subreddits' },
+      { category: 'interesting', suggestions: await this.getSuggestions('interesting'), title: 'interessante Subreddits' },
+      { category: 'trending', suggestions: await this.getSuggestions('trending'), title: 'Diese Subreddits sind heute besonders beliebt' }
+    ]
   }
 
   initialFetch(): void {
@@ -55,19 +75,22 @@ export class BestMemeComponent implements OnInit {
     }
   }
 
-  activateFormValidators() {
-    const options = this.store.userOptions;
-    this.postOptions.patchValue({
-      perPage: options.params.limit,
-      sort: options.sort,
-      time: options.params.t,
-      query: options.params.q
-    });
+  async getSuggestions(query: string) {
+    const over18 = this.store.userPrefs.over18;
+    const res = await this.api.subredditSearch(query, over18).pipe(first()).toPromise();
+    console.log(res);
+    return res;
+  }
 
+  activateFormValidators() {
     this.subredditChooser.valueChanges.pipe(debounceTime(500)).subscribe((chunk: string) => {
-      if (chunk === '') return;
+      if (chunk === '') {
+        this.suggestions = [];
+        return this.subredditChooser.setValue('', { emitEvent: false });
+      }
       this.subExists = true;
-      this.api.subredditSearch(chunk).pipe(take(1)).subscribe({
+      const over18 = this.store.userPrefs.over18;
+      this.api.subredditSearch(chunk, over18).pipe(take(1)).subscribe({
         next: subreddits => {
           this.suggestions = subreddits;
         },
@@ -80,6 +103,10 @@ export class BestMemeComponent implements OnInit {
     }, errHandler);
     this.postOptions.valueChanges.subscribe(form => {
       this.store.saveLS('userOptions', { sort: form.sort, params: { t: form.time, limit: form.perPage, q: form.query } } );
+    });
+    this.userPrefs.valueChanges.subscribe(form => {
+      const userPrefs = this.store.userPrefs;
+      this.store.saveLS('userPrefs', { volume: userPrefs.volume, over18: form.over18, warn18: form.warn18, warnSpoiler: form.warnSpoiler } );
     });
   }
 
@@ -175,9 +202,16 @@ export class BestMemeComponent implements OnInit {
     alert(msg);
   }
 
-  onLeavingOptions(el: HTMLElement) {
+  onLeavingOptions(el: HTMLElement, triggerFetch = false) {
     el.classList.remove('fullscreen');
-    this.fetchSub(this.currentSub, 'fill');
+    const touched = this.postOptions.dirty || this.userPrefs.dirty;
+    if (touched && triggerFetch) {
+      this.fetchSub(this.currentSub, 'fill');
+    }
+    if (touched) {
+      this.postOptions.markAsDirty();
+      this.userPrefs.markAsDirty();
+    }
   }
 
   loadMore() {
@@ -185,9 +219,11 @@ export class BestMemeComponent implements OnInit {
     this.fetchSub(this.currentSub, 'append');
   }
 
-  hideOverlay(e: any) {
-    if (e.target.classList.contains('optionsOverlay')) {
-      this.onLeavingOptions(e.target)
+  hideOverlay(e: Event, force = false) {
+    let el = e.target as HTMLElement;
+    if (force) el = document.querySelector('.optionsOverlay') as HTMLElement;
+    if (el.classList.contains('optionsOverlay')) {
+      this.onLeavingOptions(el, force)
     }
   }
 }

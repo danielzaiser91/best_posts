@@ -62,7 +62,7 @@ export const reddit_format = (data: any): RedditPost[] => {
         v = v.crosspost_parent_list[0];
       }
       return {
-        uid: v.id,
+        uid: v.name,
         by: v.author,
         is: is,
         crosspost: crosspost,

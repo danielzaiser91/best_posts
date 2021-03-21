@@ -24,7 +24,7 @@ module.exports = {
   ],
   devServer: {
     watchOptions: {
-      aggregateTimeout: 1500
+      aggregateTimeout: 800
     },
   },
 };

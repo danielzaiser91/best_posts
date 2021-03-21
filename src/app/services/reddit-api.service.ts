@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { forkJoin, Observable, of } from 'rxjs';
-import { map, mergeMap } from 'rxjs/operators';
+import { filter, map, mergeMap } from 'rxjs/operators';
 import { RedditComment, RedditPost, Subreddit } from '../types';
 import {
   reddit_format,
@@ -53,7 +53,8 @@ export class RedditAPIService {
       sort: 'top'
     }}
     return this.http.get(base + 'r/' + subreddit + '/comments/' + id + '/.json', options).pipe(
-      map((v:any)=> v[1].data),
+      map((v:any)=> { console.log(v);
+        return v[1].data}),
       map(comment_array)
     );
   }

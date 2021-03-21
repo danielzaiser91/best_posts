@@ -1,0 +1,10 @@
+<div class="sections">
+  <section *ngFor="let post of posts; index as i"
+    [ngClass]="[
+      post.is
+    ]" [id]="'child-'+i">
+    <app-media-wrapper class="wrapper" [post]="post"></app-media-wrapper>
+  </section>
+</div>
+
+<app-controls></app-controls>

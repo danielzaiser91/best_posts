@@ -4,10 +4,12 @@ import {
   ImpressumComponent,
   BestMemeComponent
 } from './components';
+import { ExperimentalGalleryComponent } from './experimental-gallery/experimental-gallery.component';
 
 const routes: Routes = [
   { path: '', component: BestMemeComponent },
   { path: 'impressum', component: ImpressumComponent },
+  { path: 'test', component: ExperimentalGalleryComponent },
   { path: 'r/:subreddit', component: BestMemeComponent },
   { path: '**',   redirectTo: '/', }
 ];

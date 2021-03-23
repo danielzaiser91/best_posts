@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { debounceTime, first, take } from 'rxjs/operators';
 
 import { StorageService, errHandler, RedditAPIService } from 'app/services';
-import { Recommendation, RedditPost, Subreddit } from 'app/types';
+import { RedditPost, Subreddit } from 'app/types';
 import { uniq } from 'app/functions';
 
 
@@ -20,11 +20,11 @@ export class BestMemeComponent implements OnInit {
   userPrefs: FormGroup;
   posts: RedditPost[] = [];
   subExists = true;
-  currentSub = '';
+  currentSub: string;
   suggestions: Subreddit[] = [];
   page = 0;
   loading = false;
-  err = '';
+  err: any;
   cacheNr = 0;
 
   constructor(
@@ -35,13 +35,14 @@ export class BestMemeComponent implements OnInit {
     private router: Router)
   {
     this.subredditChooser = new FormControl('');
+    console.log(this.subredditChooser.value)
     const opt = store.userOptions;
     const userPrefs = store.userPrefs;
     this.postOptions = formBuilder.group({
-      perPage: [opt.params.limit, Validators.required],
+      perPage: [opt.limit, Validators.required],
       sort: [opt.sort, Validators.required],
-      time: [opt.params.t, Validators.required],
-      query: [opt.params.q]
+      time: [opt.t, Validators.required],
+      query: [opt.q]
     })
     this.userPrefs = formBuilder.group({
       over18: [userPrefs.over18],
@@ -52,18 +53,11 @@ export class BestMemeComponent implements OnInit {
 
   ngOnInit(): void {
     if ('subreddit' in this.route.snapshot.params) this.initialFetch();
-    else this.loadRecommendations()
     this.activateFormValidators();
   }
 
-  recommendations: Recommendation[] = [];
-  async loadRecommendations() {
-    this.recommendations = [
-      { category: 'funny', suggestions: await this.getSuggestions('funny'), title: 'lustige Subreddits' },
-      { category: 'politics', suggestions: await this.getSuggestions('politics'), title: 'Politische Subreddits' },
-      { category: 'interesting', suggestions: await this.getSuggestions('interesting'), title: 'interessante Subreddits' },
-      { category: 'trending', suggestions: await this.getSuggestions('trending'), title: 'Diese Subreddits sind heute besonders beliebt' }
-    ]
+  recClicked({ isPrivate, sub = '' }: { isPrivate: boolean, sub: string }) {
+    isPrivate ? this.onPrivateClick() : this.fetchSub(sub, 'fill');
   }
 
   initialFetch(): void {
@@ -73,13 +67,6 @@ export class BestMemeComponent implements OnInit {
       this.fetchSub('memes');
       this.fetchSub('cats', 'fill');
     }
-  }
-
-  async getSuggestions(query: string) {
-    const over18 = this.store.userPrefs.over18;
-    const res = await this.api.subredditSearch(query, over18).pipe(first()).toPromise();
-    console.log(res);
-    return res;
   }
 
   activateFormValidators() {
@@ -111,6 +98,8 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, method = 'silentCaching') {
+    console.log(this.cacheNr);
+    if (this.currentSub !== sub) this.cacheNr = 0;
     if (method !== 'silentCaching') this.loading = true;
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
@@ -122,8 +111,8 @@ export class BestMemeComponent implements OnInit {
       - query filter
       - ...
     */
-    const options = this.store.userOptions;
-    const optionsString = options.sort+':'+ [...Object.values(options.params), this.cacheNr].join(':');
+    const userOptions = this.store.userOptions;
+    const optionsString = [...Object.values(userOptions), this.cacheNr].join(':');
     /*
       we are caching redditPosts depending on specific user options
       caching example:
@@ -135,18 +124,18 @@ export class BestMemeComponent implements OnInit {
     if (saved?.lastFetch !== today) {
       // important informative console info message:
       console.info('fetching data for /r/'+sub+'...');
-      this.err = '';
-      let afterId = '';
+      this.err = undefined;
+      let after = '';
       if (this.cacheNr > 0) {
-        const lastOptionsString = options.sort+':'+ [...Object.values(options.params), this.cacheNr-1].join(':');
+        const lastOptionsString = [...Object.values(userOptions), this.cacheNr-1].join(':');
         const lastSaved = this.store.getSaved(lastOptionsString+':'+sub).data;
-        afterId = lastSaved[lastSaved.length-1].uid;
+        after = lastSaved[lastSaved.length-1].uid;
       }
-      this.api.get(sub, options, afterId).pipe(take(1)).subscribe((data: RedditPost[]) => {
+      this.api.get(sub, { ...userOptions, after}).pipe(take(1)).subscribe((data: RedditPost[]) => {
         // rich console log info text
         console.log(
-          'received: ', data, 'for options: ', options, ' and fetch-method: ' + method,
-          afterId.length ? ', after: ' + afterId : '', ', page: ' + this.cacheNr
+          'received: ', data, 'for options: ', userOptions, ' and fetch-method: ' + method,
+          after.length ? ', after: ' + after : '', ', page: ' + this.cacheNr
         );
 
         if (method !== 'silentCaching') {
@@ -163,14 +152,14 @@ export class BestMemeComponent implements OnInit {
         console.info('Error while fetching data from /r/'+sub+': ');
         console.error(err);
         this.loading = false;
-        this.currentSub = sub;
-        this.err = err.error.reason;
+        err.error.reason ||= err.error.message
+        this.err = err;
       });
     } else { // do this when there is a cached version of query
       this.loading = false;
       // rich console log info text
       console.log(
-        'using saved data: ', saved.data, 'for options: ',options,
+        'using saved data: ', saved.data, 'for options: ', userOptions,
         ' and fetch-method: '+method,', page: ' + this.cacheNr
       );
 
@@ -189,7 +178,7 @@ export class BestMemeComponent implements OnInit {
       }
       case 'options-specific': {
         const options = this.store.userOptions;
-        const optionsString = options.sort+':'+ Object.values(options.params).join(':');
+        const optionsString = options.sort+':'+ Object.values(options).join(':');
         return this.store.clearSS(optionsString, this.currentSub)
       }
       default:

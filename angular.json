@@ -1,7 +1,7 @@
 
 
 {
-  "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
+  "$schema": "./../../node_modules/@angular/cli/lib/config/schema.json",
   "cli": {
     "analytics": "6f681925-13e0-40b3-8bc0-4cfff2b7467a"
   },
@@ -79,6 +79,7 @@
               ]
             },
             "development": {
+              "tsConfig": "tsconfig.development.json",
               "customWebpackConfig": {
                 "path": "./config/webpack.config.dev.ts",
                 "mergeRules": {

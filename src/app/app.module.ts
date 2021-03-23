@@ -24,6 +24,8 @@ import { ControlsComponent } from './controls/controls.component';
 import { VideoComponent } from './media-wrapper/video/video.component';
 import { IframeComponent } from './media-wrapper/iframe/iframe.component';
 import { TextComponent } from './media-wrapper/text/text.component';
+import { RecommendationsComponent } from './recommendations/recommendations.component';
+import { SearchbarComponent } from './searchbar/searchbar.component';
 
 @NgModule({
   declarations: [
@@ -42,7 +44,9 @@ import { TextComponent } from './media-wrapper/text/text.component';
     ControlsComponent,
     VideoComponent,
     IframeComponent,
-    TextComponent
+    TextComponent,
+    RecommendationsComponent,
+    SearchbarComponent
   ],
   imports: [
     BrowserModule,

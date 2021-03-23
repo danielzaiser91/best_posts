@@ -10,6 +10,13 @@
   gap: 2em
   background-color: #1a2634
   padding: 0.5em 0.5em 0.5em 4em
+  .hideIfNoValue
+    display: none
+  .noValue
+    .hideIfValue
+      display: none
+    .hideIfNoValue
+      display: inline-block
   > div:nth-child(1)
     flex: 1
   #subredditChooser
@@ -83,7 +90,6 @@
     right: 0
     border: 1px solid
     font-size: 0.8em
-    opacity: 1
   input
     width: -webkit-fill-available
     outline: none
@@ -112,8 +118,7 @@
       position: absolute
       right: .2em
 
-
-.spinner 
+.spinner
   position: fixed
   width: 100vw
   height: 100vh

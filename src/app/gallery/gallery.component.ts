@@ -78,7 +78,11 @@ export class GalleryComponent {
             li.classList.remove('loading');
             newImg.remove();
           };
-          newImg.onerror = _ => li.classList.add('error');
+          newImg.onerror = _ => {
+            li.classList.remove('loading');
+            li.classList.add('error');
+            newImg.remove();
+          }
         }
       });
     }

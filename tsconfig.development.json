@@ -1,0 +1,19 @@
+/* I created this file for convenience, but
+   currently i have no usecase for seperate tsconfigs,
+   so this change can safely be reverted by deleting this file and
+   removing the tsconfig line for this file in angular json.
+*/
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "./out-tsc/app",
+    "types": []
+  },
+  "files": [
+    "src/main.ts",
+    "src/polyfills.ts"
+  ],
+  "include": [
+    "src/**/*.d.ts"
+  ]
+}

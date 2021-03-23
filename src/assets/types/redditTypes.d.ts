@@ -49,3 +49,14 @@ export interface RedditComment {
   edited: boolean,
   collapsed: boolean
 }
+export interface RedditQuery {
+  limit: string | undefined,
+  t: string | undefined,
+  raw_json: string | undefined,
+  after: string | undefined,
+  before: string | undefined,
+  count: string | undefined,
+  show: string | undefined,
+  sort: string | undefined,
+  [key: string]: string | undefined
+}

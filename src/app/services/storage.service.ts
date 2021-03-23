@@ -4,17 +4,22 @@ import { RedditComment, UserPrefs } from '../types';
 
 class RedditDatabase extends Dexie {
   public comments: Dexie.Table<RedditComment, string>;
+  public recommendations: Dexie.Table<RedditComment, string>;
 
   public constructor() {
     super("redditData");
     this.version(1).stores({
-      comments: 'permalink, [subreddit+post_id]'
+      comments: 'permalink, [subreddit+post_id]',
+      recommendations: 'permalink, [subreddit+post_id]'
     });
     this.comments = this.table("comments");
+    this.recommendations = this.table("recommendations");
   }
 }
 const redditDB = new RedditDatabase();
 
+const defaultOptions = { sort: 'hot', t:'day', limit: '25', q: '' };
+export type UserOptions = typeof defaultOptions;
 @Injectable({
   providedIn: 'root'
 })
@@ -37,7 +42,7 @@ export class StorageService {
   };
   anySS = () => sessionStorage.length;
   get db() { return redditDB; }
-  get userOptions() { return this.getSavedLS('userOptions') || { sort: 'hot', params: { t:'day', limit: '25', q: '' }}; }
+  get userOptions(): UserOptions { return this.getSavedLS('userOptions') ?? defaultOptions; }
 
   preferences({...args}) {
     this.userPrefs = Object.assign(this.userPrefs ?? {}, args)

@@ -11,6 +11,7 @@
     (touchstart)="touch('start', $event)"
     (touchend)="touch('end', $event)"
     #li>
+    <div class="notice">Fehler beim laden des hochauflösenden Bildes...</div>
     <div class="controls">
       <div class="left-ctrl">
         <div class="score ctrl-btn">{{ post.score.onThis | shortNumber }}</div>
@@ -94,7 +95,7 @@
           <video preload="auto" [poster]="post.thumbnail" loop controls
                 (play)="gifv.classList.add('playing')" (pause)="gifv.classList.remove('playing')" #gifv>
             <source [src]="post.src" type="video/mp4">
-            Your browser does not support the video tag.
+            Es tut uns leid, das Video kann nicht angezeigt werden, weil dein Browser das das Video-Format mp4 nicht unterstützt...
           </video>
         </div>
 

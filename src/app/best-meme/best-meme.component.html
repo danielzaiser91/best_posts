@@ -8,29 +8,13 @@
   <ng-container [ngTemplateOutlet]="searchAndOptions"></ng-container>
 </header>
 
-<div *ngIf="!posts.length" class="recommendations">
-  <h1>Empfohlene Subreddits:</h1>
-  <h5>wähle einen Subreddit aus der Liste unten aus, oder aus den 100 beliebtesten Subreddit mit einem Klick auf den Button oben links!</h5>
-  <h5>alternativ kannst du natürlich auch die Suchleiste oben benutzen (+optionen oben rechts) um selbstständig nach einem Subreddit zu suchen 😊</h5>
-  <!-- todo: make this dynamic -->
-  <div>
-    <ul *ngFor="let rec of recommendations" [ngClass]="['suggestions', rec.category]">
-      <h2>{{ rec.title }}</h2>
-      <li *ngFor="let sug of rec.suggestions.slice(0, 5)"
-        [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">
-        <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
-        <span *ngIf="sug.icon_img?.length" class="icon-wrapper"><img [src]="sug.icon_img" alt="Subreddit Icon" class="img-icon"></span>
-        <span *ngIf="sug.over18">🔞</span>
-        {{sug.name}}</li>
-    </ul>
-  </div>
-</div>
+<app-recommendations *ngIf="!posts.length && !err" (recEv)="recClicked($event)"></app-recommendations>
 
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
   <div class="exit" (click)="onLeavingOptions(optionsOverlay)">x</div>
   <div>
     <form [formGroup]="postOptions" class="wrapper" novalidate>
-      <label for="perPage">Anzahl Posts pro Seite:</label>
+      <label for="perPage">Anzahl Beiträge pro Seite:</label>
       <select name="perPage" id="perPage" formControlName="perPage">
         <option value="25">25</option>
         <option value="50">50</option>
@@ -44,7 +28,7 @@
         <option value="new">New</option>
         <option value="rising">Rising</option>
       </select>
-      <label for="time">Nur Posts der/des letzten</label>
+      <label for="time">Nur Beiträge der/des letzten</label>
       <select name="time" id="time" formControlName="time">
         <option value="hour">Stunde</option>
         <option value="day">Tages</option>
@@ -52,28 +36,28 @@
         <option value="month">Monat</option>
         <option value="all">Alle</option>
       </select>
-      <label for="query">Posts nach query filtern:</label>
+      <label for="query">Beiträge nach folgendem Begriff filtern:</label>
       <input type="text" name="query" id="query" formControlName="query">
     </form>
     <form [formGroup]="userPrefs" class="wrapper" novalidate>
       <label for="over18">ü18 Subreddits in Suchergebnissen anzeigen?:</label>
       <input type="checkbox" name="over18" id="over18" formControlName="over18">
-      <label for="warn18">vor ü18 Posts mit ü18-Thumbnail warnen?:</label>
+      <label for="warn18">Vorschau von ü18 Beiträgen verstecken?:</label>
       <input type="checkbox" name="warn18" id="warn18" formControlName="warn18">
-      <label for="warnSpoiler">vor Spoilern warnen?:</label>
+      <label for="warnSpoiler">Vorschau von Beiträgen mit Spoilern verstecken?:</label>
       <input type="checkbox" name="warnSpoiler" id="warnSpoiler" formControlName="warnSpoiler">
     </form>
     <div *ngIf="userPrefs.dirty || postOptions.dirty">
       <h3>Änderungen wurden gespeichert ✔</h3>
       <button class="btn" (click)="hideOverlay($event,true)">jetzt auf neue Ergebnisse prüfen?</button>
     </div>
-    <button class="advanced btn" (click)="advancedOptions.classList.toggle('none')">Lösch-Optionen:</button>
+    <button class="advanced btn" (click)="advancedOptions.classList.toggle('none')">Fortgeschrittene Optionen:</button>
   </div>
   <div class="deleteCache none" #advancedOptions>
     <p class="warning">
-      Info: Um Ergebnis besonders schnell anzuzeigen, werden geladene Posts zwischengespeichert.<br>
-      Hier kannst du die gespeicherten Daten für Redditposts löschen<br>
-      Das ist zB hilfreich, wenn dir fehlerhafter-weise alte Posts angezeigt werden <br>
+      Info: Um Ergebnis besonders schnell anzuzeigen, werden geladene Beiträge zwischengespeichert.<br>
+      Hier kannst du die gespeicherten Daten für Redditbeiträge löschen<br>
+      Das ist zB hilfreich, wenn dir fehlerhafter-weise alte Beiträge angezeigt werden <br>
       oder wenn du aktuellere Ergebnisse sehen willst<br><br>
       !Beachte: Es werden nur Ergebnisse der aktuellen Sitzung zwischengespeichert, <br>
       also wenn du den Browser oder den Tab schließt, wird der Speicher automatisch gelöscht.<br>
@@ -88,10 +72,10 @@
 
 <app-gallery [posts]="posts" (loadMorePls)="loadMore()" (hideSuggestions)="suggestions=[]"></app-gallery>
 
-<div *ngIf="err.length > 0" class="error">
+<div *ngIf="err" class="error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
-  <u> Grund:</u>
-  <ng-container [ngSwitch]="err">
+  <u>Grund:</u>
+  <ng-container [ngSwitch]="err.error.reason">
     <span *ngSwitchCase="'private'"><br>
       Der Subreddit ist privat und kann deshalb nur eingeloggten Reddit-Nutzern angezeigt werden, die Mitglied dieses Subreddits sind.
       Wenn du Mitglied bist, dann kannst du es auf Reddit versuchen:
@@ -102,18 +86,24 @@
     <span *ngSwitchCase="'banned'"><br>
       Der Subreddit wurde gebannt und kann deshalb nicht angezeigt werden.
     </span>
-    <span *ngSwitchDefault>{{ err | json }}</span>
+    <span *ngSwitchCase="'Not Found'"><br>
+      Für diesen Suchbegriff konnten keine Ergebnisse gefunden werden, versuch es nochmal.
+    </span>
+    <span *ngSwitchDefault>{{ err.message }}</span>
   </ng-container>
 </div>
 
 <ng-template #searchAndOptions>
   <div class="select">
-    <div>
-      <label>Zeige die 25 besten Posts von /r/</label>
+    <div [class.noValue]="subredditChooser.value.length">
+      <label>
+        <span class="hideIfValue">Benutze die Suche um nach einem Subreddit zu suchen!</span>
+        <span class="hideIfNoValue">Zeige die {{ store.userOptions.limit }} besten Beiträge von /r/</span>
+      </label>
       <div class="wrap-input">
-        <button class="reset" (click)="subredditChooser.setValue('')" [ngStyle]="subredditChooser.value.length ? {} : {  'opacity': '0' }">x</button>
+        <button class="reset hideIfNoValue" (click)="subredditChooser.setValue('')">x</button>
         <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
-        <input [formControl]="subredditChooser" [placeholder]="currentSub" [class]="subExists ? 'valid' : 'invalid'">
+        <input [formControl]="subredditChooser" [placeholder]="currentSub || 'Suchbeispiel: ich_iel...'" [class]="subExists ? 'valid' : 'invalid'">
         <ul *ngIf="suggestions" class="suggestions">
           <li *ngFor="let sug of suggestions.slice(page, page+10)"
             [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">

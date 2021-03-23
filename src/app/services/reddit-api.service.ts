@@ -16,31 +16,30 @@ export const errHandler = (err: HttpErrorResponse) => {
   return of(err);
 }
 
+const defaultParams = { limit: '25', t: 'day', raw_json: '1', after: '', before: '', count: '25', show: 'all', sort: 'hot', q: '' }
+export type AllowedParams = Partial<typeof defaultParams>;
+export type ObjectString = { [key:string]: string };
 export type FilterRedditPost = 'text' | 'videos' | 'images' | '';
-export interface CustomOptions {
-  after?: string,
-  sub?: string,
-  userOptions?: any,
-  data?: RedditPost[],
-  exclude?: FilterRedditPost[]
-}
+const defOpts = { after: '', sub: 'cats', userOptions: {}, data: [] as RedditPost[], exclude: [''] as FilterRedditPost[] }
+export type CustomOptions = Partial<typeof defOpts>;
 
+/*    documentation: https://www.reddit.com/dev/api     */
 @Injectable({
   providedIn: 'root'
 })
 export class RedditAPIService {
   constructor(private http: HttpClient) { }
 
-  get(subreddit: string, { params = { limit: '25' }, sort = 'hot' }, id = ''): Observable<RedditPost[]> {
-    if (id.length) Object.assign(params, { after: id, count: params.limit });
-    const options = {
-      params: Object.assign({
-        // documentation: https://www.reddit.com/dev/api
-        t: 'day',
-        raw_json: '1'
-      }, params)
-    }
-    return this.http.get(base + 'r/' + subreddit + '/' + sort + '.json', options).pipe(
+  get(subreddit: string, params: AllowedParams): Observable<RedditPost[]> {
+    const url = base + 'r/' + subreddit + '/' + (params.sort || defaultParams.sort) + '.json';
+    params = Object.assign(defaultParams, params);
+    delete params.sort;
+    if (params.after?.length) Object.assign(params, { after: params.after, count: params.count });
+    else if (params.before?.length) Object.assign(params, { before: params.before, count: params.count });
+    else { delete params.after; delete params.before; delete params.count }
+
+    console.log('url: ', url, params);
+    return this.http.get(url, { params: params as ObjectString }).pipe(
       map(reddit_format)
     );
   }
@@ -51,9 +50,10 @@ export class RedditAPIService {
     this.gatherData(result, { sub, exclude })
     return result;
   }
-
+// https://www.reddit.com/r/popular/?geo_filter=DE&sort=hot&t=day
   count = 0;
-  gatherData(res: Subject<RedditPost[]>, { after = '', sub = 'cats', userOptions = {}, data = [], exclude = [''] }: CustomOptions) {
+  gatherData(res: Subject<RedditPost[]>, opt: CustomOptions) {
+    const { exclude, sub, userOptions, after, data } = Object.assign(defOpts, opt);
     console.log('called fn', this.count);
     const reject = exclude.map(v => ({
       "images": ['gallery', 'image'],
@@ -62,7 +62,7 @@ export class RedditAPIService {
       "": ['']
     })[v]).flat()
 
-    this.get(sub, userOptions, after).pipe(take(1)).subscribe(v => {
+    this.get(sub, {...userOptions, after}).pipe(take(1)).subscribe(v => {
       let found = false;
       const filtered = v.filter(x => {
         const yes = reject.includes(x.is);
@@ -100,11 +100,11 @@ export class RedditAPIService {
     );
   }
 
-  getSubreddit(subreddit: string): Observable<Subreddit> {
-    return this.http.get(base + 'r/' + subreddit + '/about.json').pipe(
-      map(single_sub)
-    );
-  }
+  // getSubreddit(subreddit: string): Observable<Subreddit> {
+  //   return this.http.get(base + 'r/' + subreddit + '/about.json').pipe(
+  //     map(single_sub)
+  //   );
+  // }
 
   getPopularSubreddits(): Observable<Subreddit[]> {
     return this.http.get('https://api.reddit.com/subreddits/popular.json?limit=100').pipe(
@@ -112,15 +112,15 @@ export class RedditAPIService {
     )
   }
 
-  getAllSubreddits(arr: string[]): Observable<Subreddit[]> {
-    let options = {}
-    const myRequests = arr.map((v:string)=>{
-      options = { params: { show: 'all', limit: '100', after: v, count: "100" } }
-      if (v === '') options = { params: { show: 'all', limit: '100' } }
-      return this.http.get('https://api.reddit.com/subreddits/.json', options).pipe(
-        map(subreddit_array)
-      )
-    });
-    return forkJoin(myRequests).pipe(mergeMap(v=>v));
-  }
+  // getAllSubreddits(arrOfAfterIds: string[]): Observable<Subreddit[]> {
+  //   let options = {}
+  //   const myRequests = arrOfAfterIds.map((v:string)=>{
+  //     options = { params: { show: 'all', limit: '100', after: v, count: "100" } }
+  //     if (v === '') options = { params: { show: 'all', limit: '100' } }
+  //     return this.http.get('https://api.reddit.com/subreddits/.json', options).pipe(
+  //       map(subreddit_array)
+  //     )
+  //   });
+  //   return forkJoin(myRequests).pipe(mergeMap(v=>v));
+  // }
 }

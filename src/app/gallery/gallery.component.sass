@@ -135,6 +135,26 @@
     z-index: 2
     background-color: #1b2735b0
     will-change: contents
+    &.error
+      .notice
+        position: absolute
+        top: 4em
+        left: 0
+        z-index: 1
+        background-color: #161f2b
+        padding: 0.4em 1em
+        border-radius: 5px
+        border: 1px solid #ffffff80
+        opacity: 0.3
+        transition: .5s opacity, transform
+        animation: notice 5s forwards
+      @keyframes notice
+        0%,100%
+          opacity: 0.3
+        20%,80%
+          opacity: 1
+          transform: translateX(10%) scale(1.1)
+
     .comments
       top: -4em
       right: 1.4em

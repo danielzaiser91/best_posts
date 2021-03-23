@@ -7,7 +7,7 @@ const formatMedia = (v: any, is: string): RedditMedia => {
       aud = vid.replace(/(?<=DASH_).*/,'audio.mp4');
     return ({ vid, aud })
   } else if (is === 'gallery') {
-    return Object.values(v.media_metadata).map((v:any) => v.p[v.p.length-1].u) as RedditGallery
+    return Object.values(v.media_metadata).map((v:any) => v.s.u) as RedditGallery
   } else if (is === 'youtube'){
     const pre = 'https://www.youtube.com/embed/', post = '?feature=oembed&enablejsapi=1';
     return pre + v.url.match(/(?<=(?<=you).*\/).*/)[0] + post;
@@ -25,7 +25,7 @@ const formatMedia = (v: any, is: string): RedditMedia => {
 
 const getThumbnail = (v: any, is: string): string[] | string => {
   if (is === 'gallery') {
-    return Object.values(v.media_metadata).map((img: any) => img.p[2].u);
+    return Object.values(v.media_metadata).map((img: any) => img.p[2]?.u ?? img.p[1]?.u ?? img.p[0]?.u );
   } else if (is === 'vimeo') {
     return v.secure_media.oembed.thumbnail_url;
   } else if (v.thumbnail === 'default') {
@@ -59,7 +59,7 @@ export const reddit_format = (data: any): RedditPost[] => {
         is = is_a(v.crosspost_parent_list[0]);
         v = v.crosspost_parent_list[0];
       }
-      return {
+      return ({
         uid: v.name,
         by: v.author,
         is: is,
@@ -74,7 +74,7 @@ export const reddit_format = (data: any): RedditPost[] => {
         title: v.title,
         upvote_ratio: v.upvote_ratio,
         nsfw: v.over_18
-      }
+      })
     });
 }
 

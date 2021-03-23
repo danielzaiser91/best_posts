@@ -24,7 +24,8 @@ module.exports = {
   ],
   devServer: {
     watchOptions: {
-      aggregateTimeout: 800
+      aggregateTimeout: 800,
+      ignored: [/\.xml/, /node_modules/]
     },
-  },
+  }
 };

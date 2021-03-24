@@ -53,7 +53,9 @@ export class BestMemeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    if ('subreddit' in this.route.snapshot.params) this.initialFetch();
+    const sub = this.route.snapshot.params.subreddit;
+    console.log(sub)
+    this.initialFetch();
     this.activateFormValidators();
   }
 
@@ -64,14 +66,9 @@ export class BestMemeComponent implements OnInit {
       default: return
     }
   }
-
+// 'popular', { exclude: ['text'] }
   initialFetch(): void {
-    const sub = this.route.snapshot.params.subreddit;
-    if (sub) this.fetchSub(sub, 'fill');
-    else {
-      this.fetchSub('memes');
-      this.fetchSub('cats', 'fill');
-    }
+    this.fetchSub(this.route.snapshot.params.subreddit ?? 'popular', 'fill');
   }
 
   activateFormValidators() {
@@ -103,13 +100,13 @@ export class BestMemeComponent implements OnInit {
 
   fetchSub(sub: string, method = 'silentCaching') {
     if (method !== 'silentCaching') this.loading = true;
-    if (!sub) sub = 'popular';
-    this.router.navigate(['/r', sub]);
+    let exclude = this.store.userOptions.exclude;
+    if (this.route.snapshot.params.subreddit) this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
     this.err = undefined;
 
     console.info('fetching data for /r/'+sub+'...');
-    (method === 'append' ? this.api.append(sub) : this.api.get(sub)).pipe(take(1), catchError(this.onError)).subscribe({next: (data: RedditPost[]) => {
+    (method === 'append' ? this.api.append(sub) : this.api.get(sub, { exclude })).pipe(take(1), catchError(this.onError)).subscribe({next: (data: RedditPost[]) => {
       console.log('receiving Reddit API Data for: /r/'+sub, data);
       if (method === 'silentCaching') return;
       if (method === 'fill') this.posts = data;

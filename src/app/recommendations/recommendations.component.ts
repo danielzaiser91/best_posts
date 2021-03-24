@@ -15,11 +15,6 @@ export class RecommendationsComponent implements OnInit {
 
   constructor(private store: StorageService, private api: RedditAPIService) { }
 
-  ngOnInit(): void {
-    this.loadRecommendations();
-  }
+  ngOnInit(): void {}
 
-  loadRecommendations() {
-    this.api.get('popular', { exclude: ['text']}).pipe(take(1)).subscribe(v=>this.popular = v);
-  }
 }

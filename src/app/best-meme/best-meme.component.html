@@ -55,18 +55,9 @@
   </div>
   <div class="deleteCache none" #advancedOptions>
     <p class="warning">
-      Info: Um Ergebnis besonders schnell anzuzeigen, werden geladene Beiträge zwischengespeichert.<br>
-      Hier kannst du die gespeicherten Daten für Redditbeiträge löschen<br>
-      Das ist zB hilfreich, wenn dir fehlerhafter-weise alte Beiträge angezeigt werden <br>
-      oder wenn du aktuellere Ergebnisse sehen willst<br><br>
-      !Beachte: Es werden nur Ergebnisse der aktuellen Sitzung zwischengespeichert, <br>
-      also wenn du den Browser oder den Tab schließt, wird der Speicher automatisch gelöscht.<br>
-      Deshalb ist es meistens nicht notwendig hier manuell etwas zu löschen, die angezeigten Ergebnisse sind im Normalfall sehr aktuell.<br><br>
-      Außerdem wird max 1x am Tag gecached, das bedeutet, morgen kriegst du automatisch aktuelle Ergebnisse!<br><br>
-      !Achtung diese Optionen sollten nur benutzt werden, wenn du weißt was du tust!
+      Einmal täglich wird automatisch der Cache geleert, aber wenn du willst kannst du den Cache hier auch manuell löschen:
     </p>
-    <button class="options-specific btn warning" (click)="deleteCache('options-specific')" [disabled]="!store.getSaved(currentSub)">Cache für oben ausgewählte Optionen löschen</button>
-    <button class="all btn danger" (click)="deleteCache('all')" [disabled]="!store.anySS()">kompletten Cache löschen</button>
+    <button class="all btn danger" (click)="deleteCache()" [disabled]="cacheCleared">kompletten Cache löschen</button>
   </div>
 </div>
 

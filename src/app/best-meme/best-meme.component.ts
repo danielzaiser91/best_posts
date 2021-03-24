@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { debounceTime, first, take } from 'rxjs/operators';
+import { catchError, debounceTime, first, take } from 'rxjs/operators';
 
 import { StorageService, errHandler, RedditAPIService } from 'app/services';
 import { RedditPost, Subreddit } from 'app/types';
 import { uniq } from 'app/functions';
+import { HttpErrorResponse } from '@angular/common/http';
+import { throwError } from 'rxjs';
 
 
 
@@ -25,7 +27,7 @@ export class BestMemeComponent implements OnInit {
   page = 0;
   loading = false;
   err: any;
-  cacheNr = 0;
+  cacheCleared = false;
 
   constructor(
     private api: RedditAPIService,
@@ -75,8 +77,7 @@ export class BestMemeComponent implements OnInit {
         return this.subredditChooser.setValue('', { emitEvent: false });
       }
       this.subExists = true;
-      const over18 = this.store.userPrefs.over18;
-      this.api.subredditSearch(chunk, over18).pipe(take(1)).subscribe({
+      this.api.subredditSearch(chunk).pipe(take(1)).subscribe({
         next: subreddits => {
           this.suggestions = subreddits;
         },
@@ -97,91 +98,29 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, method = 'silentCaching') {
-    if (this.currentSub !== sub) this.cacheNr = 0;
     if (method !== 'silentCaching') this.loading = true;
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
-    /*
-      user options:
-      - sortieren nach
-      - wieviele ergebnisse pro seite
-      - zeitraum filter
-      - query filter
-      - ...
-    */
-    const userOptions = this.store.userOptions;
-    const optionsString = [...Object.values(userOptions), this.cacheNr].join(':');
-    /*
-      we are caching redditPosts depending on specific user options
-      caching example:
-      subreddit: sorted by hot, filtered by day => hot:day:cats ---> RedditPost[] --- notice, we dont differentiate the limits param
-      subreddit: sorted by hot, filtered by day => hot:day:memes ---> RedditPost[]
-      subredditArr: sorted by hot, filtered by day => hot:day ---> ['cats', 'memes']
-    */
-    const saved = this.store.getSaved(optionsString+':'+sub), today = new Date().toDateString();
-    if (saved?.lastFetch !== today) {
-      // important informative console info message:
-      console.info('fetching data for /r/'+sub+'...');
-      this.err = undefined;
-      let after = '';
-      if (this.cacheNr > 0) {
-        const lastOptionsString = [...Object.values(userOptions), this.cacheNr-1].join(':');
-        const lastSaved = this.store.getSaved(lastOptionsString+':'+sub).data;
-        after = lastSaved[lastSaved.length-1].uid;
-      }
-      this.api.get(sub, { ...userOptions, after}).pipe(take(1)).subscribe((data: RedditPost[]) => {
-        // rich console log info text
-        console.log(
-          'received: ', data, 'for options: ', userOptions, ' and fetch-method: ' + method,
-          after.length ? ', after: ' + after : '', ', page: ' + this.cacheNr
-        );
+    this.err = undefined;
 
-        if (method !== 'silentCaching') {
-          if (method === 'fill') this.posts = data;
-          else if (method === 'append') this.posts = this.posts.concat(data);
-          this.loading = false;
-          this.currentSub = sub;
-        }
-        this.store.save(optionsString+':'+sub, {data, lastFetch: today});
-        const savedArr = this.store.getSaved(sub) || [];
-        savedArr.push(optionsString);
-        this.store.save(sub, uniq(savedArr));
-      }, err => {
-        console.info('Error while fetching data from /r/'+sub+': ');
-        console.error(err);
-        this.loading = false;
-        err.error.reason ||= err.error.message
-        this.err = err;
-      });
-    } else { // do this when there is a cached version of query
+    console.info('fetching data for /r/'+sub+'...');
+    (method === 'append' ? this.api.append(sub) : this.api.get(sub)).pipe(take(1), catchError(this.onError)).subscribe({next: (data: RedditPost[]) => {
+      console.log('receiving Reddit API Data for: /r/'+sub, data);
+      if (method === 'silentCaching') return;
+      if (method === 'fill') this.posts = data;
+      else if (method === 'append') this.posts = this.posts.concat(data);
       this.loading = false;
-      // rich console log info text
-      console.log(
-        'using saved data: ', saved.data, 'for options: ', userOptions,
-        ' and fetch-method: '+method,', page: ' + this.cacheNr
-      );
-
-      if (method !== 'silentCaching') {
-        if (method === 'fill') this.posts = saved.data;
-        else if (method === 'append') this.posts = this.posts.concat(saved.data);
-        this.currentSub = sub;
-      }
-    }
+      this.currentSub = sub;
+    }});
   }
 
-  deleteCache(method: string) {
-    switch(method) {
-      case 'all': {
-        return this.store.clearSS()
-      }
-      case 'options-specific': {
-        const options = this.store.userOptions;
-        const optionsString = options.sort+':'+ Object.values(options).join(':');
-        return this.store.clearSS(optionsString, this.currentSub)
-      }
-      default:
-        return
-    }
+  onError(err: HttpErrorResponse) {
+    console.info('Error while fetching data from /r/'+this.currentSub+': ');
+    console.error(err);
+    this.loading = false;
+    err.error.reason ||= err.error.message
+    this.err = err;
+    return throwError([])
   }
 
   onPrivateClick() {
@@ -202,7 +141,6 @@ export class BestMemeComponent implements OnInit {
   }
 
   loadMore() {
-    this.cacheNr += 1;
     this.fetchSub(this.currentSub, 'append');
   }
 
@@ -212,5 +150,10 @@ export class BestMemeComponent implements OnInit {
     if (el.classList.contains('optionsOverlay')) {
       this.onLeavingOptions(el, force)
     }
+  }
+  deleteCache() {
+    this.store.db.apiCache.clear();
+    this.store.db.comments.clear();
+    this.cacheCleared = true;
   }
 }

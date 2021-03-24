@@ -49,7 +49,7 @@ const is_a = (v: any) => ['crosspost','video','gallery','youtube','vimeo','gifv'
 
 const redditURL = (url: string): string => url.startsWith('/r') ? 'https://www.reddit.com'+url : url;
 export const reddit_format = (data: any): RedditPost[] => {
-  console.log('reddit API data: ', data);
+  // console.log('reddit API data: ', data);
   return data.data.children
     .map((v: any) => v.data)
     .map((v: any)=>{

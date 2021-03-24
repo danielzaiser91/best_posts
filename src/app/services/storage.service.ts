@@ -1,46 +1,37 @@
 import { Injectable } from '@angular/core';
 import Dexie from 'dexie';
-import { RedditComment, UserPrefs } from '../types';
+import { RedditComment, RedditPost, UserPrefs } from '../types';
+import { FilterRedditPost } from './reddit-api.service';
 
+export interface APICache {
+  key: string,
+  data: RedditPost[]
+}
 class RedditDatabase extends Dexie {
   public comments: Dexie.Table<RedditComment, string>;
-  public recommendations: Dexie.Table<RedditComment, string>;
+  public apiCache: Dexie.Table<APICache, string>;
 
   public constructor() {
     super("redditData");
     this.version(1).stores({
       comments: 'permalink, [subreddit+post_id]',
-      recommendations: 'permalink, [subreddit+post_id]'
+      apiCache: 'key'
     });
     this.comments = this.table("comments");
-    this.recommendations = this.table("recommendations");
+    this.apiCache = this.table("apiCache");
   }
 }
 const redditDB = new RedditDatabase();
 
-const defaultOptions = { sort: 'hot', t:'day', limit: '25', q: '' };
+const defaultOptions = { sort: 'hot', t:'day', limit: '25', q: '', exclude: [''] as FilterRedditPost[] };
 export type UserOptions = typeof defaultOptions;
 @Injectable({
   providedIn: 'root'
 })
 export class StorageService {
-  save = (param: string, data: any) => sessionStorage.setItem(param, JSON.stringify(data));
-  getSaved = (param: string) => JSON.parse(sessionStorage.getItem(param) || 'null');
   saveLS = (param: string, data: any) => localStorage.setItem(param, JSON.stringify(data));
   getSavedLS = (param: string) => JSON.parse(localStorage.getItem(param) || 'null');
-  clearSS = (param = '', sub = '') => {
-    if (param.length !== 0 && sub.length !== 0) {
-      const key = param + ':' + sub;
-      console.log('deleting Entry '+ param +' from SessionStorage key:', sub);
-      const removed = this.getSaved(sub).filter((v: string) => v !== param);
-      removed.length ? this.save(sub, removed) : sessionStorage.removeItem(sub);
-      console.log('deleting SessionStorage key:', key);
-      sessionStorage.removeItem(key);
-      return
-    }
-    sessionStorage.clear();
-  };
-  anySS = () => sessionStorage.length;
+
   get db() { return redditDB; }
   get userOptions(): UserOptions { return this.getSavedLS('userOptions') ?? defaultOptions; }
 

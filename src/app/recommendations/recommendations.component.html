@@ -3,19 +3,16 @@
 
 
 <div class="recommendations">
-  <h1>Empfohlene Subreddits:</h1>
+  <!-- <h1>Empfohlene Subreddits:</h1>
   <h5>wähle einen Subreddit aus der Liste unten aus, oder aus den 100 beliebtesten Subreddit mit einem Klick auf den Button oben links!</h5>
-  <h5>alternativ kannst du natürlich auch die Suchleiste oben benutzen (+optionen oben rechts) um selbstständig nach einem Subreddit zu suchen 😊</h5>
+  <h5>alternativ kannst du natürlich auch die Suchleiste oben benutzen (+optionen oben rechts) um selbstständig nach einem Subreddit zu suchen 😊</h5> -->
+  <h1>Beliebte Beiträge:</h1>
+  <h3>Hallo! Das was du hier siehst sind Redditbeiträge aus vielen verschiedenen Subreddits, quasi als kleiner Einblick in die App um dir zu zeigen was du alles finden kannst.</h3>
+  <h3>Guck dir einfach ein paar Beiträge an, oder besuche einen speziellen Subreddit durch Klick auf den Butten in der Ecke oben links, oder durch das benutzen des Suchfelds!</h3>
+  <h3>Viel Spaß 🤩</h3>
+
   <div>
-    <ul *ngFor="let rec of recommendations" [ngClass]="['suggestions', rec.category]">
-      <h2>{{ rec.title }}</h2>
-      <li *ngFor="let sug of rec.suggestions.slice(0, 5)"
-        [class.private]="sug.private" (click)="sug.private ? recEv.emit({ isPrivate: true }) : recEv.emit({ isPrivate: false, sub: sug.name})">
-        <span class="subscriber-count">{{sug.subscribers | shortNumber}}</span>
-        <span *ngIf="sug.icon_img?.length" class="icon-wrapper"><img [src]="sug.icon_img" alt="Subreddit Icon" class="img-icon"></span>
-        <span *ngIf="sug.over18">🔞</span>
-        {{sug.name}}</li>
-    </ul>
+    <app-gallery [posts]="popular" (loadMorePls)="recEv.emit('loadMorePls')" (hideSuggestions)="recEv.emit('hideSuggestions')"></app-gallery>
   </div>
 </div>
 

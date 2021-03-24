@@ -2,7 +2,7 @@
   <ng-container *ngFor="let comment of comments; index as i">
     <ng-container *ngTemplateOutlet="commentTemplate; context: { comment: comment, i: i }"></ng-container>
   </ng-container>
-  <span *ngIf="!comments.length">keine Kommentare gefunden...</span>
+  <span (click)="noComments()" *ngIf="!comments.length">keine Kommentare gefunden...</span>
 </div>
 
 
@@ -17,7 +17,7 @@
         'is-child-'+comment.depth
       ]" #comment>
     <div class="comment-self" #commentEl>
-      <div class="score" (click)="showComments(commentEl)">{{ comment.score }}</div>
+      <div class="score" (click)="showComments(commentEl)">{{ comment.score | shortNumber}}</div>
       <a class="source icon-wrapper" [href]="comment.permalink" target="_blank">
         <img class="img-icon" src="/assets/images/externer-link.png" alt="externer-link">
       </a>

@@ -1,8 +1,7 @@
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { RedditAPIService, StorageService } from 'app/services';
-import { RedditPost } from 'app/types';
+import { RedditPost, Subreddit } from 'app/types';
 import { first, take } from 'rxjs/operators';
-import { Recommendation } from '../../../dist/bestOfReddit/assets/types/myTypes';
 
 
 @Component({
@@ -12,8 +11,7 @@ import { Recommendation } from '../../../dist/bestOfReddit/assets/types/myTypes'
 })
 export class RecommendationsComponent implements OnInit {
   @Output() recEv = new EventEmitter();
-  recommendations: Recommendation[];
-  popular: RedditPost[];
+  popular = [] as RedditPost[];
 
   constructor(private store: StorageService, private api: RedditAPIService) { }
 

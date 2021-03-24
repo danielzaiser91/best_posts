@@ -203,6 +203,7 @@ export class GalleryComponent {
   }
 
   async loadComments(sub: string, id: string, ev: Event) {
+    console.log('loading comments');
     const li = document.querySelector('li.fullscreen') as HTMLLIElement;
     li.classList.contains('show-comments') ? this.loadMedia(li) : this.pauseMedia(li);
     this.commentsForPost = id;
@@ -211,6 +212,7 @@ export class GalleryComponent {
     li.classList.toggle('show-comments');
     // todo: improve caching performance, remove unnecessary loading, and for gods sake please refactor this component x___x
     const cached = await this.store.db.comments.where({'subreddit': sub, 'post_id': id}).toArray();
+    console.log(cached);
     if (cached.length) {
       li.classList.remove('loading-comments');
       if (deepEquals(cached, this.comments)) return;
@@ -223,7 +225,10 @@ export class GalleryComponent {
         this.comments = comments;
         this.store.db.comments.bulkPut(comments);
         console.log('loading comments from API:', comments);
-      }, err => li.classList.remove('loading-comments'));
+      }, err => {
+        console.log(err);
+        li.classList.remove('loading-comments');
+      });
     }
   }
 

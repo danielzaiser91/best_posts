@@ -57,8 +57,12 @@ export class BestMemeComponent implements OnInit {
     this.activateFormValidators();
   }
 
-  recClicked({ isPrivate, sub = '' }: { isPrivate: boolean, sub: string }) {
-    isPrivate ? this.onPrivateClick() : this.fetchSub(sub, 'fill');
+  onRecEvent(command: string) {
+    switch(command) {
+      case 'loadMorePls': return this.loadMore();
+      case 'hideSuggestions': return this.suggestions = []
+      default: return
+    }
   }
 
   initialFetch(): void {
@@ -99,6 +103,7 @@ export class BestMemeComponent implements OnInit {
 
   fetchSub(sub: string, method = 'silentCaching') {
     if (method !== 'silentCaching') this.loading = true;
+    if (!sub) sub = 'popular';
     this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
     this.err = undefined;

@@ -36,7 +36,7 @@
   &.vimeo:not(.has-played) iframe, &.vimeo.has-played img, &.vimeo.has-played .content-wrapper::before,
   .limit-symbol, &.gifv .gifv-controls, &.gallery img:nth-of-type(n+2),
   &.gallery button, &.discussion .discussion-text, &.image.default .content-wrapper p, .left-ctrl .open-link,
-  .right-ctrl .exit, .comments, .notice
+  .right-ctrl .exit, .comments
     display: none
   .text
     height: 1.5em
@@ -122,7 +122,7 @@
         width: 100%
     video
       width:100%
-    .mute, .enlarge-btn, .volume, .share-btn, .pager, .loadMore, app-comment-section
+    .mute, .enlarge-btn, .volume, .share-btn, .pager, .loadMore, app-comment-section, .notice
       display: none
 
   li.fullscreen
@@ -137,6 +137,7 @@
     will-change: contents
     &.error
       .notice
+        display: block
         position: absolute
         top: 4em
         left: 0

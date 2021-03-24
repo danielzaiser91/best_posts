@@ -92,19 +92,22 @@ export const single_sub = (v: any): Subreddit => ({
 });
 
 export const comment_array = (data: any): RedditComment[] => {
-  return data.children.map(single_comment);
+  return data.children.map((v:any) => {
+    if (v.kind === 'more') return '';
+    return single_comment(v);
+  }).filter(String);
 }
+
 export const single_comment = (v: any): RedditComment => {
-  const exists = v.data.replies?.data?.children?.[0]?.data?.author;
-  // console.log('trying to format:', v.data);
+  const childrenData = v.data.replies?.data, exists = childrenData && childrenData.children[childrenData.children.length-1].kind !== 'more';
   return ({
-    post_id: v.data.link_id.match(/(?<=_).*/)?.[0],
+    post_id: v.data.link_id?.match(/(?<=_).*/)?.[0],
     author: v.data.author,
     depth: v.data.depth,
     text_md: v.data.body_html,
     created_utc: v.data.created_utc * 1000,
     permalink: redditURL(v.data.permalink),
-    children: exists ? comment_array(v.data.replies.data) : [],
+    children: exists ? comment_array(childrenData) : [],
     score: v.data.score,
     stickied: v.data.stickied,
     subreddit: v.data.subreddit,

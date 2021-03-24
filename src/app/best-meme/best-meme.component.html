@@ -8,7 +8,7 @@
   <ng-container [ngTemplateOutlet]="searchAndOptions"></ng-container>
 </header>
 
-<app-recommendations *ngIf="!posts.length && !err" (recEv)="recClicked($event)"></app-recommendations>
+<app-recommendations *ngIf="!posts.length && !err" (recEv)="onRecEvent($event)"></app-recommendations>
 
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
   <div class="exit" (click)="onLeavingOptions(optionsOverlay)">x</div>

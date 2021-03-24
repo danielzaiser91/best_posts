@@ -16,12 +16,12 @@ export const errHandler = (err: HttpErrorResponse) => {
   return of(err);
 }
 
-const defaultParams = { limit: '25', t: 'day', raw_json: '1', after: '', before: '', count: '25', show: 'all', sort: 'hot', q: '' }
+const defaultParams = { limit: '25', t: 'day', raw_json: '1', after: '', before: '', count: '25', show: 'all', sort: 'hot', q: '', geo_filter: 'DE' }
 export type AllowedParams = Partial<typeof defaultParams>;
 export type ObjectString = { [key:string]: string };
 export type FilterRedditPost = 'text' | 'videos' | 'images' | '';
-const defOpts = { after: '', sub: 'cats', userOptions: {}, data: [] as RedditPost[], exclude: [''] as FilterRedditPost[] }
-export type CustomOptions = Partial<typeof defOpts>;
+const defaultOpts = { sub: 'cats', userOptions: {} as AllowedParams, data: [] as RedditPost[], exclude: [''] as FilterRedditPost[] }
+export type CustomOptions = Partial<typeof defaultOpts>;
 
 /*    documentation: https://www.reddit.com/dev/api     */
 @Injectable({
@@ -32,10 +32,10 @@ export class RedditAPIService {
 
   get(subreddit: string, params: AllowedParams): Observable<RedditPost[]> {
     const url = base + 'r/' + subreddit + '/' + (params.sort || defaultParams.sort) + '.json';
-    params = Object.assign(defaultParams, params);
+    params = {...defaultParams, ...params};
     delete params.sort;
-    if (params.after?.length) Object.assign(params, { after: params.after, count: params.count });
-    else if (params.before?.length) Object.assign(params, { before: params.before, count: params.count });
+    if (params.after?.length) delete params.before;
+    else if (params.before?.length) delete params.after;
     else { delete params.after; delete params.before; delete params.count }
 
     console.log('url: ', url, params);
@@ -44,17 +44,17 @@ export class RedditAPIService {
     );
   }
 
-  // todo: add param except type
-  exclude(sub: string, exclude: FilterRedditPost[]): Subject<RedditPost[]> {
+  // todo: allow user Options
+  getFiltered(sub: string, exclude: FilterRedditPost[], userOptions = {} as AllowedParams): Subject<RedditPost[]> {
     const result = new Subject<RedditPost[]>();
-    this.gatherData(result, { sub, exclude })
+    this.gatherData(result, { sub, exclude, userOptions })
     return result;
   }
-// https://www.reddit.com/r/popular/?geo_filter=DE&sort=hot&t=day
-  count = 0;
-  gatherData(res: Subject<RedditPost[]>, opt: CustomOptions) {
-    const { exclude, sub, userOptions, after, data } = Object.assign(defOpts, opt);
-    console.log('called fn', this.count);
+
+  // https://www.reddit.com/r/popular/?geo_filter=DE&sort=hot&t=day
+  gatherData(res: Subject<RedditPost[]>, opt: CustomOptions, count = 0) {
+    const { exclude, sub, userOptions, data } = {...defaultOpts, ...opt};
+    console.log('called fn', count);
     const reject = exclude.map(v => ({
       "images": ['gallery', 'image'],
       "text": ['discussion'],
@@ -62,7 +62,7 @@ export class RedditAPIService {
       "": ['']
     })[v]).flat()
 
-    this.get(sub, {...userOptions, after}).pipe(take(1)).subscribe(v => {
+    this.get(sub, userOptions).pipe(take(1)).subscribe(v => {
       let found = false;
       const filtered = v.filter(x => {
         const yes = reject.includes(x.is);
@@ -70,16 +70,14 @@ export class RedditAPIService {
         return !yes
       });
       data.push(...filtered);
-      this.count++;
+      count++;
       console.log(v);
-      if (found && this.count < 4) this.gatherData(res, { after: v[v.length-1].uid, sub, userOptions, data, exclude });
+      if (found && count < 4) this.gatherData(res, { sub, userOptions: { ...userOptions, after: v[v.length-1].uid }, data, exclude }, count);
       else {
         res.next(data);
-        this.count = 0;
       }
     })
   }
-
 
   subredditSearch(query: string, includeOver18 = false): Observable<Subreddit[]> {
     return this.http.get(base + 'subreddits/search.json?q=' + query + (includeOver18 ? '&include_over_18=on' : '')).pipe(

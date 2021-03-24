@@ -18,6 +18,6 @@ export class RecommendationsComponent implements OnInit {
   }
 
   loadRecommendations() {
-    this.api.get
+    this.api.getFiltered('popular', ['text'])
   }
 }

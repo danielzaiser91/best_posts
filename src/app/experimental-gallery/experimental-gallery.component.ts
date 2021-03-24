@@ -13,8 +13,7 @@ export class ExperimentalGalleryComponent implements OnInit {
   @Input() posts: RedditPost[] = [];
 
   constructor(private api: RedditAPIService) {
-    this.api.exclude('cats', ['text', 'images']).subscribe(v => {
-      console.log('test noDiscussion api: ', v);
+    this.api.getFiltered('cats', ['text']).subscribe(v => {
       this.posts = v;
     })
   }

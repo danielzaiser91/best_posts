@@ -35,7 +35,6 @@ export class BestMemeComponent implements OnInit {
     private router: Router)
   {
     this.subredditChooser = new FormControl('');
-    console.log(this.subredditChooser.value)
     const opt = store.userOptions;
     const userPrefs = store.userPrefs;
     this.postOptions = formBuilder.group({
@@ -98,7 +97,6 @@ export class BestMemeComponent implements OnInit {
   }
 
   fetchSub(sub: string, method = 'silentCaching') {
-    console.log(this.cacheNr);
     if (this.currentSub !== sub) this.cacheNr = 0;
     if (method !== 'silentCaching') this.loading = true;
     this.router.navigate(['/r', sub]);

@@ -34,7 +34,7 @@ export class HeadComponent implements OnInit {
 
   executeJS(data: string) {
     const script = document.createElement('script');
-    script.innerHTML = data;
+    script.textContent = data;
     script.type="application/ld+json";
     script.async = false;
     document.head.appendChild(script);

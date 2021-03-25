@@ -34,7 +34,9 @@ export class RedditAPIService {
   get(subreddit: string, params: AllowedParams = {}, { calledFromGetFiltered = false } = {}): Observable<RedditPost[]> | Subject<RedditPost[]> {
     if (params.exclude?.length && !calledFromGetFiltered) return this.getFiltered(subreddit, params.exclude);
     params = {...defaultParams, ...this.store.userOptions, ...params};
-    const q = [params.limit, params.t, params.sort, params.q, params.geo_filter, params.exclude];
+    const exclude = params.exclude;
+    delete params.exclude;
+    const q = [params.limit, params.t, params.sort, params.q, params.geo_filter, exclude];
     const today = new Date().toDateString(), argsString = JSON.stringify({ subreddit, q, today });
     const cached = this.store.db.apiCache.get({'key': argsString});
     const cachedObs = from(cached.then(x => x?.data)) as Observable<RedditPost[]>;
@@ -49,7 +51,7 @@ export class RedditAPIService {
         else { delete params.after; delete params.before; delete params.count }
         return this.http.get(url, { params: params as ObjectString }).pipe(
           map(reddit_format),
-          map(posts => params.exclude ? this.filterExclude(posts, params.exclude) : posts),
+          map(posts => exclude?.length ? this.filterExclude(posts, exclude) : posts),
           tap(tap => {
             if (!append) this.store.db.apiCache.put({ data: tap, key: argsString })
             else {
@@ -94,7 +96,7 @@ export class RedditAPIService {
     })
   }
 
-  filterExclude(data: any[], exclude: FilterRedditPost[]) {
+  filterExclude(data: RedditPost[], exclude: FilterRedditPost[]) {
     const reject = exclude.map(v => ({
       "images": ['gallery', 'image'],
       "text": ['discussion'],

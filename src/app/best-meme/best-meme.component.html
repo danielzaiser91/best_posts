@@ -4,7 +4,7 @@
 
 <app-greetings></app-greetings>
 <header class="wrapper sticky-top">
-  <app-popular-subreddits (choose)="fetchSub($event, 'fill')"></app-popular-subreddits>
+  <app-popular-subreddits *ngIf="!isRobot" (choose)="fetchSub($event, 'fill')"></app-popular-subreddits>
   <ng-container [ngTemplateOutlet]="searchAndOptions"></ng-container>
 </header>
 

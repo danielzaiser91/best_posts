@@ -13,3 +13,20 @@ export const deepEquals = (a: any, b: any): boolean => {
   if (keys.length !== Object.keys(b).length) return false;
   return keys.every(k => deepEquals(a[k], b[k]));
 };
+
+export const isRobot = (userAgent: string): boolean => {
+  const robots = new RegExp(([
+    /bot/,/spider/,/crawl/,                               // GENERAL TERMS
+    /APIs-Google/,/AdsBot/,/Googlebot/,                   // GOOGLE ROBOTS
+    /mediapartners/,/Google Favicon/,
+    /FeedFetcher/,/Google-Read-Aloud/,
+    /DuplexWeb-Google/,/googleweblight/,
+    /bing/,/yandex/,/baidu/,/duckduck/,/yahoo/,           // OTHER ENGINES
+    /ecosia/,/ia_archiver/,
+    /facebook/,/instagram/,/pinterest/,/reddit/,          // SOCIAL MEDIA
+    /slack/,/twitter/,/whatsapp/,/youtube/,
+    /semrush/,                                            // OTHER
+  ] as RegExp[]).map((r) => r.source).join("|"),"i");     // BUILD REGEXP + "i" FLAG
+
+  return robots.test(userAgent);
+};

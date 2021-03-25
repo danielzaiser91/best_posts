@@ -8,7 +8,8 @@ import {
 
 import {
   uniq,
-  deepEquals
+  deepEquals,
+  isRobot
 } from 'assets/js/helper_functions'
 
 
@@ -19,5 +20,6 @@ export {
   comment_array,
   single_comment,
   uniq,
-  deepEquals
+  deepEquals,
+  isRobot
 }

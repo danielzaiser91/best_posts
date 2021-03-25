@@ -5,10 +5,11 @@ import { catchError, debounceTime, first, take } from 'rxjs/operators';
 
 import { StorageService, errHandler, RedditAPIService } from 'app/services';
 import { RedditPost, Subreddit } from 'app/types';
-import { uniq } from 'app/functions';
+import { isRobot, uniq } from 'app/functions';
 import { HttpErrorResponse } from '@angular/common/http';
 import { throwError } from 'rxjs';
-
+import { popular } from 'app/static/popular';
+import { environment } from 'environments/environment';
 
 
 @Component({
@@ -28,6 +29,7 @@ export class BestMemeComponent implements OnInit {
   loading = false;
   err: any;
   cacheCleared = false;
+  isRobot = false;
 
   constructor(
     private api: RedditAPIService,
@@ -36,6 +38,7 @@ export class BestMemeComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router)
   {
+    this.isRobot = environment.isRobot;
     this.subredditChooser = new FormControl('');
     const opt = store.userOptions;
     const userPrefs = store.userPrefs;
@@ -53,9 +56,8 @@ export class BestMemeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    const sub = this.route.snapshot.params.subreddit;
-    console.log(sub)
-    this.initialFetch();
+    if (!this.isRobot) this.initialFetch();
+    else { this.posts = popular; this.currentSub = 'popular'}
     this.activateFormValidators();
   }
 

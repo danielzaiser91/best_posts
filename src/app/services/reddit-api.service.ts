@@ -18,7 +18,7 @@ export const errHandler = (err: HttpErrorResponse) => {
 }
 
 export type ObjectString = { [key:string]: string };
-export type FilterRedditPost = 'text' | 'videos' | 'images' | '';
+export type FilterRedditPost = 'text' | 'videos' | 'iframes' | 'images' | '';
 const defaultParams = { limit: '25', t: 'day', raw_json: '1', after: '', before: '', count: '25', show: 'all', sort: 'hot', q: '', geo_filter: 'DE', exclude: [''] as FilterRedditPost[] }
 export type AllowedParams = Partial<typeof defaultParams>;
 const defaultOpts = { sub: 'cats', options: {} as AllowedParams, data: [] as RedditPost[], exclude: [''] as FilterRedditPost[] }
@@ -101,6 +101,7 @@ export class RedditAPIService {
       "images": ['gallery', 'image'],
       "text": ['discussion'],
       "videos": ['gifv', 'video', 'youtube', 'vimeo'],
+      "iframes": ['youtube', 'vimeo'],
       "": ['']
     })[v]).flat()
 

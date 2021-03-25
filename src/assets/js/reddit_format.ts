@@ -97,7 +97,17 @@ export const comment_array = (data: any): RedditComment[] => {
     return single_comment(v);
   }).filter(String);
 }
-
+/** More details */
+interface Foo {
+  member: boolean;
+}
+/**
+ * Standard links:
+ * {@link Foo} or {@linkplain Foo} or [[Foo]]
+ *
+ * Code links: (Puts Foo inside <code> tags)
+ * {@linkcode Foo} or [[`Foo`]]
+ */
 export const single_comment = (v: any): RedditComment => {
   const childrenData = v.data.replies?.data, exists = childrenData && childrenData.children[childrenData.children.length-1].kind !== 'more';
   return ({

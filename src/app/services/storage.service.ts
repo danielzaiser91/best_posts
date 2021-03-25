@@ -23,7 +23,7 @@ class RedditDatabase extends Dexie {
 }
 const redditDB = new RedditDatabase();
 
-const defaultOptions = { sort: 'hot', t:'day', limit: '25', q: '', exclude: ['text'] as FilterRedditPost[] };
+const defaultOptions = { sort: 'top', t:'day', limit: '25', q: '', exclude: ['text', 'iframes'] as FilterRedditPost[] };
 export type UserOptions = typeof defaultOptions;
 @Injectable({
   providedIn: 'root'

@@ -7,7 +7,7 @@ import { StorageService, errHandler, RedditAPIService } from 'app/services';
 import { RedditPost, Subreddit } from 'app/types';
 import { isRobot, uniq } from 'app/functions';
 import { HttpErrorResponse } from '@angular/common/http';
-import { throwError } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { popular } from 'app/static/popular';
 import { environment } from 'environments/environment';
 
@@ -30,6 +30,8 @@ export class BestMemeComponent implements OnInit {
   err: any;
   cacheCleared = false;
   isRobot = false;
+  showRec = false;
+  copy: any;
 
   constructor(
     private api: RedditAPIService,
@@ -68,13 +70,18 @@ export class BestMemeComponent implements OnInit {
       default: return
     }
   }
-// 'popular', { exclude: ['text'] }
+
   initialFetch(): void {
-    this.fetchSub(this.route.snapshot.params.subreddit ?? 'popular', 'fill');
+    const sub = this.route.snapshot.params.subreddit
+    if (sub) this.fetchSub(sub, 'fill');
+    else {
+      this.showRec = true;
+      this.fetchSub('popular', 'fill', true);
+    }
   }
 
   activateFormValidators() {
-    this.subredditChooser.valueChanges.pipe(debounceTime(500)).subscribe((chunk: string) => {
+    this.subredditChooser.valueChanges.pipe(debounceTime(300)).subscribe((chunk: string) => {
       if (chunk === '') {
         this.suggestions = [];
         return this.subredditChooser.setValue('', { emitEvent: false });
@@ -100,31 +107,30 @@ export class BestMemeComponent implements OnInit {
     });
   }
 
-  fetchSub(sub: string, method = 'silentCaching') {
+  fetchSub(sub: string, method = 'silentCaching', noRoute = false) {
     if (method !== 'silentCaching') this.loading = true;
     let exclude = this.store.userOptions.exclude;
-    if (this.route.snapshot.params.subreddit) this.router.navigate(['/r', sub]);
+    if (!noRoute) this.router.navigate(['/r', sub]);
     this.suggestions.length = 0;
     this.err = undefined;
+    this.currentSub = sub;
 
-    console.info('fetching data for /r/'+sub+'...');
-    (method === 'append' ? this.api.append(sub) : this.api.get(sub, { exclude })).pipe(take(1), catchError(this.onError)).subscribe({next: (data: RedditPost[]) => {
-      console.log('receiving Reddit API Data for: /r/'+sub, data);
+    console.info('fetching data for /r/'+sub+'...', method);
+    (method === 'append' ? this.api.append(sub) : this.api.get(sub, { exclude })).pipe(take(1), catchError(err => this.onError(err))).subscribe({next: (data: RedditPost[]) => {
+      console.log('receiving Reddit API Data for: /r/'+sub, data, exclude);
       if (method === 'silentCaching') return;
       if (method === 'fill') this.posts = data;
       else if (method === 'append') this.posts = this.posts.concat(data);
+      console.log(this.err);
       this.loading = false;
-      this.currentSub = sub;
     }});
   }
 
   onError(err: HttpErrorResponse) {
-    console.info('Error while fetching data from /r/'+this.currentSub+': ');
-    console.error(err);
-    this.loading = false;
-    err.error.reason ||= err.error.message
-    this.err = err;
-    return throwError([])
+    console.info('%cError while fetching data from /r/'+this.currentSub+': ','color:black;font-size:2em;background-color:white;border:1px solid;');
+    err.error.reason ||= err.error.message;
+    this.err = Object.assign({}, err);
+    return of([]);
   }
 
   onPrivateClick() {

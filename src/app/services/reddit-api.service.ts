@@ -1,7 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { forkJoin, from, Observable, of, Subject } from 'rxjs';
-import { filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
+import { forkJoin, from, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, filter, map, mergeMap, switchMap, take, tap } from 'rxjs/operators';
 import { RedditComment, RedditPost, Subreddit } from '../types';
 import {
   reddit_format,
@@ -13,16 +13,16 @@ import { StorageService } from './storage.service';
 
 const base = 'https://www.reddit.com/';
 export const errHandler = (err: HttpErrorResponse) => {
-  console.error('HTTP ERROR: ', err);
-  return of(err);
+  console.error('myErrorHandler: HTTP ERROR: ', err);
+  return throwError(err);
 }
 
 export type ObjectString = { [key:string]: string };
 export type FilterRedditPost = 'text' | 'videos' | 'iframes' | 'images' | '';
 const defaultParams = { limit: '25', t: 'day', raw_json: '1', after: '', before: '', count: '25', show: 'all', sort: 'hot', q: '', geo_filter: 'DE', exclude: [''] as FilterRedditPost[] }
 export type AllowedParams = Partial<typeof defaultParams>;
-const defaultOpts = { sub: 'cats', options: {} as AllowedParams, data: [] as RedditPost[], exclude: [''] as FilterRedditPost[] }
-export type CustomOptions = { sub: string, options?: AllowedParams, data?: RedditPost[], exclude: FilterRedditPost[] };
+const defaultOpts = { sub: 'cats', options: defaultParams, data: [] as RedditPost[], count: 0 }
+export type CustomOptions = { sub: string, options?: AllowedParams, data?: RedditPost[], count: number };
 
 /*    documentation: https://www.reddit.com/dev/api     */
 @Injectable({
@@ -32,7 +32,7 @@ export class RedditAPIService {
   constructor(private http: HttpClient, private store: StorageService) { }
 
   get(subreddit: string, params: AllowedParams = {}, { calledFromGetFiltered = false } = {}): Observable<RedditPost[]> | Subject<RedditPost[]> {
-    if (params.exclude?.length && !calledFromGetFiltered) return this.getFiltered(subreddit, params.exclude);
+    if (params.exclude?.length && !calledFromGetFiltered) return this.getFiltered(subreddit, params);
     params = {...defaultParams, ...this.store.userOptions, ...params};
     const exclude = params.exclude;
     delete params.exclude;
@@ -42,14 +42,15 @@ export class RedditAPIService {
     const cachedObs = from(cached.then(x => x?.data)) as Observable<RedditPost[]>;
 
     return cachedObs.pipe(switchMap(v => {
-      const append = params.after?.length || params.before?.length, noCache = !v?.length || append;
-      if(noCache) {
+      const append = params.after?.length || params.before?.length, hasCache = v?.length;
+      if(!hasCache || append) {
         const url = base + 'r/' + subreddit + '/' + (params.sort || defaultParams.sort) + '.json';
         delete params.sort;
         if (params.after?.length) delete params.before;
         else if (params.before?.length) delete params.after;
         else { delete params.after; delete params.before; delete params.count }
         return this.http.get(url, { params: params as ObjectString }).pipe(
+          catchError(errHandler),
           map(reddit_format),
           map(posts => exclude?.length ? this.filterExclude(posts, exclude) : posts),
           tap(tap => {
@@ -71,29 +72,26 @@ export class RedditAPIService {
     const params = {...defaultParams, ...this.store.userOptions};
     const q = [params.limit, params.t, params.sort, params.q, params.geo_filter, params.exclude];
     const today = new Date().toDateString(), argsString = JSON.stringify({ subreddit, q , today });
-    const afterObs = from(this.store.db.apiCache.get({'key': argsString}).then(x => {console.log('after:',x);return x?.data[x.data.length-1].uid}));
+    const afterObs = from(this.store.db.apiCache.get({'key': argsString}).then(x => x?.data[x.data.length-1].uid));
     return afterObs.pipe(switchMap(after => this.get(subreddit, { after })));
   }
 
-  getFiltered(sub: string, exclude: FilterRedditPost[]): Subject<RedditPost[]> {
+  getFiltered(sub: string, options: AllowedParams): Subject<RedditPost[]> {
     const result = new Subject<RedditPost[]>();
-    this.gatherData(result, { sub, exclude })
+    this.gatherData(result, { sub, options, count: 0 })
     return result;
   }
   // https://www.reddit.com/r/popular/?geo_filter=DE&sort=hot&t=day
-  gatherData(res: Subject<RedditPost[]>, opt: CustomOptions, count = 0) {
-    const limit = this.store.userOptions.limit;
-    let { exclude, sub, data } = {...defaultOpts, ...opt};
-    const after = opt.options?.after;
-    const callWith = after ? { after, exclude } : { exclude };
+  gatherData(res: Subject<RedditPost[]>, opt: CustomOptions) {
+    const options = {...this.store.userOptions, ...opt.options};
+    let { sub, data, count } = opt;
 
-    this.get(sub, { ...callWith }, { calledFromGetFiltered: true }).pipe(take(1)).subscribe(v => {
+    this.get(sub, options, { calledFromGetFiltered: true }).pipe(take(1)).subscribe({next: v => {
+      if(!v.length) return res.next(data);
       data = data ? data.concat(v) : v;
-      const after = v[v.length-1].uid;
-      count++;
-      if (data.length < +limit && count < 4) this.gatherData(res, { sub, options: { after }, data, exclude }, count);
+      if (data.length < +options.limit && count++ < 4) this.gatherData(res, { sub, options, data, count });
       else { res.next(data) }
-    })
+    }, error: err => res.error(err)})
   }
 
   filterExclude(data: RedditPost[], exclude: FilterRedditPost[]) {

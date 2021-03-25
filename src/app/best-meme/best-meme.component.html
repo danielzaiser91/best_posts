@@ -8,7 +8,7 @@
   <ng-container [ngTemplateOutlet]="searchAndOptions"></ng-container>
 </header>
 
-<app-recommendations *ngIf="!posts.length && !err" (recEv)="onRecEvent($event)"></app-recommendations>
+<app-recommendations *ngIf="showRec && !err" (recEv)="onRecEvent($event)"></app-recommendations>
 
 <div class="optionsOverlay toggle" (click)="hideOverlay($event)" #optionsOverlay>
   <div class="exit" (click)="onLeavingOptions(optionsOverlay)">x</div>
@@ -63,7 +63,7 @@
 
 <app-gallery [posts]="posts" (loadMorePls)="loadMore()" (hideSuggestions)="suggestions=[]"></app-gallery>
 
-<div *ngIf="err" class="error">
+<div *ngIf="!!err" class="info error">
   <span>Es tut uns Leid, dieser Subreddit konnte nicht angezeigt werden.</span><br><br>
   <u>Grund:</u>
   <ng-container [ngSwitch]="err.error.reason">
@@ -84,6 +84,11 @@
   </ng-container>
 </div>
 
+<div *ngIf="(!posts.length && !err)" class="info noResults">
+  <span>Es tut uns Leid, es wurden keine Ergebnisse gefunden.</span><br><br>
+  <span>versuch es nochmal mit anderen Suchfiltern oder besuche einen anderen Subreddit.</span>
+</div>
+
 <ng-template #searchAndOptions>
   <div class="select">
     <div [class.noValue]="subredditChooser.value.length">
@@ -94,7 +99,11 @@
       <div class="wrap-input">
         <button class="reset hideIfNoValue" (click)="subredditChooser.setValue('')">x</button>
         <span *ngIf="!subExists && !suggestions.length">Subreddit existiert nicht</span>
-        <input [formControl]="subredditChooser" [placeholder]="currentSub || 'Suchbeispiel: ich_iel...'" [class]="subExists ? 'valid' : 'invalid'">
+        <input
+          [formControl]="subredditChooser" 
+          [placeholder]="currentSub || 'Suchbeispiel: ich_iel...'"
+          [class]="subExists ? 'valid' : 'invalid'"
+          (keyup.enter)="fetchSub(subredditChooser.value ,'fill')">
         <ul *ngIf="suggestions" class="suggestions">
           <li *ngFor="let sug of suggestions.slice(page, page+10)"
             [class.private]="sug.private" (click)="sug.private ? onPrivateClick() : fetchSub(sug.name, 'fill')">

@@ -26,6 +26,7 @@ import { IframeComponent } from './media-wrapper/iframe/iframe.component';
 import { TextComponent } from './media-wrapper/text/text.component';
 import { RecommendationsComponent } from './recommendations/recommendations.component';
 import { SearchbarComponent } from './searchbar/searchbar.component';
+import { HeadComponent } from './head/head.component';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { SearchbarComponent } from './searchbar/searchbar.component';
     IframeComponent,
     TextComponent,
     RecommendationsComponent,
-    SearchbarComponent
+    SearchbarComponent,
+    HeadComponent
   ],
   imports: [
     BrowserModule,

@@ -21,7 +21,7 @@
     Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
     Access-Control-Allow-Credentials = "true"
     X-Robots-Tag = "all"
-    X-Frame-Options = "DENY"
+    X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"

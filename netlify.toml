@@ -28,7 +28,7 @@
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
     Content-Security-Policy = '''
-      default-src 'none';
+      default-src 'self';
       frame-ancestors 'none';
       script-src 'unsafe-inline' 'self';
       style-src 'unsafe-inline' 'self';
@@ -43,7 +43,6 @@
       base-uri 'self';
       upgrade-insecure-requests;
       '''
-    Clear-Site-Data = "*"
     Accept = "*/*"
 
 [[headers]]

@@ -43,7 +43,7 @@
       base-uri 'self';
       upgrade-insecure-requests;
       '''
-    Clear-Site-Data = "'storage'"
+    Clear-Site-Data = '''"storage", "cache"'''
     Accept = "*/*"
 
 [[headers]]

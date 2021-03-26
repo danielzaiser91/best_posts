@@ -41,10 +41,10 @@
       child-src 'self';
       form-action 'none';
       base-uri 'self';
-      trusted-types angular;
-      require-trusted-types-for 'script';
+      upgrade-insecure-requests;
       '''
-    Clear-Site-Data = "'storage', 'cache'"
+    Clear-Site-Data = "*"
+    Accept = "*/*"
 
 [[headers]]
   for = "/assets/*"

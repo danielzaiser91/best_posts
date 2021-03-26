@@ -30,13 +30,15 @@
       default-src 'none';
       frame-ancestors 'none';
       script-src 'unsafe-inline';
-      style-src: 'self';
-      img-src: https:;
-      connect-src: https:;
-      font-src: 'self';
-      object-src: 'none';
-      media-src: https:;
+      style-src 'self';
+      img-src https:;
+      connect-src https:;
+      font-src 'self';
+      object-src 'none';
+      media-src https:;
       sandbox;
-      child-src: 'self';
+      child-src 'self';
       form-action: 'none';
+      base-uri 'self';
       '''
+

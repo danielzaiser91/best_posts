@@ -20,9 +20,14 @@
       must-revalidate'''
     Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
     X-Robots-Tag = "all"
-    X-Frame-Options = "SAMEORIGIN"
+    X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = '''
+      default-src https:;
+      frame-ancestors 'none';
+      script-src 'self';
+      '''

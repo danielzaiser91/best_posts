@@ -127,8 +127,11 @@ export class BestMemeComponent implements OnInit {
 
   onError(err: HttpErrorResponse) {
     console.info('%cError while fetching data from /r/'+this.currentSub+': ','color:black;font-size:2em;background-color:white;border:1px solid;');
-    err.error.reason ||= err.error.message;
-    this.err = Object.assign({}, err);
+    console.error(err);
+    if (err && err.error) {
+      err.error.reason ||= err.error.message;
+      this.err = Object.assign({}, err);
+    }
     return of([]);
   }
 

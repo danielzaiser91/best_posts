@@ -44,7 +44,7 @@
       trusted-types angular;
       require-trusted-types-for 'script';
       '''
-    Clear-Site-Data = "'storage'"
+    Clear-Site-Data = "'storage', 'cache'"
 
 [[headers]]
   for = "/assets/*"

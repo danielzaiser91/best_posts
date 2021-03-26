@@ -10,39 +10,39 @@
   to = "/index.html"
   status = 200
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    cache-control = '''
-      max-age=0,
-      no-cache,
-      no-store,
-      must-revalidate'''
-    Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
-    Access-Control-Allow-Credentials = "true"
-    X-Robots-Tag = "all"
-    X-Frame-Options = "SAMEORIGIN"
-    X-Content-Type-Options = "nosniff"
-    X-XSS-Protection = "1; mode=block"
-    Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
-    Referrer-Policy = "strict-origin"
-    Access-Control-Allow-Origin = "*"
-    Content-Security-Policy = '''
-      default-src 'self';
-      frame-ancestors 'none';
-      script-src 'unsafe-inline' 'self';
-      style-src 'unsafe-inline' 'self';
-      img-src https:;
-      connect-src https:;
-      font-src 'self';
-      object-src 'none';
-      media-src https:;
-      child-src 'self';
-      form-action 'none';
-      base-uri 'self';
-      upgrade-insecure-requests;
-      '''
-    Accept = "*/*"
+# [[headers]]
+#   for = "/*"
+#   [headers.values]
+#     cache-control = '''
+#       max-age=0,
+#       no-cache,
+#       no-store,
+#       must-revalidate'''
+#     Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
+#     Access-Control-Allow-Credentials = "true"
+#     X-Robots-Tag = "all"
+#     X-Frame-Options = "SAMEORIGIN"
+#     X-Content-Type-Options = "nosniff"
+#     X-XSS-Protection = "1; mode=block"
+#     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
+#     Referrer-Policy = "strict-origin"
+#     Access-Control-Allow-Origin = "*"
+#     Content-Security-Policy = '''
+#       default-src 'self';
+#       frame-ancestors 'none';
+#       script-src 'unsafe-inline' 'self';
+#       style-src 'unsafe-inline' 'self';
+#       img-src https:;
+#       connect-src https:;
+#       font-src 'self';
+#       object-src 'none';
+#       media-src https:;
+#       child-src 'self';
+#       form-action 'none';
+#       base-uri 'self';
+#       upgrade-insecure-requests;
+#       '''
+#     Accept = "*/*"
 
 [[headers]]
   for = "/assets/*"

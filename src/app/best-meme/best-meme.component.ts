@@ -121,7 +121,6 @@ export class BestMemeComponent implements OnInit {
       if (method === 'silentCaching') return;
       if (method === 'fill') this.posts = data;
       else if (method === 'append') this.posts = this.posts.concat(data);
-      console.log(this.err);
       this.loading = false;
     }});
   }

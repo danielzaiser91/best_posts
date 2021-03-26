@@ -19,6 +19,7 @@
       no-store,
       must-revalidate'''
     Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
+    Access-Control-Allow-Credentials = "true"
     X-Robots-Tag = "all"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
@@ -40,6 +41,19 @@
       child-src 'self';
       form-action 'none';
       base-uri 'self';
+      trusted-types angular;
+      require-trusted-types-for 'script';
       '''
     Clear-Site-Data = "'storage'"
 
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=360000"
+
+[[headers]]
+  for = "/"
+  [headers.values]
+    Link = '''
+    </*.js.css>; rel=preload; as=script, \
+    </styles*.css>; rel=preload; as=style'''

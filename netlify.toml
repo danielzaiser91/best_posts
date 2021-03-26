@@ -27,6 +27,22 @@
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
+    Content-Security-Policy = '''
+      default-src 'none';
+      frame-ancestors 'none';
+      script-src 'unsafe-inline' 'self';
+      style-src 'unsafe-inline' 'self';
+      img-src https:;
+      connect-src https:;
+      font-src 'self';
+      object-src 'none';
+      media-src https:;
+      sandbox allow-scripts allow-same-origin;
+      child-src 'self';
+      form-action 'none';
+      base-uri 'self';
+      upgrade-insecure-requests;
+      '''
     Clear-Site-Data = "*"
     Accept = "*/*"
 

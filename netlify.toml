@@ -50,10 +50,3 @@
   for = "/assets/*"
   [headers.values]
     Cache-Control = "public, max-age=360000"
-
-[[headers]]
-  for = "/"
-  [headers.values]
-    Link = '''
-    </*.js.css>; rel=preload; as=script, \
-    </styles*.css>; rel=preload; as=style'''

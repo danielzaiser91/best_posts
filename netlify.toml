@@ -29,7 +29,7 @@
     Content-Security-Policy = '''
       default-src 'none';
       frame-ancestors 'none';
-      script-src 'unsafe-inline';
+      script-src 'unsafe-inline' 'self';
       style-src 'self';
       img-src https:;
       connect-src https:;

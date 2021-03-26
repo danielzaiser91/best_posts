@@ -41,4 +41,5 @@
       form-action 'none';
       base-uri 'self';
       '''
+      Clear-Site-Data = "storage"
 

@@ -37,7 +37,6 @@
       font-src 'self';
       object-src 'none';
       media-src https:;
-      sandbox allow-scripts allow-same-origin;
       child-src 'self';
       form-action 'none';
       base-uri 'self';

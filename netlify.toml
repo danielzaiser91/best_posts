@@ -27,7 +27,16 @@
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
     Content-Security-Policy = '''
-      default-src https:;
+      default-src 'none';
       frame-ancestors 'none';
-      script-src 'self';
+      script-src 'unsafe-inline';
+      style-src: 'self';
+      img-src: https:;
+      connect-src: https:;
+      font-src: 'self';
+      object-src: 'none';
+      media-src: https:;
+      sandbox;
+      child-src: 'self';
+      form-action: 'none';
       '''

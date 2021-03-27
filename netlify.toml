@@ -42,7 +42,6 @@
       base-uri 'self';
       upgrade-insecure-requests;
       '''
-    Clear-Site-Data = '''"*"'''
     Accept = "*/*"
 
 [[headers]]

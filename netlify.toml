@@ -21,13 +21,29 @@
     Feature-Policy = "camera 'none'; geolocation 'none'; microphone 'none'"
     Access-Control-Allow-Credentials = "true"
     X-Robots-Tag = "all"
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
     X-XSS-Protection = "1; mode=block"
     Strict-Transport-Security = "max-age=63072000; includeSubDomains; preload"
     Referrer-Policy = "strict-origin"
     Access-Control-Allow-Origin = "*"
     Content-Security-Policy = '''
-      default-src '*';
+      default-src 'none';
+      frame-ancestors 'none';
+      script-src 'unsafe-inline' 'self';
+      style-src 'unsafe-inline' 'self' https://fonts.googleapis.com;
+      img-src https:;
+      connect-src https:;
+      font-src 'self' https://fonts.gstatic.com;
+      object-src 'none';
+      media-src https:;
+      child-src 'self';
+      form-action 'none';
+      base-uri 'self';
+      upgrade-insecure-requests;
       '''
+    Clear-Site-Data = '''"*"'''
+    Accept = "*/*"
 
 [[headers]]
   for = "/assets/*"

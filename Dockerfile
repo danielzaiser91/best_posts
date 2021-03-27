@@ -1,6 +1,6 @@
 # Stage 1 - build
 FROM node:12 as build
-WORKDIR /usr/src
+WORKDIR /usr/src/app
 COPY . .
 
 RUN yarn install

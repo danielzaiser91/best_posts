@@ -17,5 +17,4 @@ export class CommentSectionComponent implements OnInit {
   showComments(el: HTMLDivElement) {
     el.parentElement!.classList.toggle('show-children');
   }
-  noComments() { console.log(this.comments); }
 }

@@ -13,7 +13,7 @@ class RedditDatabase extends Dexie {
 
   public constructor() {
     super("redditData");
-    this.version(1).stores({
+    this.version(2).stores({
       comments: 'permalink, [subreddit+post_id]',
       apiCache: 'key'
     });

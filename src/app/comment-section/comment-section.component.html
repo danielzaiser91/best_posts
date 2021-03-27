@@ -2,7 +2,7 @@
   <ng-container *ngFor="let comment of comments; index as i">
     <ng-container *ngTemplateOutlet="commentTemplate; context: { comment: comment, i: i }"></ng-container>
   </ng-container>
-  <span (click)="noComments()" *ngIf="!comments.length">keine Kommentare gefunden...</span>
+  <span *ngIf="!comments.length">keine Kommentare gefunden...</span>
 </div>
 
 

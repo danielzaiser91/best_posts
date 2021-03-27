@@ -81,7 +81,7 @@ export class RedditAPIService {
     this.gatherData(result, { sub, options, count: 0 })
     return result;
   }
-  // https://www.reddit.com/r/popular/?geo_filter=DE&sort=hot&t=day
+
   gatherData(res: Subject<RedditPost[]>, opt: CustomOptions) {
     const options = {...this.store.userOptions, ...opt.options};
     let { sub, data, count } = opt;
@@ -114,39 +114,16 @@ export class RedditAPIService {
   }
 
   getComments(subreddit: string, id: string): Observable<RedditComment[]> {
-    // https://www.reddit.com/dev/api#GET_comments_{article}
-    const options = { params: {
-      raw_json: '1',
-      depth: '4',
-      sort: 'top'
-    }}
+    const options = { params: { raw_json: '1', depth: '4', sort: 'top' }}
     return this.http.get(base + 'r/' + subreddit + '/comments/' + id + '/.json', options).pipe(
       map((v:any)=> v[1].data),
       map(comment_array)
     );
   }
 
-  // getSubreddit(subreddit: string): Observable<Subreddit> {
-  //   return this.http.get(base + 'r/' + subreddit + '/about.json').pipe(
-  //     map(single_sub)
-  //   );
-  // }
-
   getPopularSubreddits(): Observable<Subreddit[]> {
     return this.http.get('https://api.reddit.com/subreddits/popular.json?limit=100').pipe(
       map(subreddit_array)
     )
   }
-
-  // getAllSubreddits(arrOfAfterIds: string[]): Observable<Subreddit[]> {
-  //   let options = {}
-  //   const myRequests = arrOfAfterIds.map((v:string)=>{
-  //     options = { params: { show: 'all', limit: '100', after: v, count: "100" } }
-  //     if (v === '') options = { params: { show: 'all', limit: '100' } }
-  //     return this.http.get('https://api.reddit.com/subreddits/.json', options).pipe(
-  //       map(subreddit_array)
-  //     )
-  //   });
-  //   return forkJoin(myRequests).pipe(mergeMap(v=>v));
-  // }
 }

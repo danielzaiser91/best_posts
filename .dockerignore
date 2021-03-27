@@ -5,3 +5,4 @@
 !package.json
 !tsconfig*
 !yarn.lock
+!config

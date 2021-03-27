@@ -53,7 +53,7 @@
                 }
               ],
               "customWebpackConfig": {
-                "path": "./config/webpack.config.prod.ts",
+                "path": "config/webpack.config.prod.ts",
                 "mergeRules": {
                   "externals": "replace"
                 }

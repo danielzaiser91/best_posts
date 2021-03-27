@@ -20,7 +20,7 @@ import { ExperimentalGalleryComponent } from './experimental-gallery/experimenta
 import { MediaWrapperComponent } from './media-wrapper/media-wrapper.component';
 import { ImageComponent } from './media-wrapper/image/image.component';
 import { MediaDirective } from './media-wrapper/media.directive';
-import { ControlsComponent } from './controls/controls.component';
+import { ControlsComponent } from './experimental-gallery/controls/controls.component';
 import { VideoComponent } from './media-wrapper/video/video.component';
 import { IframeComponent } from './media-wrapper/iframe/iframe.component';
 import { TextComponent } from './media-wrapper/text/text.component';

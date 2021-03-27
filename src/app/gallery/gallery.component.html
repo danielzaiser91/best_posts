@@ -17,14 +17,14 @@
         <div class="score ctrl-btn">{{ post.score.onThis | shortNumber }}</div>
         <button class="enlarge-btn ctrl-btn" (click)="li.classList.toggle('enlarge')">
           <span class="minus">
-            <svg-icon src="/assets/images/minus.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+            <svg-icon src="/assets/images/minus.svg" [svgStyle]="{ 'width.px':32, 'height.px':32 }"></svg-icon>
           </span>
           <span class="plus">
-            <svg-icon src="/assets/images/plus.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+            <svg-icon src="/assets/images/plus.svg" [svgStyle]="{ 'width.px':32, 'height.px':32 }"></svg-icon>
           </span>
         </button>
         <a class="open-link ctrl-btn" [href]="post.thread_url.thread" target="_blank">
-          <svg-icon src="/assets/images/reddit.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+          <svg-icon src="/assets/images/reddit.svg" [svgStyle]="{ 'width.px':32, 'height.px':32 }"></svg-icon>
         </a>
         <button class="share-btn ctrl-btn icon-wrapper" (click)="share(post)">
           <img class="img-icon" src="/assets/images/share.png" alt="share-button">
@@ -34,7 +34,7 @@
         <div class="loadMore btn" (click)="loadMore()">load more...</div>
         <div class="pager">{{ (p_i+1)+'/'+(posts.length) }}</div>
         <div class="exit ctrl-btn">
-          <svg-icon src="/assets/images/cross.svg" [svgStyle]="{ 'width.px':32 }"></svg-icon>
+          <svg-icon src="/assets/images/cross.svg" [svgStyle]="{ 'width.px':32, 'height.px':32 }"></svg-icon>
         </div>
       </div>
     </div>
